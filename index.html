@@ -411,8 +411,27 @@ function showApp(user){
   if(user.photoURL){wrap.innerHTML=`<img class="header-avatar" src="${user.photoURL}" referrerpolicy="no-referrer" onclick="openUserModal()" alt="">`;}
   else{const initials=(user.displayName||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();wrap.innerHTML=`<div class="header-avatar-placeholder" onclick="openUserModal()">${initials}</div>`;}
   updateMonthLabels();renderDashboard();initLog();
-  const pending=getPendingRecurring();if(pending.length>0)showToast(pending.length+' recurrente(s) pendiente(s)');
+  autoApplyRecurring();
   if(!localStorage.getItem('bl_onboarded')){setTimeout(()=>showOnboard(),800);}
+}
+function autoApplyRecurring(){
+  const now=new Date();
+  const realMk=monthKey(now.getFullYear(),now.getMonth());
+  const pending=recurring.filter(r=>r.lastApplied!==realMk);
+  if(!pending.length)return;
+  const y=now.getFullYear();
+  const m=now.getMonth()+1;
+  let count=0;
+  pending.forEach(r=>{
+    const day=Math.min(r.day,new Date(y,m,0).getDate());
+    const date=y+'-'+String(m).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    entries.unshift({id:Date.now().toString()+Math.random(),type:r.type,amount:r.amount,description:r.description,category:r.category,date});
+    r.lastApplied=realMk;
+    count++;
+  });
+  save();
+  renderDashboard();
+  if(count>0)showToast(count+' recurrente(s) aplicada(s) automaticamente ✔');
 }
 async function signOut(){closeUserModal();await auth.signOut();entries=[];goals={...DEFAULT_GOALS};recurring=[];showToast('Sesion cerrada');}
 async function loadFromFirestore(){
