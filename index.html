@@ -530,7 +530,7 @@ function save(){
   clearTimeout(syncTimeout);setSyncState('syncing');syncTimeout=setTimeout(()=>persistToFirestore(),800);
 }
 function setSyncState(state){const dot=document.getElementById('syncDot');if(!dot)return;dot.className='sync-indicator'+(state==='syncing'?' syncing':state==='error'?' error':'');dot.title=state==='syncing'?'Sincronizando...':state==='error'?'Error':'Sincronizado';}
-function openUserModal(){if(!currentUser)return;document.getElementById('modalAvatar').src=currentUser.photoURL||'';document.getElementById('modalAvatar').style.display=currentUser.photoURL?'block':'none';document.getElementById('modalName').textContent=currentUser.displayName||'';document.getElementById('modalEmail').textContent=currentUser.email||'';document.getElementById('userModal').classList.add('open');}
+function openUserModal(){if(!currentUser)return;document.getElementById('modalAvatar').src=currentUser.photoURL||'';document.getElementById('modalAvatar').style.display=currentUser.photoURL?'block':'none';document.getElementById('modalName').textContent=currentUser.displayName||'';document.getElementById('modalEmail').textContent=currentUser.email||'';document.getElementById('userModal').classList.add('open');updateNotifBtn();}
 function closeUserModal(){document.getElementById('userModal').classList.remove('open');}
 function showView(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelectorAll('.nav-btn')[['dashboard','log','entries','recurring','goals','charts'].indexOf(v)].classList.add('active');if(v==='dashboard'){renderDashboard();renderSavingsGoals();renderForecast();}if(v==='entries')renderEntries();if(v==='goals')renderGoals();if(v==='log')initLog();if(v==='recurring')renderRecurring();if(v==='charts')renderCharts();}
 function changeMonth(d){viewMonth+=d;if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;}renderDashboard();renderEntries();updateMonthLabels();}
@@ -655,7 +655,7 @@ const VAPID_KEY='BKKSle6PBt_lENMuYxTZncvoPNWKw2V43CgfNwOsOh1wZtUKOtyjmwUHJ2LSohA
 let messaging=null;try{messaging=firebase.messaging();}catch(e){console.log('FCM:',e.message);}
 function updateNotifBtn(){const btn=document.getElementById('notifBtn');if(!btn)return;const t=localStorage.getItem('bl_fcm_token');btn.textContent=t?'\u2714 Notificaciones activas':'Activar notificaciones';btn.className=t?'notif-btn on':'notif-btn';}
 async function toggleNotifications(){if(!messaging){showToast('No disponible en este navegador');return;}const existing=localStorage.getItem('bl_fcm_token');if(existing){localStorage.removeItem('bl_fcm_token');if(userDocRef)await userDocRef.update({fcmToken:firebase.firestore.FieldValue.delete()});updateNotifBtn();showToast('Notificaciones desactivadas');return;}try{const perm=await Notification.requestPermission();if(perm!=='granted'){showToast('Permiso denegado');return;}await navigator.serviceWorker.register('/Budget-Tracker/firebase-messaging-sw.js');const token=await messaging.getToken({vapidKey:VAPID_KEY});localStorage.setItem('bl_fcm_token',token);if(userDocRef)await userDocRef.update({fcmToken:token});updateNotifBtn();showToast('Notificaciones activadas \u2714');}catch(err){console.error('FCM:',err);showToast('Error activando notificaciones');}}
-const _oum=openUserModal;function openUserModal(){_oum();updateNotifBtn();}
+
 </script>
 </body>
 </html>
