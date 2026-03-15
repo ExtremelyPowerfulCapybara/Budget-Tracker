@@ -1,6 +1,6 @@
 import base64, re, os, sys
 
-REPO = r"D:\Librerías\Documentos\GitHub\Budget-Tracker"
+REPO = os.path.dirname(os.path.abspath(__file__))
 
 # ── 1. Copy icon files ──────────────────────────────────────────────────────
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,7 +12,6 @@ for src, name in [(src_512, "icon-512.png"), (src_192, "icon-192.png")]:
     if not os.path.exists(src):
         print(f"ERROR: {src} not found. Put both icon files next to this script.")
         sys.exit(1)
-    # Read source as binary and write directly (avoids file-lock issues)
     with open(src, "rb") as f:
         data = f.read()
     with open(dst, "wb") as f:
