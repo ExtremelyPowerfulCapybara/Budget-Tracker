@@ -747,6 +747,11 @@ footer {
 </footer>
 
 <script>
+// If opened as installed PWA (standalone), go straight to the app
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+  window.location.replace('/app.html');
+}
+
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) e.target.classList.add('visible');

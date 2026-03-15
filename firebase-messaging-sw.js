@@ -1,3 +1,12 @@
+// Redirect root to app when launched as PWA
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  if (url.pathname === '/' && event.request.mode === 'navigate') {
+    event.respondWith(Response.redirect('/app.html', 302));
+    return;
+  }
+});
+
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
@@ -16,7 +25,7 @@ messaging.onBackgroundMessage(payload => {
   const { title, body } = payload.notification;
   self.registration.showNotification(title, {
     body,
-    icon: '/Budget-Tracker/icon-192.png',
-    badge: '/Budget-Tracker/icon-192.png'
+    icon: '/icon-192.png',
+    badge: '/icon-192.png'
   });
 });
