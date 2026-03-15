@@ -2,7 +2,7 @@
   "name": "BudgetLog",
   "short_name": "BudgetLog",
   "description": "Personal budget tracker — log expenses, set goals, sync to cloud.",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0e0f13",
