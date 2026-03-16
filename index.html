@@ -469,13 +469,15 @@
 <script src="js/features/dashboard.js"></script>
 <script src="js/features/export.js"></script>
 <script src="js/features/entries.js"></script>
+<script src="js/features/app-shell.js"></script>
 <script src="js/features/selection-ui.js"></script>
 <script src="js/features/category-customization.js"></script>
 <script src="js/features/recurring.js"></script>
 <script src="js/features/savings-goals.js"></script>
 <script>
+// Modules
 const {config,utils,selectors,storage,cloud}=window.BudgetLogCore;
-const {charting,dashboardFeature,exporting,entriesFeature,selectionUi,categoryCustomization,recurringFeature,savingsGoalsFeature}=window.BudgetLogFeatures;
+const {charting,dashboardFeature,exporting,entriesFeature,appShell,selectionUi,categoryCustomization,recurringFeature,savingsGoalsFeature}=window.BudgetLogFeatures;
 const {firebaseConfig,CATEGORIES,FREQUENCIES,DEFAULT_GOALS,MONTH_NAMES,CAT_COLORS,PALETTE,SG_COLORS}=config;
 const {MXN,sumAmounts,pad2,toISODate,parseISODate,addDays,datesEqualOrBefore,daysInMonth,monthKey,entryMonth,compareMonthRefs}=utils;
 const {getMonthEntriesByKey:getMonthEntriesByKeyFromState,getMonthTotals:getMonthTotalsFromState,sanitizeRecurringRule:getSanitizedRecurringRule,getRecurringOccurrenceDates:getRecurringOccurrenceDatesFromRule,getPendingRecurringDates:getPendingRecurringDatesFromState,getApplyCutoffForMonth:getApplyCutoffForMonthFromDate,applyRecurringForMonth:applyRecurringForMonthFromState,getForecastTotals:getForecastTotalsFromState,getGoalSavedAmount:getGoalSavedAmountFromState,getUnassignedSavingsAmount:getUnassignedSavingsAmountFromState}=selectors;
@@ -485,6 +487,7 @@ const {destroyChart:destroyFeatureChart,getLastMonths,buildCategorySelectorMarku
 const {renderInsightMarkup,renderCategoryBarsMarkup,renderRecentEntriesMarkup,renderForecastMarkup}=dashboardFeature;
 const {exportBudgetData}=exporting;
 const {buildEntryFilters,renderEntryMarkup,filterEntries:filterEntriesFeature,renderEntriesListMarkup}=entriesFeature;
+const {showAuthScreen,showAppShell,renderHeaderAvatar,populateUserModal,openModal:openShellModal,closeModal:closeShellModal,renderOnboardDots,showOnboardingStep,applyTheme,renderNotificationButton}=appShell;
 const {renderCategoryGridMarkup,renderFrequencyGridMarkup}=selectionUi;
 const {cloneCategoryDraft,renderCategoryCustomListMarkup,renderColorPickerMarkup}=categoryCustomization;
 const {renderRecurringListMarkup,buildPendingRecurring}=recurringFeature;
@@ -492,12 +495,16 @@ const {renderSavingsGoalsMarkup,renderSavingsColorGridMarkup,prepareSavingsModal
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
+
+// App state
 let currentUser=null,userDocRef=null;
 let {entries,goals,recurring,savingsGoals,customCategories}=createEmptyState(DEFAULT_GOALS);
 let currentType='expense',currentCat='food',recurType='expense',recurCat='food';
 let recurFreq='monthly',editCat='food',editId=null,activeFilter='all';
 let syncTimeout=null;
 const now=new Date();let viewYear=now.getFullYear(),viewMonth=now.getMonth();
+
+// State and shared wrappers
 function getStateSnapshot(){return {entries,goals,recurring,savingsGoals,customCategories};}
 function applyState(nextState){
   ({entries,goals,recurring,savingsGoals,customCategories}=normalizeState(nextState,{defaultGoals:DEFAULT_GOALS,sanitizeRecurringRule}));
@@ -536,6 +543,8 @@ function toggleSavingsGoalField(type,category,fieldId,selectId,selectedId){
 }
 function getGoalSavedAmount(goalId){return getGoalSavedAmountFromState(entries,savingsGoals,goalId);}
 function getUnassignedSavingsAmount(){return getUnassignedSavingsAmountFromState(entries,savingsGoals);}
+
+// Static DOM events
 function bindStaticEvents(){
   document.querySelectorAll('.nav-btn[data-view]').forEach(btn=>{
     btn.addEventListener('click',()=>showView(btn.dataset.view));
@@ -609,6 +618,8 @@ function bindStaticEvents(){
     if(button)deleteRecurring(button.dataset.recurringDelete);
   });
 }
+
+// Static copy normalization
 function normalizeStaticCopy(){
   const dashboardTitles=document.querySelectorAll('#view-dashboard .section-title');
   if(dashboardTitles[0])dashboardTitles[0].textContent='Desglose por categoría';
@@ -651,6 +662,8 @@ function normalizeStaticCopy(){
   const onboardNextBtn=document.getElementById('onboardNextBtn');
   if(onboardNextBtn)onboardNextBtn.textContent='Siguiente →';
 }
+
+// Auth bootstrap
 auth.onAuthStateChanged(async user=>{
   if(user){currentUser=user;userDocRef=createUserDocRef(db,user);await loadFromFirestore();showApp(user);}
   else{currentUser=null;userDocRef=null;showAuth();}
@@ -660,12 +673,12 @@ document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
 });
 bindStaticEvents();
 normalizeStaticCopy();
-function showAuth(){document.getElementById('loadingScreen').style.display='none';document.getElementById('authScreen').style.display='flex';document.getElementById('appShell').style.display='none';}
+
+// App shell
+function showAuth(){showAuthScreen();}
 function showApp(user){
-  document.getElementById('loadingScreen').style.display='none';document.getElementById('authScreen').style.display='none';document.getElementById('appShell').style.display='block';
-  const wrap=document.getElementById('avatarWrap');
-  if(user.photoURL){wrap.innerHTML=`<img class="header-avatar" src="${user.photoURL}" referrerpolicy="no-referrer" alt="">`;}
-  else{const initials=(user.displayName||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();wrap.innerHTML=`<div class="header-avatar-placeholder">${initials}</div>`;}
+  showAppShell();
+  renderHeaderAvatar(user);
   updateMonthLabels();renderDashboard();initLog();
   autoApplyRecurring();
   if(!localStorage.getItem('bl_onboarded')){setTimeout(()=>showOnboard(),800);}
@@ -707,13 +720,17 @@ function save(){
   clearTimeout(syncTimeout);setSyncState('syncing');syncTimeout=setTimeout(()=>persistToFirestore(),800);
 }
 function setSyncState(state){setSyncIndicator(document.getElementById('syncDot'),state);}
-function openUserModal(){if(!currentUser)return;document.getElementById('modalAvatar').src=currentUser.photoURL||'';document.getElementById('modalAvatar').style.display=currentUser.photoURL?'block':'none';document.getElementById('modalName').textContent=currentUser.displayName||'';document.getElementById('modalEmail').textContent=currentUser.email||'';document.getElementById('userModal').classList.add('open');updateNotifBtn();}
-function closeUserModal(){document.getElementById('userModal').classList.remove('open');}
+function openUserModal(){if(!currentUser)return;populateUserModal(currentUser);openShellModal('userModal');updateNotifBtn();}
+function closeUserModal(){closeShellModal('userModal');}
+
+// Navigation and dashboard
 function showView(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelectorAll('.nav-btn')[['dashboard','log','entries','recurring','goals','charts'].indexOf(v)].classList.add('active');if(v==='dashboard'){renderDashboard();renderSavingsGoals();renderForecast();}if(v==='entries')renderEntries();if(v==='goals')renderGoals();if(v==='log')initLog();if(v==='recurring')renderRecurring();if(v==='charts')renderCharts();}
 function changeMonth(d){viewMonth+=d;if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;}renderDashboard();renderEntries();updateMonthLabels();}
 function updateMonthLabels(){const label=MONTH_NAMES[viewMonth]+' '+viewYear;document.getElementById('dashMonth').textContent=label;document.getElementById('entriesMonth').textContent=label;document.getElementById('headerMonth').textContent=label;}
 function renderInsightCard(mes,prevMes){document.getElementById('insightCard').innerHTML=renderInsightMarkup({monthEntries:mes,previousMonthEntries:prevMes,categories:CATEGORIES,formatMoney:MXN});}
 function renderDashboard(){updateMonthLabels();const mk=monthKey(viewYear,viewMonth);const prevMk=viewMonth===0?monthKey(viewYear-1,11):monthKey(viewYear,viewMonth-1);const {monthEntries:mes,income:ti,expense:te,net}=getMonthTotals(mk);const prevMes=getMonthEntriesByKey(prevMk);document.getElementById('totalIncome').textContent=MXN(ti);document.getElementById('totalExpenses').textContent=MXN(te);const netEl=document.getElementById('netAmount');netEl.textContent=(net<0?'-':'')+MXN(net);netEl.className='net-amount '+(net>=0?'positive':'negative');renderInsightCard(mes,prevMes);document.getElementById('categoryBars').innerHTML=renderCategoryBarsMarkup({monthEntries:mes,categories:CATEGORIES,goals,formatMoney:MXN});document.getElementById('recentEntries').innerHTML=renderRecentEntriesMarkup({monthEntries:mes,renderEntry:entryHTML});renderSavingsGoals();renderForecast();}
+
+// Entries
 function entryHTML(e){return renderEntryMarkup(e,{categories:CATEGORIES,savingsGoals,formatMoney:MXN});}
 function renderEntries(){updateMonthLabels();const mk=monthKey(viewYear,viewMonth);const searchQ=(document.getElementById('entrySearch')?.value||'').toLowerCase().trim();const monthEntries=entries.filter(e=>entryMonth(e)===mk);document.getElementById('filterRow').innerHTML=buildEntryFilters(CATEGORIES,activeFilter);const filtered=filterEntriesFeature(monthEntries,{activeFilter,searchQuery:searchQ,categories:CATEGORIES,formatMoney:MXN});document.getElementById('entriesList').innerHTML=renderEntriesListMarkup(filtered,entryHTML);}
 function setFilter(f){activeFilter=f;renderEntries();}
@@ -724,6 +741,8 @@ function setCat(id){currentCat=id;renderCatGrid('catGrid',currentCat,false);togg
 function logEntry(){const amount=parseFloat(document.getElementById('logAmount').value);const desc=document.getElementById('logDesc').value.trim();const date=document.getElementById('logDate').value;const goalId=document.getElementById('logGoalId').value||null;if(!amount||amount<=0){showToast('Ingresa un monto v\u00e1lido');return;}if(!desc){showToast('Agrega una descripci\u00f3n');return;}if(!date){showToast('Elige una fecha');return;}entries.unshift({id:Date.now().toString(),type:currentType,amount,description:desc,category:currentType==='expense'?currentCat:'income',date,goalId:currentType==='expense'&&currentCat==='savings'?goalId:null});save();if(navigator.vibrate)navigator.vibrate([10,30,10]);showToast('Movimiento registrado');initLog();renderDashboard();}
 function renderGoals(){const mk=monthKey(viewYear,viewMonth);const mes=getMonthEntriesByKey(mk);const ia=sumAmounts(mes.filter(e=>e.type==='income'));const allCats=[{id:'income',label:'Ingresos',color:'#3dd68c'},...CATEGORIES];document.getElementById('goalsList').innerHTML=allCats.map(c=>{const actual=c.id==='income'?ia:sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===c.id));return'<div class="goal-card"><div class="goal-dot" style="background:'+c.color+'"></div><div class="goal-info"><div class="goal-name">'+c.label+'</div><div class="goal-current">Actual: '+MXN(actual)+'</div></div><div class="goal-input-wrap"><span class="goal-prefix">$</span><input class="goal-input" type="number" id="goal_'+c.id+'" value="'+(goals[c.id]||0)+'" step="100" min="0"></div></div>';}).join('');}
 function saveGoals(){[{id:'income'},...CATEGORIES].forEach(c=>{goals[c.id]=parseFloat(document.getElementById('goal_'+c.id).value)||0;});save();showToast('Metas guardadas');}
+
+// Recurring
 function setRecurType(t){recurType=t;document.getElementById('recurTypeExpense').classList.toggle('active',t==='expense');document.getElementById('recurTypeIncome').classList.toggle('active',t==='income');document.getElementById('recurCatGroup').style.display=t==='expense'?'block':'none';toggleSavingsGoalField(recurType,recurCat,'recurGoalGroup','recurGoalId',document.getElementById('recurGoalId').value);}
 function renderRecurCatGrid(){document.getElementById('recurCatGrid').innerHTML=renderCategoryGridMarkup({categories:CATEGORIES,selectedId:recurCat,action:'recur-category'});}
 function setRecurCat(id){recurCat=id;renderRecurCatGrid();toggleSavingsGoalField(recurType,recurCat,'recurGoalGroup','recurGoalId',document.getElementById('recurGoalId').value);}
@@ -734,6 +753,8 @@ function deleteRecurring(id){recurring=recurring.filter(r=>r.id!==id);save();ren
 function renderRecurring(){renderRecurCatGrid();renderFreqGrid();document.getElementById('recurCatGroup').style.display=recurType==='expense'?'block':'none';if(!document.getElementById('recurStartDate').value){document.getElementById('recurStartDate').value=toISODate(new Date());}toggleSavingsGoalField(recurType,recurCat,'recurGoalGroup','recurGoalId',document.getElementById('recurGoalId').value);const pending=getPendingRecurring();const banner=document.getElementById('recurApplyBanner');if(pending.length>0){banner.style.display='flex';document.getElementById('recurBannerText').textContent=pending.length+' movimiento(s) recurrente(s) pendiente(s)';}else{banner.style.display='none';}document.getElementById('recurList').innerHTML=renderRecurringListMarkup({recurring,sanitizeRecurringRule,categories:CATEGORIES,savingsGoals,formatMoney:MXN});}
 function getPendingRecurring(){const cutoff=getApplyCutoffForMonth(viewYear,viewMonth);if(cutoff==='')return [];return buildPendingRecurring(recurring.map(rule=>({id:rule.id,pendingDates:getPendingRecurringDates(sanitizeRecurringRule(rule),viewYear,viewMonth,cutoff)})));} 
 function applyRecurring(){const cutoff=getApplyCutoffForMonth(viewYear,viewMonth);if(cutoff===''){showToast('No puedes aplicar movimientos en meses futuros');return;}const count=applyRecurringForMonth(viewYear,viewMonth,cutoff);if(!count){showToast('No hay movimientos pendientes');return;}save();renderRecurring();renderDashboard();showToast(count+' movimiento(s) aplicado(s)');}
+
+// Entry editing
 function openEdit(id){const e=entries.find(x=>x.id===id);if(!e)return;editId=id;editCat=e.category;document.getElementById('editAmount').value=e.amount;document.getElementById('editDesc').value=e.description;document.getElementById('editDate').value=e.date;document.getElementById('editGoalId').value=e.goalId||'';document.getElementById('editCatGroup').style.display=e.type==='expense'?'block':'none';if(e.type==='expense')renderCatGrid('editCatGrid',editCat,true);toggleSavingsGoalField(e.type,editCat,'editGoalGroup','editGoalId',e.goalId||'');document.getElementById('editModal').classList.add('open');}
 function setEditCat(id){editCat=id;renderCatGrid('editCatGrid',editCat,true);const entry=entries.find(item=>item.id===editId);toggleSavingsGoalField(entry?entry.type:'expense',editCat,'editGoalGroup','editGoalId',document.getElementById('editGoalId').value);}
 function saveEdit(){const e=entries.find(x=>x.id===editId);if(!e)return;const amount=parseFloat(document.getElementById('editAmount').value);const desc=document.getElementById('editDesc').value.trim();const date=document.getElementById('editDate').value;const goalId=document.getElementById('editGoalId').value||null;if(!amount||!desc||!date){showToast('Llena todos los campos');return;}e.amount=amount;e.description=desc;e.date=date;if(e.type==='expense'){e.category=editCat;e.goalId=editCat==='savings'?goalId:null;}save();closeModal();renderDashboard();renderEntries();showToast('Movimiento actualizado');}
@@ -741,6 +762,7 @@ function closeModal(){document.getElementById('editModal').classList.remove('ope
 function deleteEntry(id){entries=entries.filter(e=>e.id!==id);save();renderDashboard();renderEntries();showToast('Movimiento eliminado');}
 let toastTimeout=null;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2200);}
+
 // Confirm delete
 let pendingDeleteId=null;
 function confirmDelete(id){
@@ -753,12 +775,14 @@ function confirmDelete(id){
   document.getElementById('confirmModal').classList.add('open');
 }
 function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');pendingDeleteId=null;}
+
 // Swipe to delete
 let swipeStartX=0,swipeStartY=0,swipeCurrent=0,swipeActive=false;
 const SWIPE_THRESHOLD=72;
 function swipeStart(e,el){swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY;swipeCurrent=0;swipeActive=true;el.querySelector('.entry-swipe-inner').style.transition='none';}
 function swipeMove(e,el){if(!swipeActive)return;const dx=e.touches[0].clientX-swipeStartX;const dy=Math.abs(e.touches[0].clientY-swipeStartY);if(dy>12&&Math.abs(dx)<dy){swipeActive=false;return;}if(dx>=0)return;e.preventDefault();swipeCurrent=dx;const clamp=Math.max(dx,-SWIPE_THRESHOLD-20);el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping',Math.abs(dx)>SWIPE_THRESHOLD*0.4);}
 function swipeEnd(e,el){if(!swipeActive)return;swipeActive=false;const inner=el.querySelector('.entry-swipe-inner');inner.style.transition='transform 0.2s ease';if(Math.abs(swipeCurrent)>=SWIPE_THRESHOLD){inner.style.transform='translateX(-100%)';const id=el.dataset.id;setTimeout(()=>{confirmDelete(id);inner.style.transform='';},180);}else{inner.style.transform='';el.classList.remove('swiping');}}
+
 // Export
 let exportScope='month';
 function setExportScope(s){exportScope=s;document.getElementById('scopeMonth').classList.toggle('active',s==='month');document.getElementById('scopeAll').classList.toggle('active',s==='all');}
@@ -784,12 +808,14 @@ function runExport(){
   closeExportModal();
   showToast('Descargando '+fname);
 }
+
 // Onboarding
 const ONBOARD_STEPS=5;let onboardCurrentStep=0;
-function initOnboard(){const dots=document.getElementById('onboardDots');dots.innerHTML=Array.from({length:ONBOARD_STEPS},(_,i)=>`<div class="onboard-dot${i===0?' active':''}"></div>`).join('');}
-function showOnboard(){onboardCurrentStep=0;initOnboard();document.querySelectorAll('.onboard-step').forEach((s,i)=>s.classList.toggle('active',i===0));document.getElementById('onboardNextBtn').textContent='Siguiente \u2192';document.getElementById('onboardOverlay').classList.add('open');}
-function onboardNext(){onboardCurrentStep++;if(onboardCurrentStep>=ONBOARD_STEPS){closeOnboard();return;}document.querySelectorAll('.onboard-step').forEach((s,i)=>s.classList.toggle('active',i===onboardCurrentStep));document.querySelectorAll('.onboard-dot').forEach((d,i)=>d.classList.toggle('active',i===onboardCurrentStep));document.getElementById('onboardNextBtn').textContent=onboardCurrentStep===ONBOARD_STEPS-1?'Empezar \uD83D\uDE80':'Siguiente \u2192';}
-function closeOnboard(){document.getElementById('onboardOverlay').classList.remove('open');localStorage.setItem('bl_onboarded','1');}
+function initOnboard(){document.getElementById('onboardDots').innerHTML=renderOnboardDots(ONBOARD_STEPS,0);}
+function showOnboard(){onboardCurrentStep=0;initOnboard();showOnboardingStep(0,ONBOARD_STEPS);openShellModal('onboardOverlay');}
+function onboardNext(){onboardCurrentStep++;if(onboardCurrentStep>=ONBOARD_STEPS){closeOnboard();return;}showOnboardingStep(onboardCurrentStep,ONBOARD_STEPS);}
+function closeOnboard(){closeShellModal('onboardOverlay');localStorage.setItem('bl_onboarded','1');}
+
 // Charts
 let activeChartTab='cats',chartCatSelected='food',chartInstances={};
 function switchChartTab(tab){activeChartTab=tab;document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.chart-panel').forEach(p=>p.classList.remove('active'));document.getElementById('ctab-'+tab).classList.add('active');document.getElementById('cpanel-'+tab).classList.add('active');renderActiveChart();}
@@ -804,6 +830,7 @@ function renderCatSelector(){document.getElementById('catSelector').innerHTML=bu
 function selectChartCat(id){chartCatSelected=id;renderCatSelector();renderCatLineChart();}
 function renderCatLineChart(){renderCategoryLineChart({Chart,instances:chartInstances,canvas:document.getElementById('catLineChart'),entries,entryMonth,viewYear,viewMonth,monthKey,monthNames:MONTH_NAMES,selectedCategoryId:chartCatSelected,catColors:CAT_COLORS,goals,categories:CATEGORIES});}
 function renderPieChart(){renderPieChartFeature({Chart,instances:chartInstances,canvas:document.getElementById('pieChart'),entries,entryMonth,viewYear,viewMonth,monthKey,categories:CATEGORIES,catColors:CAT_COLORS});}
+
 // ── Category customization ───────────────────────────────────────
 let catDraft={};let cpTargetId=null;
 function applyCustomCategories(){Object.entries(customCategories).forEach(([id,custom])=>{const cat=CATEGORIES.find(c=>c.id===id);if(!cat)return;if(custom.label)cat.label=custom.label;if(custom.color)cat.color=custom.color;});}
@@ -815,6 +842,7 @@ function pickColor(col){if(!cpTargetId)return;catDraft[cpTargetId].color=col;ren
 function closeColorPicker(){document.getElementById('colorPickerPop').classList.remove('open');cpTargetId=null;}
 function saveCatCustomize(){CATEGORIES.forEach(c=>{c.label=catDraft[c.id].label||c.label;c.color=catDraft[c.id].color;customCategories[c.id]={label:c.label,color:c.color};});save();closeCatCustomize();renderDashboard();renderEntries();renderGoals();showToast('Categor\u00edas actualizadas');}
 document.addEventListener('click',e=>{const pop=document.getElementById('colorPickerPop');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.classList.contains('cat-custom-dot')){closeColorPicker();}});
+
 // ── Savings goal tracker ─────────────────────────────────────────
 let sgEditId=null;let sgColorSelected=SG_COLORS[0];
 function renderSavingsGoals(){
@@ -837,16 +865,21 @@ function saveSavingsGoal(){const name=document.getElementById('sgName').value.tr
 function editSavingsGoal(id){openSavingsModal(id);}
 function deleteSavingsGoal(id){entries=entries.map(entry=>entry.goalId===id?{...entry,goalId:null}:entry);recurring=recurring.map(rule=>rule.goalId===id?{...rule,goalId:null}:rule);savingsGoals=savingsGoals.filter(s=>s.id!==id);save();renderSavingsGoals();renderRecurring();showToast('Meta eliminada');}
 function closeSavingsModal(){document.getElementById('savingsModal').classList.remove('open');sgEditId=null;}
+
 // Theme
-function initTheme(){const s=localStorage.getItem('bl_theme');if(s==='light'){document.body.classList.add('light');document.getElementById('themeToggle').textContent='\u263d';}else{document.getElementById('themeToggle').textContent='\u2600';}}
-function toggleTheme(){const l=document.body.classList.toggle('light');localStorage.setItem('bl_theme',l?'light':'dark');document.getElementById('themeToggle').textContent=l?'\u263d':'\u2600';}
+function initTheme(){applyTheme(localStorage.getItem('bl_theme')==='light'?'light':'dark');}
+function toggleTheme(){const nextTheme=document.body.classList.contains('light')?'dark':'light';localStorage.setItem('bl_theme',nextTheme);applyTheme(nextTheme);}
 initTheme();
+
+// Forecast
 // Cashflow forecast
 function renderForecast(){const el=document.getElementById('forecastCard');if(!el)return;el.innerHTML=renderForecastMarkup({viewYear,viewMonth,monthNames:MONTH_NAMES,getForecastTotals,formatMoney:MXN});}
+
+// Notifications
 // Push notifications
 const VAPID_KEY='BKKSle6PBt_lENMuYxTZncvoPNWKw2V43CgfNwOsOh1wZtUKOtyjmwUHJ2LSohAJeBcfe0weiWhxedCNmEtOPMs';
 let messaging=null;try{if('serviceWorker' in navigator && 'PushManager' in window){messaging=firebase.messaging();}}catch(e){console.log('FCM:',e.message);}
-function updateNotifBtn(){const btn=document.getElementById('notifBtn');if(!btn)return;const t=localStorage.getItem('bl_fcm_token');btn.textContent=t?'\u2714 Notificaciones activas':'Activar notificaciones';btn.className=t?'notif-btn on':'notif-btn';}
+function updateNotifBtn(){renderNotificationButton(!!localStorage.getItem('bl_fcm_token'));}
 async function toggleNotifications(){if(!messaging){showToast('No disponible en este navegador');return;}const existing=localStorage.getItem('bl_fcm_token');if(existing){localStorage.removeItem('bl_fcm_token');if(userDocRef)await userDocRef.update({fcmToken:firebase.firestore.FieldValue.delete()});updateNotifBtn();showToast('Notificaciones desactivadas');return;}try{const perm=await Notification.requestPermission();if(perm!=='granted'){showToast('Permiso denegado');return;}await navigator.serviceWorker.register('firebase-messaging-sw.js');const token=await messaging.getToken({vapidKey:VAPID_KEY});localStorage.setItem('bl_fcm_token',token);if(userDocRef)await userDocRef.update({fcmToken:token});updateNotifBtn();showToast('Notificaciones activadas \u2714');}catch(err){console.error('FCM:',err);showToast('Error activando notificaciones');}}
 
 </script>
