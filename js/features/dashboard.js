@@ -39,7 +39,7 @@
       const goal=goals[category.id]||0;
       const pct=goal>0?Math.min((actual/goal)*100,100):0;
       const over=goal>0&&actual>goal;
-      return '<div class="category-bar"><div class="category-bar-header"><div class="category-bar-name" style="color:'+category.color+'">'+category.label+'</div><div class="category-bar-nums"><span>'+formatMoney(actual)+'</span>'+(goal?' / '+formatMoney(goal):'')+'</div></div>'+(goal?'<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+(over?'var(--expense)':category.color)+'"></div></div><div class="bar-pct'+(over?' over':'')+'">'+pct.toFixed(0)+'%'+(over?' \u00b7 excedido':'')+'</div>':'')+'</div>';
+      return '<div class="category-bar"><div class="category-bar-header"><div class="category-bar-name" style="color:'+category.color+'">'+category.label+'</div><div class="category-bar-nums"><span>'+formatMoney(actual)+'</span>'+(goal?' / '+formatMoney(goal):'')+'</div></div>'+(goal?'<div class="bar-track'+(over?' over':'')+'"><div class="bar-fill" style="width:'+pct+'%;background:'+category.color+'"></div></div><div class="bar-pct'+(over?' over':'')+'">'+pct.toFixed(0)+'%'+(over?' \u00b7 excedido':'')+'</div>':'')+'</div>';
     }).join('');
   }
 
