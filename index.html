@@ -259,8 +259,6 @@
   .color-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
   .color-swatch.active { border-color:#fff; transform:scale(1.15); }
   @media (min-width:560px) {
-    .nav { display:flex; gap:4px; }
-    .nav-btn { flex:1; min-height:auto; white-space:nowrap; }
     .chart-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
     .chart-tab[data-chart-tab="catline"] { grid-column:auto; }
   }
@@ -273,6 +271,11 @@
   .cat-custom-dot:hover { transform:scale(1.1); }
   .cat-custom-input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--font-ui); font-size:13px; font-weight:600; padding:8px 10px; outline:none; transition:border-color 0.2s; }
   .cat-custom-input:focus { border-color:var(--accent); }
+  .cat-custom-badge { font-family:var(--font-mono); font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; flex-shrink:0; }
+  .cat-custom-delete { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+  .cat-custom-delete:hover { border-color:var(--expense); color:var(--expense); }
+  .cat-custom-add { width:100%; padding:12px; background:transparent; border:1px dashed var(--border); border-radius:12px; color:var(--accent); font-family:var(--font-ui); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:12px; }
+  .cat-custom-add:hover { border-color:var(--accent); background:rgba(91,138,240,0.08); }
   .color-picker-pop { position:fixed; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px; z-index:400; display:none; flex-wrap:wrap; gap:8px; width:180px; }
   .color-picker-pop.open { display:flex; }
   .cp-swatch { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
@@ -458,6 +461,7 @@
   <div class="cat-custom-modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Personalizar categorías</div><button class="modal-close" onclick="closeCatCustomize()">&#10005;</button></div>
     <div id="catCustomList"></div>
+    <button class="cat-custom-add" id="catAddBtn">+ Agregar categorí­as</button>
     <button class="submit-btn" style="margin-top:12px;" onclick="saveCatCustomize()">Guardar cambios</button>
   </div>
 </div>
@@ -485,6 +489,7 @@
 const {config,utils,selectors,storage,cloud}=window.BudgetLogCore;
 const {charting,dashboardFeature,exporting,entriesFeature,appShell,selectionUi,categoryCustomization,recurringFeature,savingsGoalsFeature}=window.BudgetLogFeatures;
 const {firebaseConfig,CATEGORIES,FREQUENCIES,DEFAULT_GOALS,MONTH_NAMES,CAT_COLORS,PALETTE,SG_COLORS}=config;
+const BASE_CATEGORIES=CATEGORIES.map(category=>({...category}));
 const {MXN,sumAmounts,pad2,toISODate,parseISODate,addDays,datesEqualOrBefore,daysInMonth,monthKey,entryMonth,compareMonthRefs}=utils;
 const {getMonthEntriesByKey:getMonthEntriesByKeyFromState,getMonthTotals:getMonthTotalsFromState,sanitizeRecurringRule:getSanitizedRecurringRule,getRecurringOccurrenceDates:getRecurringOccurrenceDatesFromRule,getPendingRecurringDates:getPendingRecurringDatesFromState,getApplyCutoffForMonth:getApplyCutoffForMonthFromDate,applyRecurringForMonth:applyRecurringForMonthFromState,getForecastTotals:getForecastTotalsFromState,getGoalSavedAmount:getGoalSavedAmountFromState,getUnassignedSavingsAmount:getUnassignedSavingsAmountFromState}=selectors;
 const {createEmptyState,normalizeState,readLocalState,writeLocalState,hasAnyEntries,serializeCloudState}=storage;
@@ -611,7 +616,10 @@ function bindStaticEvents(){
     const input=event.target.closest('[data-cat-label-input]');
     if(input)catDraft[input.dataset.catLabelInput].label=input.value;
   });
+  document.getElementById('catAddBtn').addEventListener('click',addCategoryDraft);
   document.getElementById('catCustomList').addEventListener('click',event=>{
+    const deleteBtn=event.target.closest('[data-cat-delete]');
+    if(deleteBtn){deleteCategoryDraft(deleteBtn.dataset.catDelete);return;}
     const dot=event.target.closest('[data-cat-color-target]');
     if(dot)openColorPicker(dot.dataset.catColorTarget,dot);
   });
@@ -838,15 +846,23 @@ function renderCatLineChart(){renderCategoryLineChart({Chart,instances:chartInst
 function renderPieChart(){renderPieChartFeature({Chart,instances:chartInstances,canvas:document.getElementById('pieChart'),entries,entryMonth,viewYear,viewMonth,monthKey,categories:CATEGORIES,catColors:CAT_COLORS});}
 
 // ── Category customization ───────────────────────────────────────
-let catDraft={};let cpTargetId=null;
-function applyCustomCategories(){Object.entries(customCategories).forEach(([id,custom])=>{const cat=CATEGORIES.find(c=>c.id===id);if(!cat)return;if(custom.label)cat.label=custom.label;if(custom.color)cat.color=custom.color;});}
-function openCatCustomize(){catDraft=cloneCategoryDraft(CATEGORIES);renderCatCustomList();document.getElementById('catCustomModal').classList.add('open');}
+let catDraft={};let catDraftOrder=[];let cpTargetId=null;
+function syncCategoryColors(){Object.keys(CAT_COLORS).forEach(key=>delete CAT_COLORS[key]);CATEGORIES.forEach(category=>{CAT_COLORS[category.id]=category.color;});}
+function getCategoryDraftList(){return catDraftOrder.filter(id=>catDraft[id]);}
+function getNextCategoryColor(){const usedColors=new Set(Object.values(catDraft).map(category=>category.color));return PALETTE.find(color=>!usedColors.has(color))||PALETTE[0]||'#5b8af0';}
+function createCategoryId(label){const base=(label||'categoria').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'categoria';let candidate='custom_'+base;let counter=2;while(catDraft[candidate]||CATEGORIES.some(category=>category.id===candidate)){candidate='custom_'+base+'_'+counter;counter++;}return candidate;}
+function isCategoryInUse(categoryId){return entries.some(entry=>entry.category===categoryId)||recurring.some(rule=>rule.category===categoryId)||((goals[categoryId]||0)>0);}
+function resetCategorySelections(){const fallbackId=CATEGORIES[0]?.id||'food';if(!CATEGORIES.some(category=>category.id===currentCat))currentCat=fallbackId;if(!CATEGORIES.some(category=>category.id===recurCat))recurCat=fallbackId;if(!CATEGORIES.some(category=>category.id===editCat))editCat=fallbackId;if(!CATEGORIES.some(category=>category.id===chartCatSelected))chartCatSelected=fallbackId;}
+function applyCustomCategories(){CATEGORIES.splice(0,CATEGORIES.length,...BASE_CATEGORIES.map(category=>({...category})));Object.entries(customCategories).forEach(([id,custom])=>{const existing=CATEGORIES.find(category=>category.id===id);if(existing){if(custom.label)existing.label=custom.label;if(custom.color)existing.color=custom.color;return;}if(custom?.isCustom){CATEGORIES.push({id,label:custom.label||'Nueva categor\u00eda',color:custom.color||PALETTE[0]||'#5b8af0',isCustom:true});}});syncCategoryColors();}
+function openCatCustomize(){catDraft=cloneCategoryDraft(CATEGORIES);catDraftOrder=CATEGORIES.map(category=>category.id);renderCatCustomList();document.getElementById('catCustomModal').classList.add('open');}
 function closeCatCustomize(){document.getElementById('catCustomModal').classList.remove('open');closeColorPicker();}
-function renderCatCustomList(){document.getElementById('catCustomList').innerHTML=renderCategoryCustomListMarkup(CATEGORIES,catDraft);}
+function renderCatCustomList(){document.getElementById('catCustomList').innerHTML=renderCategoryCustomListMarkup(getCategoryDraftList(),catDraft);}
+function addCategoryDraft(){const id=createCategoryId('Nueva categoria');catDraft[id]={label:'Nueva categor\u00eda',color:getNextCategoryColor(),isCustom:true};catDraftOrder.push(id);renderCatCustomList();}
+function deleteCategoryDraft(id){const draft=catDraft[id];if(!draft?.isCustom){showToast('Solo puedes eliminar categor\u00edas nuevas');return;}if(isCategoryInUse(id)){showToast('No puedes eliminar una categor\u00eda en uso');return;}delete catDraft[id];catDraftOrder=catDraftOrder.filter(categoryId=>categoryId!==id);delete goals[id];if(cpTargetId===id)closeColorPicker();renderCatCustomList();showToast('Categor\u00eda eliminada del borrador');}
 function openColorPicker(catId,dotEl){if(cpTargetId===catId){closeColorPicker();return;}cpTargetId=catId;const pop=document.getElementById('colorPickerPop');pop.innerHTML=renderColorPickerMarkup(PALETTE,catDraft[catId].color);const r=dotEl.getBoundingClientRect();pop.style.top=(r.bottom+8)+'px';pop.style.left=Math.min(r.left,window.innerWidth-196)+'px';pop.classList.add('open');}
 function pickColor(col){if(!cpTargetId)return;catDraft[cpTargetId].color=col;renderCatCustomList();closeColorPicker();}
 function closeColorPicker(){document.getElementById('colorPickerPop').classList.remove('open');cpTargetId=null;}
-function saveCatCustomize(){CATEGORIES.forEach(c=>{c.label=catDraft[c.id].label||c.label;c.color=catDraft[c.id].color;customCategories[c.id]={label:c.label,color:c.color};});save();closeCatCustomize();renderDashboard();renderEntries();renderGoals();showToast('Categor\u00edas actualizadas');}
+function saveCatCustomize(){const keptIds=new Set(getCategoryDraftList());Object.keys(goals).forEach(id=>{if(id.startsWith('custom_')&&!keptIds.has(id))delete goals[id];});const nextCustomCategories={};getCategoryDraftList().forEach(id=>{const draft=catDraft[id];const label=(draft.label||'').trim()||'Nueva categor\u00eda';nextCustomCategories[id]={label,color:draft.color,isCustom:!!draft.isCustom};if(goals[id]==null)goals[id]=0;});customCategories=nextCustomCategories;applyCustomCategories();resetCategorySelections();save();closeCatCustomize();renderDashboard();renderEntries();renderGoals();renderRecurring();renderCharts();showToast('Categor\u00edas actualizadas');}
 document.addEventListener('click',e=>{const pop=document.getElementById('colorPickerPop');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.classList.contains('cat-custom-dot')){closeColorPicker();}});
 
 // ── Savings goal tracker ─────────────────────────────────────────

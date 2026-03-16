@@ -53,7 +53,12 @@
       clothing:'#c49bfa',
       savings:'#f0c45b'
     },
-    PALETTE:['#5bcff0','#f0a25b','#7dd67a','#a0e86e','#a78bfa','#f097c4','#f05b7a','#f0d45b','#c49bfa','#f0c45b','#3dd68c','#5b8af0','#f05b5b','#ff9500','#34aadc','#5ac8fa','#4cd964','#ff2d55','#ff6b35','#c7f464'],
+    PALETTE:[
+      '#5bcff0','#f0a25b','#7dd67a','#a0e86e','#a78bfa','#f097c4','#f05b7a','#f0d45b','#c49bfa','#f0c45b',
+      '#3dd68c','#5b8af0','#f05b5b','#ff9500','#34aadc','#5ac8fa','#4cd964','#ff2d55','#ff6b35','#c7f464',
+      '#00c2a8','#0081cf','#845ec2','#d65db1','#ff9671','#ffc75f','#f9f871','#2c73d2','#008e9b','#b39cd0',
+      '#6bcB77','#4d96ff','#ff6f91','#ff9671','#ffc75f','#845460','#2d6a4f','#e76f51','#e9c46a','#577590'
+    ],
     SG_COLORS:['#3dd68c','#5b8af0','#f0a25b','#f05b7a','#a78bfa','#5bcff0','#f0d45b','#f097c4']
   };
 })();
