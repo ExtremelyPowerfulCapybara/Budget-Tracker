@@ -150,7 +150,7 @@
         labels,
         datasets:[
           {label:categoryLabel,data,borderColor:color,backgroundColor:color+'22',borderWidth:2.5,pointRadius:5,pointBackgroundColor:color,tension:0.35,fill:true},
-          ...(goalValue?[{label:'Meta',data:months.map(()=>goalValue),borderColor:'#2a2d38',borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:0}]:[])
+          ...(goalValue?[{label:'Meta',data:months.map(()=>goalValue),borderColor:'#f0d45b',borderDash:[5,4],borderWidth:2,pointRadius:0,tension:0}]:[])
         ]
       },
       options:{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},boxWidth:12}}}}
