@@ -52,9 +52,8 @@
   .sync-indicator.syncing { background:var(--accent); animation:pulse 1s infinite; }
   .sync-indicator.error { background:var(--expense); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .nav { display:flex; gap:3px; padding:14px 20px 0; overflow-x:auto; scrollbar-width:none; }
-  .nav::-webkit-scrollbar { display:none; }
-  .nav-btn { flex:1; min-width:48px; padding:8px 2px; border:none; border-radius:10px; background:var(--surface2); color:var(--muted); font-family:var(--font-ui); font-size:10px; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:14px 20px 0; }
+  .nav-btn { min-width:0; min-height:42px; padding:9px 8px; border:none; border-radius:10px; background:var(--surface2); color:var(--muted); font-family:var(--font-ui); font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:normal; line-height:1.2; text-align:center; }
   .nav-btn.active { background:var(--accent); color:#fff; }
   .view { display:none; padding:16px 20px 100px; }
   .view.active { display:block; }
@@ -214,8 +213,9 @@
   .onboard-skip { display:block; text-align:center; margin-top:14px; font-family:var(--font-mono); font-size:11px; color:var(--muted); cursor:pointer; text-transform:uppercase; letter-spacing:1px; }
   .onboard-skip:hover { color:var(--text); }
   /* Charts */
-  .chart-tabs { display:flex; gap:6px; margin-bottom:14px; }
-  .chart-tab { flex:1; padding:9px 4px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); color:var(--muted); font-family:var(--font-ui); font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+  .chart-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:14px; }
+  .chart-tab { min-width:0; padding:10px 8px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); color:var(--muted); font-family:var(--font-ui); font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; line-height:1.2; text-align:center; }
+  .chart-tab[data-chart-tab="catline"] { grid-column:1 / -1; }
   .chart-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
   .chart-panel { display:none; }
   .chart-panel.active { display:block; }
@@ -258,6 +258,12 @@
   .color-grid { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
   .color-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
   .color-swatch.active { border-color:#fff; transform:scale(1.15); }
+  @media (min-width:560px) {
+    .nav { display:flex; gap:4px; }
+    .nav-btn { flex:1; min-height:auto; white-space:nowrap; }
+    .chart-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .chart-tab[data-chart-tab="catline"] { grid-column:auto; }
+  }
   /* Category customization */
   .cat-customize-btn { font-family:var(--font-mono); font-size:11px; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; transition:all 0.2s; }
   .cat-customize-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -346,10 +352,7 @@
     <div id="entriesList"></div>
   </div>
   <div class="view" id="view-recurring">
-    <div id="recurApplyBanner" style="display:none" class="apply-banner"><span id="recurBannerText"></span><button class="apply-btn" onclick="applyRecurring()">Aplicar</button></div>
-    <div class="section-title">Movimientos recurrentes</div>
-    <div id="recurList"></div>
-    <div class="form-card" style="margin-top:16px;">
+    <div class="form-card">
       <div class="form-card-title">Nueva recurrente</div>
       <div class="type-toggle"><button class="type-btn expense active" id="recurTypeExpense" onclick="setRecurType('expense')">Gasto</button><button class="type-btn income" id="recurTypeIncome" onclick="setRecurType('income')">Ingreso</button></div>
       <div class="form-group"><label class="form-label">Monto (MXN)</label><input class="form-input" type="number" id="recurAmount" placeholder="0.00" step="0.01" min="0"></div>
@@ -360,6 +363,9 @@
       <div class="form-group"><label class="form-label" id="recurDateLabel">Fecha de inicio</label><input class="form-input" type="date" id="recurStartDate"></div>
       <button class="submit-btn" onclick="addRecurring()">Guardar recurrente</button>
     </div>
+    <div id="recurApplyBanner" style="display:none" class="apply-banner"><span id="recurBannerText"></span><button class="apply-btn" onclick="applyRecurring()">Aplicar</button></div>
+    <div class="section-title">Movimientos recurrentes</div>
+    <div id="recurList"></div>
   </div>
   <div class="view" id="view-charts">
     <div class="chart-tabs">
