@@ -101,10 +101,12 @@ nav {
   flex-direction: column;
   justify-content: center;
   padding: 120px 40px 80px;
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   z-index: 1;
 }
+.hero-copy { min-width: 0; }
+.hero-side { min-width: 0; }
 
 .hero-eyebrow {
   font-family: var(--font-mono);
@@ -159,7 +161,8 @@ nav {
 
 .hero-preview {
   margin-top: 34px;
-  max-width: 430px;
+  width: 100%;
+  max-width: 500px;
   opacity: 0;
   animation: fadeUp 0.85s ease 0.58s forwards;
 }
@@ -170,7 +173,7 @@ nav {
     var(--surface);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 24px;
-  box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.24);
   overflow: hidden;
 }
 .preview-shell::before {
@@ -402,7 +405,7 @@ nav {
 .section {
   position: relative;
   z-index: 1;
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 100px 40px;
 }
@@ -443,12 +446,12 @@ nav {
 .feature-card {
   background: var(--surface);
   padding: 32px;
-  transition: background 0.2s;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
   position: relative;
 }
-.feature-card:hover { background: var(--surface2); }
-.feature-icon { font-size: 28px; margin-bottom: 16px; display: block; }
-.feature-name { font-size: 17px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.3px; }
+.feature-card:hover { background: var(--surface2); transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.22); }
+.feature-icon { margin-bottom: 16px; display: block; color: var(--accent); opacity: 0.95; line-height: 0; }
+.feature-icon svg { width: 22px; height: 22px; display: block; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .feature-name { font-family: var(--font-ui); font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
 .feature-desc { font-family: var(--font-ui); font-size: 14px; color: var(--muted); line-height: 1.65; }
 .feature-tag {
@@ -473,7 +476,7 @@ nav {
   border-bottom: 1px solid var(--border);
 }
 .install-inner {
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 100px 40px;
 }
@@ -533,7 +536,7 @@ nav {
 
 .privacy-strip {
   position: relative; z-index: 1;
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 60px 40px;
   display: flex;
@@ -546,7 +549,7 @@ nav {
 
 .cta-section {
   position: relative; z-index: 1;
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 60px 40px 120px;
   text-align: center;
@@ -594,7 +597,7 @@ footer {
   position: relative; z-index: 1;
   border-top: 1px solid var(--border);
   padding: 32px 40px;
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -612,6 +615,18 @@ footer {
 }
 .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (min-width: 960px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(420px, 500px);
+    gap: 64px;
+    align-items: center;
+  }
+  .hero-preview {
+    margin-top: 0;
+  }
+}
 
 @media (max-width: 600px) {
   nav { padding: 16px 20px; }
@@ -640,6 +655,7 @@ footer {
 </nav>
 
 <section class="hero">
+  <div class="hero-copy">
   <div class="hero-eyebrow">Registro personal de gastos e ingresos</div>
   <h1 class="hero-title">
     Entiende<br>
@@ -647,7 +663,7 @@ footer {
     <span class="line2">se va tu dinero.</span>
   </h1>
   <p class="hero-sub">
-    Registra gastos en segundos, revisa cómo se mueve tu mes y guarda tu historial en una app instalable. <strong>Sin anuncios, sin rastreo y con sync por Google.</strong>
+    Registra gastos en segundos, entiende cómo se mueve tu mes y guarda tu historial en una app instalable. <strong>Sin anuncios, sin rastreo y con sync por Google.</strong>
   </p>
   <div class="hero-actions">
     <a class="btn-primary" href="/app.html">
@@ -658,6 +674,22 @@ footer {
       <span>¿Cómo instalar?</span>
     </a>
   </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">5<span class="unit"> s</span></div>
+      <div class="stat-label">para registrar un gasto</div>
+    </div>
+    <div>
+      <div class="stat-num">100<span class="unit">%</span></div>
+      <div class="stat-label">sin anuncios</div>
+    </div>
+    <div>
+      <div class="stat-num">PWA</div>
+      <div class="stat-label">instalable como app</div>
+    </div>
+  </div>
+  </div>
+  <div class="hero-side">
   <div class="hero-preview" data-hero-preview aria-label="Vista previa de BudgetLog">
     <div class="preview-shell">
       <div class="preview-inner">
@@ -681,7 +713,7 @@ footer {
             <div class="preview-transactions" id="previewTransactions">
               <div class="preview-transaction">
                 <div class="preview-transaction-left">
-                  <div class="preview-transaction-name">Nomina</div>
+                  <div class="preview-transaction-name">Nómina</div>
                   <div class="preview-transaction-meta">Hoy · Ingreso</div>
                 </div>
                 <div class="preview-transaction-amount income">+$18,000</div>
@@ -703,14 +735,14 @@ footer {
               <div class="preview-transaction">
                 <div class="preview-transaction-left">
                   <div class="preview-transaction-name">Ahorro</div>
-                  <div class="preview-transaction-meta">Hace 2 dias · Meta</div>
+                    <div class="preview-transaction-meta">Hace 2 días · Meta</div>
                 </div>
                 <div class="preview-transaction-amount income">+$1,200</div>
               </div>
             </div>
           </div>
           <div class="preview-panel">
-            <div class="preview-panel-title">Categorias</div>
+            <div class="preview-panel-title">Categorías</div>
             <div class="preview-bars">
               <div>
                 <div class="preview-bar-head"><span id="previewBarLabel1">Renta</span><span id="previewBarValue1">60%</span></div>
@@ -730,19 +762,6 @@ footer {
       </div>
     </div>
   </div>
-  <div class="hero-stats">
-    <div>
-      <div class="stat-num">5<span class="unit"> s</span></div>
-      <div class="stat-label">para registrar un gasto</div>
-    </div>
-    <div>
-      <div class="stat-num">100<span class="unit">%</span></div>
-      <div class="stat-label">sin anuncios</div>
-    </div>
-    <div>
-      <div class="stat-num">PWA</div>
-      <div class="stat-label">instalable como app</div>
-    </div>
   </div>
 </section>
 
@@ -783,85 +802,73 @@ footer {
   <p class="section-intro reveal">BudgetLog es un registro personal de gastos e ingresos. <strong>No vende productos financieros ni vive de anuncios.</strong> Solo te ayuda a entender tu dinero y seguirlo desde el celular.</p>
   <div class="features-grid reveal">
     <div class="feature-card">
-      <span class="feature-icon">📊</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9h9"/><path d="M8.5 14.5h.01"/><path d="M9.5 18h.01"/></svg></span>
       <div class="feature-name">Resumen financiero</div>
       <div class="feature-desc">Saldo del mes, ahorro, categoría más alta y comparación con el mes anterior en una sola vista.</div>
       <span class="feature-tag">resumen del mes</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">⚡</span>
-      <div class="feature-name">Registro rápido</div>
-      <div class="feature-desc">Anota un gasto o ingreso en segundos: categoría, monto, descripción y listo.</div>
-      <span class="feature-tag">menos de 5 s</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🎯</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7 6.5-4H20v5.5L13 15l-5-5V7Z"/><path d="M13 15 9 19H4v-5l5-4"/><path d="M16 7h.01"/></svg></span>
       <div class="feature-name">Topes por categoría</div>
       <div class="feature-desc">Define cuánto quieres gastar en comida, transporte o salidas y sigue el avance con barras claras.</div>
       <span class="feature-tag">por categoría</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">📈</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-3 3 2 5-6"/></svg></span>
       <div class="feature-name">Gráficas útiles</div>
       <div class="feature-desc">Barras contra meta, tendencia de 6 meses, saldo neto y distribución por categoría.</div>
       <span class="feature-tag">5 vistas</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🔁</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 14h3"/><path d="M13 14h3"/></svg></span>
       <div class="feature-name">Recurrentes</div>
       <div class="feature-desc">Renta, suscripciones o quincena. Puedes dejarlas listas y aplicarlas según toque.</div>
       <span class="feature-tag">mensual / quincenal / semanal</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🏦</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v1"/><path d="M18 13h-2"/><path d="M7 11h5"/></svg></span>
       <div class="feature-name">Metas de ahorro</div>
       <div class="feature-desc">Crea una meta, asígnale aportaciones y ve cuánto llevas sin hacer cuentas aparte.</div>
       <span class="feature-tag">progreso visible</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🔮</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 17 10-10"/><path d="M9 7h8v8"/></svg></span>
       <div class="feature-name">Próximo mes</div>
       <div class="feature-desc">Hazte una idea de lo que viene con base en tus movimientos recurrentes.</div>
       <span class="feature-tag">estimado mensual</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🔔</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 4 8 14H4l8-14Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
       <div class="feature-name">Avisos de presupuesto</div>
       <div class="feature-desc">Recibe alertas cuando una categoría ya va alta y conviene bajarle antes de cerrar el mes.</div>
       <span class="feature-tag">80% y 100%</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🎨</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="m16.5 3.5 4 4"/><path d="M19 3a2.1 2.1 0 0 1 3 3L9 19l-4 1 1-4L19 3Z"/></svg></span>
       <div class="feature-name">Categorías editables</div>
       <div class="feature-desc">Cambia nombres y colores para que la app se parezca a cómo tú organizas tu dinero.</div>
       <span class="feature-tag">nombres y colores</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🔍</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg></span>
       <div class="feature-name">Buscar movimientos</div>
       <div class="feature-desc">Encuentra rápido una compra, un ingreso o una suscripción sin recorrer todo el historial.</div>
       <span class="feature-tag">al instante</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">☀️</span>
-      <div class="feature-name">Modo claro y oscuro</div>
-      <div class="feature-desc">Usa el tema que te sea más cómodo. La app recuerda tu preferencia.</div>
-      <span class="feature-tag">tu preferencia</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">☁️</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .8-7.9A5.5 5.5 0 0 1 18 12a3.5 3.5 0 1 1 0 7H7Z"/></svg></span>
       <div class="feature-name">Sync con Google</div>
       <div class="feature-desc">Inicia sesión con Google y sigue viendo lo mismo en cualquiera de tus dispositivos.</div>
       <span class="feature-tag">mismo historial</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">📥</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M12 11v6"/><path d="m9.5 14.5 2.5 2.5 2.5-2.5"/></svg></span>
       <div class="feature-name">Exportar a Excel</div>
       <div class="feature-desc">Descarga tus movimientos y resúmenes en un archivo claro para revisarlo o guardarlo aparte.</div>
       <span class="feature-tag">4 hojas</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🔒</span>
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 6 5.5v5.8c0 4 2.5 7.7 6 9.7 3.5-2 6-5.7 6-9.7V5.5L12 3Z"/><path d="m9.5 12 1.7 1.7 3.3-3.3"/></svg></span>
       <div class="feature-name">Tu información, tuya</div>
       <div class="feature-desc">No hay anuncios, no hay rastreo y no se venden datos. Tu cuenta de Google solo sirve para sincronizar.</div>
       <span class="feature-tag">sin rastreo</span>
@@ -1007,10 +1014,10 @@ const heroPreviewStates = [
     spent: '$12,480',
     saved: '$4,200',
     transactions: [
-      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Nómina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
       { name: 'Renta', meta: 'Ayer · Servicios', amount: '-$7,500', type: 'expense' },
       { name: 'Supermercado', meta: 'Ayer · Alimentos', amount: '-$1,280', type: 'expense' },
-      { name: 'Ahorro', meta: 'Hace 2 dias · Meta', amount: '+$1,200', type: 'income' }
+      { name: 'Ahorro', meta: 'Hace 2 días · Meta', amount: '+$1,200', type: 'income' }
     ],
     bars: [
       { label: 'Renta', value: '60%', width: '60%', color: '#5b8af0' },
@@ -1023,7 +1030,7 @@ const heroPreviewStates = [
     spent: '$11,920',
     saved: '$4,860',
     transactions: [
-      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Nómina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
       { name: 'Uber', meta: 'Hoy · Transporte', amount: '-$122', type: 'expense' },
       { name: 'Starbucks', meta: 'Ayer · Salidas', amount: '-$95', type: 'expense' },
       { name: 'Netflix', meta: 'Ayer · Suscripciones', amount: '-$219', type: 'expense' }
@@ -1039,15 +1046,31 @@ const heroPreviewStates = [
     spent: '$10,740',
     saved: '$5,400',
     transactions: [
-      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Nómina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
       { name: 'Supermercado', meta: 'Hoy · Alimentos', amount: '-$980', type: 'expense' },
       { name: 'Ahorro', meta: 'Ayer · Meta', amount: '+$1,600', type: 'income' },
-      { name: 'Internet', meta: 'Hace 2 dias · Servicios', amount: '-$649', type: 'expense' }
+      { name: 'Internet', meta: 'Hace 2 días · Servicios', amount: '-$649', type: 'expense' }
     ],
     bars: [
       { label: 'Renta', value: '70%', width: '70%', color: '#5b8af0' },
       { label: 'Alimentos', value: '14%', width: '14%', color: '#3dd68c' },
       { label: 'Servicios', value: '9%', width: '9%', color: '#f0c75b' }
+    ]
+  },
+  {
+    month: 'Junio 2026',
+    spent: '$15,980',
+    saved: '$2,150',
+    transactions: [
+      { name: 'Nómina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Renta', meta: 'Hoy · Servicios', amount: '-$7,500', type: 'expense' },
+      { name: 'Supermercado', meta: 'Ayer · Alimentos', amount: '-$2,240', type: 'expense' },
+      { name: 'Uber', meta: 'Hace 2 días · Transporte', amount: '-$486', type: 'expense' }
+    ],
+    bars: [
+      { label: 'Renta', value: '54%', width: '54%', color: '#5b8af0' },
+      { label: 'Alimentos', value: '31%', width: '31%', color: '#f08a5b' },
+      { label: 'Transporte', value: '6%', width: '6%', color: '#55d6ff' }
     ]
   }
 ];
