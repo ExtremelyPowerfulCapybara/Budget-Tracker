@@ -10,7 +10,7 @@
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Lexend:wght@400;500;600;700;800&family=Lexend+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0a0b0e;
@@ -22,6 +22,9 @@
   --accent: #5b8af0;
   --green: #3dd68c;
   --red: #f05b5b;
+  --font-ui: 'Lexend', sans-serif;
+  --font-mono: 'Lexend Mono', monospace;
+  --font-display: 'Cormorant Garamond', serif;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -29,7 +32,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-ui);
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -71,18 +74,19 @@ nav {
   background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
 }
 .nav-logo {
-  font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+  font-family: var(--font-ui);
+  font-size: 18px; font-weight: 700; letter-spacing: -0.5px;
   color: var(--text);
   text-decoration: none;
 }
 .nav-logo span { color: var(--accent); }
 .nav-cta {
+  font-family: var(--font-ui);
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-family: 'Syne', sans-serif;
   font-size: 13px; font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -103,7 +107,7 @@ nav {
 }
 
 .hero-eyebrow {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--accent);
   text-transform: uppercase;
@@ -114,11 +118,11 @@ nav {
 }
 
 .hero-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(52px, 9vw, 110px);
-  font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -3px;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -1.5px;
   margin-bottom: 32px;
   opacity: 0;
   animation: fadeUp 0.8s ease 0.2s forwards;
@@ -134,10 +138,11 @@ nav {
 }
 
 .hero-sub {
+  font-family: var(--font-ui);
   font-size: 18px;
   color: var(--muted);
   max-width: 500px;
-  line-height: 1.6;
+  line-height: 1.65;
   margin-bottom: 48px;
   opacity: 0;
   animation: fadeUp 0.8s ease 0.35s forwards;
@@ -152,7 +157,157 @@ nav {
   animation: fadeUp 0.8s ease 0.5s forwards;
 }
 
+.hero-preview {
+  margin-top: 34px;
+  max-width: 430px;
+  opacity: 0;
+  animation: fadeUp 0.85s ease 0.58s forwards;
+}
+.preview-shell {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+    var(--surface);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+  overflow: hidden;
+}
+.preview-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(91,138,240,0.14), transparent 44%);
+  pointer-events: none;
+}
+.preview-inner { position: relative; padding: 20px; }
+.preview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.preview-month {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.preview-badge {
+  font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(61,214,140,0.18);
+  background: rgba(61,214,140,0.08);
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+.preview-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 5px rgba(61,214,140,0.08);
+}
+.preview-body { transition: opacity 0.26s ease, transform 0.26s ease; }
+.preview-shell.is-refreshing .preview-body { opacity: 0.74; transform: translateY(3px); }
+.preview-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.preview-metric {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 14px;
+}
+.preview-metric-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.preview-metric-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--text);
+}
+.preview-metric-value.saved { color: var(--green); }
+.preview-panel {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 18px;
+  padding: 14px;
+}
+.preview-panel + .preview-panel { margin-top: 12px; }
+.preview-panel-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.preview-transactions { display: grid; gap: 10px; }
+.preview-transaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.preview-transaction-left { min-width: 0; }
+.preview-transaction-name { font-size: 13px; font-weight: 700; letter-spacing: -0.2px; }
+.preview-transaction-meta {
+  font-family: var(--font-mono);
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.preview-transaction-amount {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.preview-transaction-amount.income { color: var(--green); }
+.preview-transaction-amount.expense { color: var(--text); }
+.preview-bars { display: grid; gap: 10px; }
+.preview-bar-head {
+  font-family: var(--font-mono);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.preview-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+}
+.preview-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.55s ease;
+}
+
 .btn-primary {
+  font-family: var(--font-ui);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -161,8 +316,7 @@ nav {
   border: none;
   border-radius: 12px;
   padding: 16px 28px;
-  font-family: 'Syne', sans-serif;
-  font-size: 15px; font-weight: 800;
+  font-size: 15px; font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
@@ -170,6 +324,7 @@ nav {
 .btn-primary:hover { background: #4a79df; transform: translateY(-2px); box-shadow: 0 12px 40px #5b8af030; }
 
 .btn-secondary {
+  font-family: var(--font-ui);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -178,8 +333,7 @@ nav {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px 28px;
-  font-family: 'Syne', sans-serif;
-  font-size: 15px; font-weight: 700;
+  font-size: 15px; font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
@@ -196,13 +350,13 @@ nav {
   animation: fadeUp 0.8s ease 0.65s forwards;
 }
 .stat-num {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 32px; font-weight: 500;
   color: var(--text);
 }
 .stat-num .unit { font-size: 18px; color: var(--muted); }
 .stat-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -225,7 +379,7 @@ nav {
   white-space: nowrap;
 }
 .marquee-item {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -253,7 +407,7 @@ nav {
   padding: 100px 40px;
 }
 .section-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--accent);
   text-transform: uppercase;
@@ -261,13 +415,22 @@ nav {
   margin-bottom: 16px;
 }
 .section-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 5vw, 60px);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -2px;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -1px;
   margin-bottom: 60px;
 }
+.section-intro {
+  font-family: var(--font-ui);
+  max-width: 640px;
+  margin: -28px 0 48px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.section-intro strong { color: var(--text); }
 
 .features-grid {
   display: grid;
@@ -286,11 +449,12 @@ nav {
 .feature-card:hover { background: var(--surface2); }
 .feature-icon { font-size: 28px; margin-bottom: 16px; display: block; }
 .feature-name { font-size: 17px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.3px; }
-.feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.feature-name { font-family: var(--font-ui); font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+.feature-desc { font-family: var(--font-ui); font-size: 14px; color: var(--muted); line-height: 1.65; }
 .feature-tag {
   display: inline-block;
   margin-top: 14px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -329,8 +493,8 @@ nav {
 }
 .platform-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
 .platform-icon { font-size: 24px; }
-.platform-name { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
-.platform-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+.platform-name { font-family: var(--font-ui); font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+.platform-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
 .steps { display: flex; flex-direction: column; gap: 0; }
 .step { display: flex; gap: 16px; position: relative; }
 .step:not(:last-child)::after {
@@ -341,20 +505,20 @@ nav {
   background: var(--border);
 }
 .step-num {
+  font-family: var(--font-mono);
   width: 28px; height: 28px;
   border-radius: 50%;
   background: var(--surface2);
   border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Mono', monospace;
   font-size: 11px; font-weight: 500;
   color: var(--accent);
   flex-shrink: 0;
   position: relative; z-index: 1;
 }
 .step-body { padding-bottom: 24px; }
-.step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-.step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.step-title { font-family: var(--font-ui); font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.step-desc { font-family: var(--font-ui); font-size: 12px; color: var(--muted); line-height: 1.5; }
 .step-badge {
   display: inline-flex; align-items: center; gap: 5px;
   margin-top: 8px;
@@ -362,7 +526,7 @@ nav {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 5px 10px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text);
 }
@@ -377,7 +541,7 @@ nav {
   flex-wrap: wrap;
   justify-content: center;
 }
-.privacy-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.privacy-item { font-family: var(--font-ui); display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
 .privacy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
 .cta-section {
@@ -406,15 +570,15 @@ nav {
   pointer-events: none;
 }
 .cta-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(32px, 5vw, 56px);
-  font-weight: 900;
-  letter-spacing: -2px;
+  font-weight: 700;
+  letter-spacing: -1px;
   margin-bottom: 16px;
 }
-.cta-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; line-height: 1.6; }
+.cta-sub { font-family: var(--font-ui); font-size: 15px; color: var(--muted); margin-bottom: 36px; line-height: 1.6; }
 .cta-url {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
   background: var(--surface2);
@@ -438,9 +602,9 @@ footer {
   flex-wrap: wrap;
   gap: 12px;
 }
-.footer-logo { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+.footer-logo { font-family: var(--font-ui); font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
 .footer-logo span { color: var(--accent); }
-.footer-note { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.footer-note { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -452,6 +616,7 @@ footer {
 @media (max-width: 600px) {
   nav { padding: 16px 20px; }
   .hero { padding: 100px 20px 60px; }
+  .hero-preview { max-width: 100%; }
   .hero-stats { gap: 28px; flex-wrap: wrap; }
   .section { padding: 70px 20px; }
   .install-inner { padding: 70px 20px; }
@@ -460,6 +625,7 @@ footer {
   footer { padding: 24px 20px; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-secondary { justify-content: center; }
+  .preview-metric-value { font-size: 24px; }
 }
 </style>
 </head>
@@ -474,166 +640,239 @@ footer {
 </nav>
 
 <section class="hero">
-  <div class="hero-eyebrow">App de presupuesto personal</div>
+  <div class="hero-eyebrow">Registro personal de gastos e ingresos</div>
   <h1 class="hero-title">
-    Tu dinero,<br>
-    <em>bajo</em><br>
-    <span class="line2">control.</span>
+    Entiende<br>
+    <em>a dónde</em><br>
+    <span class="line2">se va tu dinero.</span>
   </h1>
   <p class="hero-sub">
-    Rastrea gastos, visualiza tendencias y cumple tus metas financieras. <strong>Gratis, privado, sin anuncios.</strong> Funciona en cualquier teléfono.
+    Registra gastos en segundos, revisa cómo se mueve tu mes y guarda tu historial en una app instalable. <strong>Sin anuncios, sin rastreo y con sync por Google.</strong>
   </p>
   <div class="hero-actions">
     <a class="btn-primary" href="/app.html">
-      <span>Empezar gratis</span>
+      <span>Abrir BudgetLog</span>
       <span>→</span>
     </a>
     <a class="btn-secondary" href="#instalar">
       <span>¿Cómo instalar?</span>
     </a>
   </div>
+  <div class="hero-preview" data-hero-preview aria-label="Vista previa de BudgetLog">
+    <div class="preview-shell">
+      <div class="preview-inner">
+        <div class="preview-top">
+          <div class="preview-month" id="previewMonth">Marzo 2026</div>
+          <div class="preview-badge">Sincronizado</div>
+        </div>
+        <div class="preview-body">
+          <div class="preview-metrics">
+            <div class="preview-metric">
+              <div class="preview-metric-label">Gastos del mes</div>
+              <div class="preview-metric-value" id="previewSpent">$12,480</div>
+            </div>
+            <div class="preview-metric">
+              <div class="preview-metric-label">Ahorro</div>
+              <div class="preview-metric-value saved" id="previewSaved">$4,200</div>
+            </div>
+          </div>
+          <div class="preview-panel">
+            <div class="preview-panel-title">Movimientos recientes</div>
+            <div class="preview-transactions" id="previewTransactions">
+              <div class="preview-transaction">
+                <div class="preview-transaction-left">
+                  <div class="preview-transaction-name">Nomina</div>
+                  <div class="preview-transaction-meta">Hoy · Ingreso</div>
+                </div>
+                <div class="preview-transaction-amount income">+$18,000</div>
+              </div>
+              <div class="preview-transaction">
+                <div class="preview-transaction-left">
+                  <div class="preview-transaction-name">Renta</div>
+                  <div class="preview-transaction-meta">Ayer · Servicios</div>
+                </div>
+                <div class="preview-transaction-amount expense">-$7,500</div>
+              </div>
+              <div class="preview-transaction">
+                <div class="preview-transaction-left">
+                  <div class="preview-transaction-name">Supermercado</div>
+                  <div class="preview-transaction-meta">Ayer · Alimentos</div>
+                </div>
+                <div class="preview-transaction-amount expense">-$1,280</div>
+              </div>
+              <div class="preview-transaction">
+                <div class="preview-transaction-left">
+                  <div class="preview-transaction-name">Ahorro</div>
+                  <div class="preview-transaction-meta">Hace 2 dias · Meta</div>
+                </div>
+                <div class="preview-transaction-amount income">+$1,200</div>
+              </div>
+            </div>
+          </div>
+          <div class="preview-panel">
+            <div class="preview-panel-title">Categorias</div>
+            <div class="preview-bars">
+              <div>
+                <div class="preview-bar-head"><span id="previewBarLabel1">Renta</span><span id="previewBarValue1">60%</span></div>
+                <div class="preview-bar-track"><div class="preview-bar-fill" id="previewBarFill1" style="width:60%; background:#5b8af0;"></div></div>
+              </div>
+              <div>
+                <div class="preview-bar-head"><span id="previewBarLabel2">Alimentos</span><span id="previewBarValue2">24%</span></div>
+                <div class="preview-bar-track"><div class="preview-bar-fill" id="previewBarFill2" style="width:24%; background:#3dd68c;"></div></div>
+              </div>
+              <div>
+                <div class="preview-bar-head"><span id="previewBarLabel3">Transporte</span><span id="previewBarValue3">10%</span></div>
+                <div class="preview-bar-track"><div class="preview-bar-fill" id="previewBarFill3" style="width:10%; background:#f0c75b;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="hero-stats">
     <div>
-      <div class="stat-num">14<span class="unit"> feat.</span></div>
-      <div class="stat-label">funcionalidades</div>
+      <div class="stat-num">5<span class="unit"> s</span></div>
+      <div class="stat-label">para registrar un gasto</div>
     </div>
     <div>
-      <div class="stat-num">6<span class="unit"> meses</span></div>
-      <div class="stat-label">de historial visual</div>
+      <div class="stat-num">100<span class="unit">%</span></div>
+      <div class="stat-label">sin anuncios</div>
     </div>
     <div>
-      <div class="stat-num">0<span class="unit"> $</span></div>
-      <div class="stat-label">costo para siempre</div>
+      <div class="stat-num">PWA</div>
+      <div class="stat-label">instalable como app</div>
     </div>
   </div>
 </section>
 
 <div class="marquee-wrap">
   <div class="marquee">
-    <span class="marquee-item">Registro de gastos</span>
-    <span class="marquee-item">Metas mensuales</span>
-    <span class="marquee-item">Graficas y tendencias</span>
-    <span class="marquee-item">Exportar a Excel</span>
-    <span class="marquee-item">Entradas recurrentes</span>
+    <span class="marquee-item">Registro rápido</span>
+    <span class="marquee-item">Gastos e ingresos</span>
+    <span class="marquee-item">Topes por categoría</span>
+    <span class="marquee-item">Gráficas útiles</span>
+    <span class="marquee-item">Recurrentes</span>
     <span class="marquee-item">Metas de ahorro</span>
-    <span class="marquee-item">Busqueda instantanea</span>
-    <span class="marquee-item">Proyeccion de gastos</span>
+    <span class="marquee-item">Búsqueda al instante</span>
+    <span class="marquee-item">Proyección mensual</span>
     <span class="marquee-item">Modo claro y oscuro</span>
-    <span class="marquee-item">Notificaciones de presupuesto</span>
-    <span class="marquee-item">Categorias personalizables</span>
+    <span class="marquee-item">Avisos de presupuesto</span>
+    <span class="marquee-item">Categorías editables</span>
     <span class="marquee-item">Sin anuncios</span>
-    <span class="marquee-item">100% privado</span>
-    <span class="marquee-item">Registro de gastos</span>
-    <span class="marquee-item">Metas mensuales</span>
-    <span class="marquee-item">Graficas y tendencias</span>
-    <span class="marquee-item">Exportar a Excel</span>
-    <span class="marquee-item">Entradas recurrentes</span>
+    <span class="marquee-item">Tus datos, tuyos</span>
+    <span class="marquee-item">Registro rápido</span>
+    <span class="marquee-item">Gastos e ingresos</span>
+    <span class="marquee-item">Topes por categoría</span>
+    <span class="marquee-item">Gráficas útiles</span>
+    <span class="marquee-item">Recurrentes</span>
     <span class="marquee-item">Metas de ahorro</span>
-    <span class="marquee-item">Busqueda instantanea</span>
-    <span class="marquee-item">Proyeccion de gastos</span>
+    <span class="marquee-item">Búsqueda al instante</span>
+    <span class="marquee-item">Proyección mensual</span>
     <span class="marquee-item">Modo claro y oscuro</span>
-    <span class="marquee-item">Notificaciones de presupuesto</span>
-    <span class="marquee-item">Categorias personalizables</span>
+    <span class="marquee-item">Avisos de presupuesto</span>
+    <span class="marquee-item">Categorías editables</span>
     <span class="marquee-item">Sin anuncios</span>
-    <span class="marquee-item">100% privado</span>
+    <span class="marquee-item">Tus datos, tuyos</span>
   </div>
 </div>
 
 <section class="section">
-  <div class="section-label reveal">Funcionalidades</div>
-  <h2 class="section-title reveal">Todo lo que<br>necesitas,<br><em>y más.</em></h2>
+  <div class="section-label reveal">Qué hace</div>
+  <h2 class="section-title reveal">Una app simple para ver<br>a dónde se va<br><em>tu dinero.</em></h2>
+  <p class="section-intro reveal">BudgetLog es un registro personal de gastos e ingresos. <strong>No vende productos financieros ni vive de anuncios.</strong> Solo te ayuda a entender tu dinero y seguirlo desde el celular.</p>
   <div class="features-grid reveal">
     <div class="feature-card">
       <span class="feature-icon">📊</span>
-      <div class="feature-name">Dashboard inteligente</div>
-      <div class="feature-desc">Saldo neto, tasa de ahorro, mayor categoría del mes y comparativo vs mes anterior — todo en una pantalla.</div>
-      <span class="feature-tag">en tiempo real</span>
+      <div class="feature-name">Resumen financiero</div>
+      <div class="feature-desc">Saldo del mes, ahorro, categoría más alta y comparación con el mes anterior en una sola vista.</div>
+      <span class="feature-tag">resumen del mes</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">⚡</span>
-      <div class="feature-name">Log rápido</div>
-      <div class="feature-desc">Agrega un gasto en menos de 5 segundos. Categorías con un tap, monto, descripción y listo.</div>
-      <span class="feature-tag">ultra rápido</span>
+      <div class="feature-name">Registro rápido</div>
+      <div class="feature-desc">Anota un gasto o ingreso en segundos: categoría, monto, descripción y listo.</div>
+      <span class="feature-tag">menos de 5 s</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🎯</span>
-      <div class="feature-name">Metas mensuales</div>
-      <div class="feature-desc">Define cuánto quieres gastar por categoría. Barras de progreso te avisan cuando te acercas al límite.</div>
+      <div class="feature-name">Topes por categoría</div>
+      <div class="feature-desc">Define cuánto quieres gastar en comida, transporte o salidas y sigue el avance con barras claras.</div>
       <span class="feature-tag">por categoría</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">📈</span>
-      <div class="feature-name">Gráficas reales</div>
-      <div class="feature-desc">Barras vs meta, tendencia de 6 meses, saldo neto mensual, línea por categoría y dona de distribución.</div>
+      <div class="feature-name">Gráficas útiles</div>
+      <div class="feature-desc">Barras contra meta, tendencia de 6 meses, saldo neto y distribución por categoría.</div>
       <span class="feature-tag">5 vistas</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🔁</span>
-      <div class="feature-name">Recurrentes automáticos</div>
-      <div class="feature-desc">Renta, suscripciones, quincena — se aplican solos al abrir la app cada mes. Mensual, quincenal o semanal.</div>
-      <span class="feature-tag">auto-aplicado</span>
+      <div class="feature-name">Recurrentes</div>
+      <div class="feature-desc">Renta, suscripciones o quincena. Puedes dejarlas listas y aplicarlas según toque.</div>
+      <span class="feature-tag">mensual / quincenal / semanal</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🏦</span>
       <div class="feature-name">Metas de ahorro</div>
-      <div class="feature-desc">Crea metas con nombre, color y monto objetivo. La barra de progreso se actualiza sola con tus entradas de ahorro.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-desc">Crea una meta, asígnale aportaciones y ve cuánto llevas sin hacer cuentas aparte.</div>
+      <span class="feature-tag">progreso visible</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🔮</span>
-      <div class="feature-name">Proyección del mes</div>
-      <div class="feature-desc">BudgetLog calcula tus ingresos y gastos esperados del próximo mes basándose en tus entradas recurrentes.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-name">Próximo mes</div>
+      <div class="feature-desc">Hazte una idea de lo que viene con base en tus movimientos recurrentes.</div>
+      <span class="feature-tag">estimado mensual</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🔔</span>
-      <div class="feature-name">Alertas de presupuesto</div>
-      <div class="feature-desc">Notificaciones push diarias cuando alguna categoría alcanza el 80% o 100% de su meta mensual.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-name">Avisos de presupuesto</div>
+      <div class="feature-desc">Recibe alertas cuando una categoría ya va alta y conviene bajarle antes de cerrar el mes.</div>
+      <span class="feature-tag">80% y 100%</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🎨</span>
-      <div class="feature-name">Categorías a tu gusto</div>
-      <div class="feature-desc">Renombra cualquier categoría y cambia su color. Los cambios se sincronizan en todos tus dispositivos.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-name">Categorías editables</div>
+      <div class="feature-desc">Cambia nombres y colores para que la app se parezca a cómo tú organizas tu dinero.</div>
+      <span class="feature-tag">nombres y colores</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🔍</span>
-      <div class="feature-name">Búsqueda instantánea</div>
-      <div class="feature-desc">Encuentra cualquier entrada al instante. Filtra por descripción, monto o categoría en tiempo real.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-name">Buscar movimientos</div>
+      <div class="feature-desc">Encuentra rápido una compra, un ingreso o una suscripción sin recorrer todo el historial.</div>
+      <span class="feature-tag">al instante</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">☀️</span>
       <div class="feature-name">Modo claro y oscuro</div>
-      <div class="feature-desc">Cambia entre modo oscuro y claro con un toque. La preferencia se guarda automáticamente.</div>
-      <span class="feature-tag">nuevo</span>
+      <div class="feature-desc">Usa el tema que te sea más cómodo. La app recuerda tu preferencia.</div>
+      <span class="feature-tag">tu preferencia</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">☁️</span>
-      <div class="feature-name">Sync en la nube</div>
-      <div class="feature-desc">Login con Google. Tus datos viajan contigo — ábrela en cualquier dispositivo y todo estará ahí.</div>
-      <span class="feature-tag">firebase</span>
+      <div class="feature-name">Sync con Google</div>
+      <div class="feature-desc">Inicia sesión con Google y sigue viendo lo mismo en cualquiera de tus dispositivos.</div>
+      <span class="feature-tag">mismo historial</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">📥</span>
       <div class="feature-name">Exportar a Excel</div>
-      <div class="feature-desc">Descarga un .xlsx con 4 hojas: entradas, resumen mensual, desglose por categoría y comparativo vs metas.</div>
-      <span class="feature-tag">xlsx nativo</span>
+      <div class="feature-desc">Descarga tus movimientos y resúmenes en un archivo claro para revisarlo o guardarlo aparte.</div>
+      <span class="feature-tag">4 hojas</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🔒</span>
-      <div class="feature-name">100% tuyo</div>
-      <div class="feature-desc">Sin rastreo, sin anuncios, sin venta de datos. Tu información solo la ves tú, protegida en tu cuenta de Google.</div>
-      <span class="feature-tag">privado</span>
+      <div class="feature-name">Tu información, tuya</div>
+      <div class="feature-desc">No hay anuncios, no hay rastreo y no se venden datos. Tu cuenta de Google solo sirve para sincronizar.</div>
+      <span class="feature-tag">sin rastreo</span>
     </div>
   </div>
 </section>
 
 <div class="install-section" id="instalar">
   <div class="install-inner">
-    <div class="section-label reveal">Instalación</div>
-    <h2 class="section-title reveal">Instálala como<br>app nativa.</h2>
+    <div class="section-label reveal">Cómo instalarla</div>
+    <h2 class="section-title reveal">Úsala como app<br>en tu celular.</h2>
     <div class="install-grid">
       <div class="install-platform reveal">
         <div class="platform-header">
@@ -724,15 +963,15 @@ footer {
   <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin anuncios</div>
   <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin rastreo</div>
   <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin venta de datos</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Login seguro con Google</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Datos solo tuyos</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Gratis para siempre</div>
+  <div class="privacy-item reveal"><div class="privacy-dot"></div> Sync con Google</div>
+  <div class="privacy-item reveal"><div class="privacy-dot"></div> Tus datos siguen siendo tuyos</div>
+  <div class="privacy-item reveal"><div class="privacy-dot"></div> Instalable como app</div>
 </div>
 
 <section class="cta-section">
   <div class="cta-box reveal">
-    <h2 class="cta-title">Empieza hoy.<br>Es gratis.</h2>
-    <p class="cta-sub">Sin registro complicado. Solo inicia sesión con Google<br>y empieza a registrar en segundos.</p>
+    <h2 class="cta-title">Abre la app y<br>empieza a registrar.</h2>
+    <p class="cta-sub">Inicia sesión con Google y úsala al momento.<br>No hay cuentas raras ni pasos de más.</p>
     <a class="btn-primary" href="/app.html" style="display:inline-flex;">
       <span>Abrir BudgetLog</span>
       <span>→</span>
@@ -743,7 +982,7 @@ footer {
 
 <footer>
   <div class="footer-logo">Budget<span>Log</span></div>
-  <div class="footer-note">Hecho con ♥ · Gratis y open source</div>
+  <div class="footer-note">Hecho para usarlo diario · Gratis y open source</div>
 </footer>
 
 <script>
@@ -761,6 +1000,108 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
   el.style.transitionDelay = (i % 4) * 0.08 + 's';
   observer.observe(el);
 });
+
+const heroPreviewStates = [
+  {
+    month: 'Marzo 2026',
+    spent: '$12,480',
+    saved: '$4,200',
+    transactions: [
+      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Renta', meta: 'Ayer · Servicios', amount: '-$7,500', type: 'expense' },
+      { name: 'Supermercado', meta: 'Ayer · Alimentos', amount: '-$1,280', type: 'expense' },
+      { name: 'Ahorro', meta: 'Hace 2 dias · Meta', amount: '+$1,200', type: 'income' }
+    ],
+    bars: [
+      { label: 'Renta', value: '60%', width: '60%', color: '#5b8af0' },
+      { label: 'Alimentos', value: '24%', width: '24%', color: '#3dd68c' },
+      { label: 'Transporte', value: '10%', width: '10%', color: '#f0c75b' }
+    ]
+  },
+  {
+    month: 'Abril 2026',
+    spent: '$11,920',
+    saved: '$4,860',
+    transactions: [
+      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Uber', meta: 'Hoy · Transporte', amount: '-$122', type: 'expense' },
+      { name: 'Starbucks', meta: 'Ayer · Salidas', amount: '-$95', type: 'expense' },
+      { name: 'Netflix', meta: 'Ayer · Suscripciones', amount: '-$219', type: 'expense' }
+    ],
+    bars: [
+      { label: 'Renta', value: '63%', width: '63%', color: '#5b8af0' },
+      { label: 'Alimentos', value: '18%', width: '18%', color: '#3dd68c' },
+      { label: 'Salidas', value: '7%', width: '7%', color: '#f0c75b' }
+    ]
+  },
+  {
+    month: 'Mayo 2026',
+    spent: '$10,740',
+    saved: '$5,400',
+    transactions: [
+      { name: 'Nomina', meta: 'Hoy · Ingreso', amount: '+$18,000', type: 'income' },
+      { name: 'Supermercado', meta: 'Hoy · Alimentos', amount: '-$980', type: 'expense' },
+      { name: 'Ahorro', meta: 'Ayer · Meta', amount: '+$1,600', type: 'income' },
+      { name: 'Internet', meta: 'Hace 2 dias · Servicios', amount: '-$649', type: 'expense' }
+    ],
+    bars: [
+      { label: 'Renta', value: '70%', width: '70%', color: '#5b8af0' },
+      { label: 'Alimentos', value: '14%', width: '14%', color: '#3dd68c' },
+      { label: 'Servicios', value: '9%', width: '9%', color: '#f0c75b' }
+    ]
+  }
+];
+
+function renderHeroPreviewState(state) {
+  const monthEl = document.getElementById('previewMonth');
+  const spentEl = document.getElementById('previewSpent');
+  const savedEl = document.getElementById('previewSaved');
+  const txContainer = document.getElementById('previewTransactions');
+  if (!monthEl || !spentEl || !savedEl || !txContainer || !state) return;
+
+  monthEl.textContent = state.month;
+  spentEl.textContent = state.spent;
+  savedEl.textContent = state.saved;
+  txContainer.innerHTML = state.transactions.map(tx => `
+    <div class="preview-transaction">
+      <div class="preview-transaction-left">
+        <div class="preview-transaction-name">${tx.name}</div>
+        <div class="preview-transaction-meta">${tx.meta}</div>
+      </div>
+      <div class="preview-transaction-amount ${tx.type}">${tx.amount}</div>
+    </div>
+  `).join('');
+
+  state.bars.forEach((bar, index) => {
+    const slot = index + 1;
+    const labelEl = document.getElementById(`previewBarLabel${slot}`);
+    const valueEl = document.getElementById(`previewBarValue${slot}`);
+    const fillEl = document.getElementById(`previewBarFill${slot}`);
+    if (!labelEl || !valueEl || !fillEl) return;
+    labelEl.textContent = bar.label;
+    valueEl.textContent = bar.value;
+    fillEl.style.width = bar.width;
+    fillEl.style.background = bar.color;
+  });
+}
+
+const heroPreview = document.querySelector('[data-hero-preview] .preview-shell');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (heroPreview && heroPreviewStates.length) {
+  let heroPreviewIndex = 0;
+  renderHeroPreviewState(heroPreviewStates[0]);
+
+  if (!prefersReducedMotion) {
+    window.setInterval(() => {
+      heroPreview.classList.add('is-refreshing');
+      window.setTimeout(() => {
+        heroPreviewIndex = (heroPreviewIndex + 1) % heroPreviewStates.length;
+        renderHeroPreviewState(heroPreviewStates[heroPreviewIndex]);
+        heroPreview.classList.remove('is-refreshing');
+      }, 180);
+    }, 3400);
+  }
+}
 </script>
 </body>
 </html>
