@@ -387,47 +387,12 @@ nav {
   margin-top: 4px;
 }
 
-.marquee-wrap {
-  overflow: hidden;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 18px 0;
-  position: relative;
-  z-index: 1;
-}
-.marquee {
-  display: flex;
-  gap: 48px;
-  animation: marquee 22s linear infinite;
-  white-space: nowrap;
-}
-.marquee-item {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-.marquee-item::before {
-  content: '◆';
-  color: var(--accent);
-  font-size: 8px;
-}
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
 .section {
   position: relative;
   z-index: 1;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 100px 40px;
+  padding: 84px 40px;
 }
 .section-label {
   font-family: var(--font-mono);
@@ -443,18 +408,33 @@ nav {
   font-weight: 700;
   line-height: 1.02;
   letter-spacing: -1px;
-  margin-bottom: 60px;
+  margin-bottom: 48px;
 }
 .section-intro {
   font-family: var(--font-ui);
   max-width: 640px;
-  margin: -28px 0 48px;
+  margin: -18px 0 36px;
   font-size: 16px;
   line-height: 1.8;
   color: var(--muted);
 }
 .section-intro strong { color: var(--text); }
 .showcase-stack { display: grid; gap: 28px; }
+.showcase-flow {
+  margin-top: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+}
+.showcase-flow-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
 .showcase-block {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -656,33 +636,12 @@ nav {
   line-height: 1.65;
   color: var(--muted);
 }
-.features-layout { display: block; }
-.feature-groups { display: grid; gap: 22px; }
-.features-layout + .features-grid.reveal { display: none; }
-.feature-group-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-.features-sticky { display: none; }
-.features-sticky .hero-preview {
-  max-width: 100%;
-  margin-top: 0;
-  opacity: 1;
-  animation: none;
-}
-.features-sticky .preview-shell {
-  box-shadow: 0 20px 56px rgba(0,0,0,0.24);
-}
 .trust-strip {
   position: relative;
   z-index: 1;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0 40px 52px;
+  padding: 0 40px 32px;
 }
 .trust-strip-inner {
   display: flex;
@@ -746,6 +705,48 @@ nav {
   font-size: 14px;
   line-height: 1.7;
   color: var(--muted);
+}
+.install-details {
+  margin-top: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+}
+.install-details summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.install-details summary::-webkit-details-marker { display: none; }
+.install-details summary::after {
+  content: '+';
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: 16px;
+}
+.install-details[open] summary::after { content: '−'; }
+.install-details-body {
+  padding: 0 22px 22px;
+}
+.mobile-sticky-cta {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 120;
+  display: none;
+}
+.mobile-sticky-cta .btn-primary {
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.28);
 }
 
 .features-grid {
@@ -864,7 +865,7 @@ nav {
   position: relative; z-index: 1;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 60px 40px 120px;
+  padding: 48px 40px 96px;
   text-align: center;
 }
 .cta-box {
@@ -941,20 +942,6 @@ footer {
   }
 }
 
-@media (min-width: 1100px) {
-  .features-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
-    gap: 40px;
-    align-items: start;
-  }
-  .features-sticky {
-    display: block;
-    position: sticky;
-    top: 120px;
-  }
-}
-
 @media (max-width: 900px) {
   .how-grid {
     grid-template-columns: 1fr;
@@ -986,19 +973,21 @@ footer {
 }
 
 @media (max-width: 600px) {
+  body { padding-bottom: 88px; }
   nav { padding: 16px 20px; }
   .hero { padding: 100px 20px 60px; }
   .hero-preview { max-width: 100%; }
   .hero-stats { gap: 28px; flex-wrap: wrap; }
   .section { padding: 70px 20px; }
   .install-inner { padding: 70px 20px; }
-  .cta-section { padding: 40px 20px 80px; }
+  .cta-section { padding: 36px 20px 110px; }
   .privacy-strip { padding: 40px 20px; }
   .showcase-block, .how-card { padding: 22px; }
   footer { padding: 24px 20px; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-secondary { justify-content: center; }
   .preview-metric-value { font-size: 24px; }
+  .mobile-sticky-cta { display: block; }
 }
 </style>
 </head>
@@ -1127,7 +1116,7 @@ footer {
 
 <section class="section product-showcase">
   <div class="section-label reveal">Vista previa</div>
-  <h2 class="section-title reveal">As&iacute; se ve usar BudgetLog</h2>
+  <h2 class="section-title reveal">As&iacute; se usa BudgetLog</h2>
   <div class="showcase-stack">
     <div class="showcase-block reveal">
       <div class="showcase-title">Tu mes, claro en una sola vista</div>
@@ -1213,236 +1202,39 @@ footer {
       </ul>
     </div>
   </div>
-</section>
-
-<section class="section">
-  <div class="section-label reveal">Flujo</div>
-  <h2 class="section-title reveal">C&oacute;mo funciona</h2>
-  <div class="how-grid">
-    <div class="how-card reveal">
-      <div class="how-step">1</div>
-      <div class="how-title">Registra un gasto</div>
-      <div class="how-desc">Monto, categor&iacute;a y listo.</div>
-    </div>
-    <div class="how-card reveal">
-      <div class="how-step">2</div>
-      <div class="how-title">Mira tu mes</div>
-      <div class="how-desc">Saldo, ahorro y categor&iacute;as.</div>
-    </div>
-    <div class="how-card reveal">
-      <div class="how-step">3</div>
-      <div class="how-title">Ajusta tu presupuesto</div>
-      <div class="how-desc">Evita pasarte antes de que termine el mes.</div>
+  <div class="showcase-flow reveal">
+    <div class="showcase-flow-label">C&oacute;mo funciona</div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-step">1</div>
+        <div class="how-title">Registra un gasto</div>
+        <div class="how-desc">Monto, categor&iacute;a y listo.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-step">2</div>
+        <div class="how-title">Mira tu mes</div>
+        <div class="how-desc">Saldo, ahorro y categor&iacute;as.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-step">3</div>
+        <div class="how-title">Ajusta tu presupuesto</div>
+        <div class="how-desc">Evita pasarte antes de que termine el mes.</div>
+      </div>
     </div>
   </div>
 </section>
-
-<div class="marquee-wrap">
-  <div class="marquee">
-    <span class="marquee-item">Registro rápido</span>
-    <span class="marquee-item">Gastos e ingresos</span>
-    <span class="marquee-item">Topes por categoría</span>
-    <span class="marquee-item">Gráficas útiles</span>
-    <span class="marquee-item">Recurrentes</span>
-    <span class="marquee-item">Metas de ahorro</span>
-    <span class="marquee-item">Búsqueda al instante</span>
-    <span class="marquee-item">Proyección mensual</span>
-    <span class="marquee-item">Modo claro y oscuro</span>
-    <span class="marquee-item">Avisos de presupuesto</span>
-    <span class="marquee-item">Categorías editables</span>
-    <span class="marquee-item">Sin anuncios</span>
-    <span class="marquee-item">Tus datos, tuyos</span>
-    <span class="marquee-item">Registro rápido</span>
-    <span class="marquee-item">Gastos e ingresos</span>
-    <span class="marquee-item">Topes por categoría</span>
-    <span class="marquee-item">Gráficas útiles</span>
-    <span class="marquee-item">Recurrentes</span>
-    <span class="marquee-item">Metas de ahorro</span>
-    <span class="marquee-item">Búsqueda al instante</span>
-    <span class="marquee-item">Proyección mensual</span>
-    <span class="marquee-item">Modo claro y oscuro</span>
-    <span class="marquee-item">Avisos de presupuesto</span>
-    <span class="marquee-item">Categorías editables</span>
-    <span class="marquee-item">Sin anuncios</span>
-    <span class="marquee-item">Tus datos, tuyos</span>
-  </div>
-</div>
 
 <section class="section">
   <div class="section-label reveal">Qué hace</div>
   <h2 class="section-title reveal">Una app simple para ver<br>a dónde se va<br><em>tu dinero.</em></h2>
   <p class="section-intro reveal">BudgetLog es un registro personal de gastos e ingresos. <strong>No vende productos financieros ni vive de anuncios.</strong> Solo te ayuda a entender tu dinero y seguirlo desde el celular.</p>
-  <div class="features-layout">
-    <div class="feature-groups">
-      <div class="reveal">
-        <div class="feature-group-label">Tracking</div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v5h5"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
-            <div class="feature-name">Registro r&aacute;pido</div>
-            <div class="feature-desc">Anota un gasto o ingreso en segundos: categor&iacute;a, monto, descripci&oacute;n y listo.</div>
-            <span class="feature-tag">menos de 5 s</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg></span>
-            <div class="feature-name">Buscar movimientos</div>
-            <div class="feature-desc">Encuentra r&aacute;pido una compra, un ingreso o una suscripci&oacute;n sin recorrer todo el historial.</div>
-            <span class="feature-tag">al instante</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 14h3"/><path d="M13 14h3"/></svg></span>
-            <div class="feature-name">Recurrentes</div>
-            <div class="feature-desc">Renta, suscripciones o quincena. Puedes dejarlas listas y aplicarlas seg&uacute;n toque.</div>
-            <span class="feature-tag">mensual / quincenal / semanal</span>
-          </div>
-        </div>
-      </div>
-      <div class="reveal">
-        <div class="feature-group-label">Understanding</div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9h9"/><path d="M8.5 14.5h.01"/><path d="M9.5 18h.01"/></svg></span>
-            <div class="feature-name">Resumen financiero</div>
-            <div class="feature-desc">Saldo del mes, ahorro, categor&iacute;a m&aacute;s alta y comparaci&oacute;n con el mes anterior en una sola vista.</div>
-            <span class="feature-tag">resumen del mes</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-3 3 2 5-6"/></svg></span>
-            <div class="feature-name">Gr&aacute;ficas &uacute;tiles</div>
-            <div class="feature-desc">Barras contra meta, tendencia de 6 meses, saldo neto y distribuci&oacute;n por categor&iacute;a.</div>
-            <span class="feature-tag">5 vistas</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 17 10-10"/><path d="M9 7h8v8"/></svg></span>
-            <div class="feature-name">Pr&oacute;ximo mes</div>
-            <div class="feature-desc">Hazte una idea de lo que viene con base en tus movimientos recurrentes.</div>
-            <span class="feature-tag">estimado mensual</span>
-          </div>
-        </div>
-      </div>
-      <div class="reveal">
-        <div class="feature-group-label">Control</div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7 6.5-4H20v5.5L13 15l-5-5V7Z"/><path d="M13 15 9 19H4v-5l5-4"/><path d="M16 7h.01"/></svg></span>
-            <div class="feature-name">Topes por categor&iacute;a</div>
-            <div class="feature-desc">Define cu&aacute;nto quieres gastar en comida, transporte o salidas y sigue el avance con barras claras.</div>
-            <span class="feature-tag">por categor&iacute;a</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 4 8 14H4l8-14Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
-            <div class="feature-name">Avisos de presupuesto</div>
-            <div class="feature-desc">Recibe alertas cuando una categor&iacute;a ya va alta y conviene bajarle antes de cerrar el mes.</div>
-            <span class="feature-tag">80% y 100%</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v1"/><path d="M18 13h-2"/><path d="M7 11h5"/></svg></span>
-            <div class="feature-name">Metas de ahorro</div>
-            <div class="feature-desc">Crea una meta, as&iacute;gnale aportaciones y ve cu&aacute;nto llevas sin hacer cuentas aparte.</div>
-            <span class="feature-tag">progreso visible</span>
-          </div>
-        </div>
-      </div>
-      <div class="reveal">
-        <div class="feature-group-label">Tools</div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M12 11v6"/><path d="m9.5 14.5 2.5 2.5 2.5-2.5"/></svg></span>
-            <div class="feature-name">Exportar a Excel</div>
-            <div class="feature-desc">Descarga tus movimientos y res&uacute;menes en un archivo claro para revisarlo o guardarlo aparte.</div>
-            <span class="feature-tag">4 hojas</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .8-7.9A5.5 5.5 0 0 1 18 12a3.5 3.5 0 1 1 0 7H7Z"/></svg></span>
-            <div class="feature-name">Sync con Google</div>
-            <div class="feature-desc">Inicia sesi&oacute;n con Google y sigue viendo lo mismo en cualquiera de tus dispositivos.</div>
-            <span class="feature-tag">mismo historial</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="m16.5 3.5 4 4"/><path d="M19 3a2.1 2.1 0 0 1 3 3L9 19l-4 1 1-4L19 3Z"/></svg></span>
-            <div class="feature-name">Categor&iacute;as editables</div>
-            <div class="feature-desc">Cambia nombres y colores para que la app se parezca a c&oacute;mo t&uacute; organizas tu dinero.</div>
-            <span class="feature-tag">nombres y colores</span>
-          </div>
-          <div class="feature-card">
-            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 6 5.5v5.8c0 4 2.5 7.7 6 9.7 3.5-2 6-5.7 6-9.7V5.5L12 3Z"/><path d="m9.5 12 1.7 1.7 3.3-3.3"/></svg></span>
-            <div class="feature-name">Tu informaci&oacute;n, tuya</div>
-            <div class="feature-desc">No hay anuncios, no hay rastreo y no se venden datos. Tu cuenta de Google solo sirve para sincronizar.</div>
-            <span class="feature-tag">sin rastreo</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <aside class="features-sticky reveal" aria-hidden="true">
-      <div class="preview-kicker">As&iacute; se mueve tu mes</div>
-      <div class="hero-preview">
-        <div class="preview-shell">
-          <div class="preview-inner">
-            <div class="preview-top">
-              <div class="preview-month">Marzo 2026</div>
-              <div class="preview-badge">Sincronizado</div>
-            </div>
-            <div class="preview-body">
-              <div class="preview-metrics">
-                <div class="preview-metric">
-                  <div class="preview-metric-label">Gastos del mes</div>
-                  <div class="preview-metric-value">$12,480</div>
-                </div>
-                <div class="preview-metric">
-                  <div class="preview-metric-label">Ahorro</div>
-                  <div class="preview-metric-value saved">$4,200</div>
-                </div>
-              </div>
-              <div class="preview-panel">
-                <div class="preview-panel-title">Movimientos recientes</div>
-                <div class="preview-transactions">
-                  <div class="preview-transaction">
-                    <div class="preview-transaction-left">
-                      <div class="preview-transaction-name">N&oacute;mina</div>
-                      <div class="preview-transaction-meta">Hoy &middot; Ingreso</div>
-                    </div>
-                    <div class="preview-transaction-amount income">+$18,000</div>
-                  </div>
-                  <div class="preview-transaction">
-                    <div class="preview-transaction-left">
-                      <div class="preview-transaction-name">Renta</div>
-                      <div class="preview-transaction-meta">Ayer &middot; Servicios</div>
-                    </div>
-                    <div class="preview-transaction-amount expense">-$7,500</div>
-                  </div>
-                  <div class="preview-transaction">
-                    <div class="preview-transaction-left">
-                      <div class="preview-transaction-name">Supermercado</div>
-                      <div class="preview-transaction-meta">Ayer &middot; Alimentos</div>
-                    </div>
-                    <div class="preview-transaction-amount expense">-$1,280</div>
-                  </div>
-                </div>
-              </div>
-              <div class="preview-panel">
-                <div class="preview-panel-title">Categor&iacute;as</div>
-                <div class="preview-bars">
-                  <div>
-                    <div class="preview-bar-head"><span>Renta</span><span>60%</span></div>
-                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:60%; background:#5b8af0;"></div></div>
-                  </div>
-                  <div>
-                    <div class="preview-bar-head"><span>Alimentos</span><span>24%</span></div>
-                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:24%; background:#3dd68c;"></div></div>
-                  </div>
-                  <div>
-                    <div class="preview-bar-head"><span>Transporte</span><span>10%</span></div>
-                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:10%; background:#f0c75b;"></div></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
   <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v5h5"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
+      <div class="feature-name">Registro rápido</div>
+      <div class="feature-desc">Anota un gasto o ingreso en segundos: categoría, monto, descripción y listo.</div>
+      <span class="feature-tag">menos de 5 s</span>
+    </div>
     <div class="feature-card">
       <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9h9"/><path d="M8.5 14.5h.01"/><path d="M9.5 18h.01"/></svg></span>
       <div class="feature-name">Resumen financiero</div>
@@ -1456,12 +1248,6 @@ footer {
       <span class="feature-tag">por categoría</span>
     </div>
     <div class="feature-card">
-      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-3 3 2 5-6"/></svg></span>
-      <div class="feature-name">Gráficas útiles</div>
-      <div class="feature-desc">Barras contra meta, tendencia de 6 meses, saldo neto y distribución por categoría.</div>
-      <span class="feature-tag">5 vistas</span>
-    </div>
-    <div class="feature-card">
       <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 14h3"/><path d="M13 14h3"/></svg></span>
       <div class="feature-name">Recurrentes</div>
       <div class="feature-desc">Renta, suscripciones o quincena. Puedes dejarlas listas y aplicarlas según toque.</div>
@@ -1472,30 +1258,6 @@ footer {
       <div class="feature-name">Metas de ahorro</div>
       <div class="feature-desc">Crea una meta, asígnale aportaciones y ve cuánto llevas sin hacer cuentas aparte.</div>
       <span class="feature-tag">progreso visible</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 17 10-10"/><path d="M9 7h8v8"/></svg></span>
-      <div class="feature-name">Próximo mes</div>
-      <div class="feature-desc">Hazte una idea de lo que viene con base en tus movimientos recurrentes.</div>
-      <span class="feature-tag">estimado mensual</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 4 8 14H4l8-14Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
-      <div class="feature-name">Avisos de presupuesto</div>
-      <div class="feature-desc">Recibe alertas cuando una categoría ya va alta y conviene bajarle antes de cerrar el mes.</div>
-      <span class="feature-tag">80% y 100%</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="m16.5 3.5 4 4"/><path d="M19 3a2.1 2.1 0 0 1 3 3L9 19l-4 1 1-4L19 3Z"/></svg></span>
-      <div class="feature-name">Categorías editables</div>
-      <div class="feature-desc">Cambia nombres y colores para que la app se parezca a cómo tú organizas tu dinero.</div>
-      <span class="feature-tag">nombres y colores</span>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg></span>
-      <div class="feature-name">Buscar movimientos</div>
-      <div class="feature-desc">Encuentra rápido una compra, un ingreso o una suscripción sin recorrer todo el historial.</div>
-      <span class="feature-tag">al instante</span>
     </div>
     <div class="feature-card">
       <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .8-7.9A5.5 5.5 0 0 1 18 12a3.5 3.5 0 1 1 0 7H7Z"/></svg></span>
@@ -1532,8 +1294,11 @@ footer {
   <div class="install-inner">
     <div class="section-label reveal">Cómo instalarla</div>
     <h2 class="section-title reveal">Úsala como app<br>en tu celular.</h2>
+    <details class="install-details reveal">
+      <summary>Ver pasos de instalación</summary>
+      <div class="install-details-body">
     <div class="install-grid">
-      <div class="install-platform reveal">
+      <div class="install-platform">
         <div class="platform-header">
           <span class="platform-icon">🍎</span>
           <div>
@@ -1574,7 +1339,7 @@ footer {
           </div>
         </div>
       </div>
-      <div class="install-platform reveal">
+      <div class="install-platform">
         <div class="platform-header">
           <span class="platform-icon">🤖</span>
           <div>
@@ -1615,16 +1380,9 @@ footer {
         </div>
       </div>
     </div>
+      </div>
+    </details>
   </div>
-</div>
-
-<div class="privacy-strip">
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin anuncios</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin rastreo</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Sin venta de datos</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Sync con Google</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Tus datos siguen siendo tuyos</div>
-  <div class="privacy-item reveal"><div class="privacy-dot"></div> Instalable como app</div>
 </div>
 
 <section class="section">
@@ -1643,10 +1401,6 @@ footer {
       <summary>&iquest;Necesito instalar algo?</summary>
       <div class="faq-answer">No. Puedes usarlo en el navegador o instalarlo como app.</div>
     </details>
-    <details class="faq-item reveal">
-      <summary>&iquest;Funciona sin internet?</summary>
-      <div class="faq-answer">S&iacute;, una vez instalada.</div>
-    </details>
   </div>
 </section>
 
@@ -1661,6 +1415,12 @@ footer {
     <div class="cta-url">budgetlog-b318d.web.app</div>
   </div>
 </section>
+
+<div class="mobile-sticky-cta">
+  <a class="btn-primary" href="/app.html">
+    <span>Abrir BudgetLog</span>
+  </a>
+</div>
 
 <footer>
   <div class="footer-logo">Budget<span>Log</span></div>
