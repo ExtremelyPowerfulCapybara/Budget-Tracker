@@ -419,13 +419,14 @@ nav {
   color: var(--muted);
 }
 .section-intro strong { color: var(--text); }
+.showcase-layout { display: grid; gap: 28px; }
 .showcase-stack { display: grid; gap: 28px; }
 .showcase-flow {
   margin-top: 28px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 22px;
+  padding: 20px;
 }
 .showcase-flow-label {
   font-family: var(--font-mono);
@@ -433,7 +434,48 @@ nav {
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.showcase-balance {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 20px;
+}
+.showcase-balance-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
   margin-bottom: 14px;
+}
+.showcase-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.showcase-balance-item {
+  min-height: 74px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.05);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.showcase-balance-item strong {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.showcase-balance-item span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .showcase-block {
   background: var(--surface);
@@ -608,14 +650,14 @@ nav {
 .how-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 14px;
 }
 .showcase-list li::before { content: '\2022'; }
 .how-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 18px;
 }
 .how-step {
   font-family: var(--font-mono);
@@ -626,10 +668,10 @@ nav {
   margin-bottom: 14px;
 }
 .how-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .how-desc {
   font-size: 14px;
@@ -940,10 +982,41 @@ footer {
   .hero-preview {
     margin-top: 0;
   }
+  .showcase-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 32px;
+  }
+  .showcase-stack {
+    display: contents;
+  }
+  .showcase-block:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .showcase-block:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+  }
+  .showcase-balance {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+  .showcase-flow {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    margin: 0;
+  }
 }
 
 @media (max-width: 900px) {
   .how-grid {
+    grid-template-columns: 1fr;
+  }
+  .showcase-balance-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -982,7 +1055,8 @@ footer {
   .install-inner { padding: 70px 20px; }
   .cta-section { padding: 36px 20px 110px; }
   .privacy-strip { padding: 40px 20px; }
-  .showcase-block, .how-card { padding: 22px; }
+  .showcase-block { padding: 22px; }
+  .how-card { padding: 18px; }
   footer { padding: 24px 20px; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-secondary { justify-content: center; }
@@ -1117,8 +1191,9 @@ footer {
 <section class="section product-showcase">
   <div class="section-label reveal">Vista previa</div>
   <h2 class="section-title reveal">As&iacute; se usa BudgetLog</h2>
-  <div class="showcase-stack">
-    <div class="showcase-block reveal">
+  <div class="showcase-layout">
+    <div class="showcase-stack">
+      <div class="showcase-block reveal">
       <div class="showcase-title">Tu mes, claro en una sola vista</div>
       <div class="showcase-shot" aria-hidden="true">
         <div class="shot-grid">
@@ -1163,8 +1238,25 @@ footer {
         <li>Tendencia de meses</li>
         <li>Proyecci&oacute;n del mes</li>
       </ul>
-    </div>
-    <div class="showcase-block reveal">
+      </div>
+      <div class="showcase-balance reveal">
+        <div class="showcase-balance-label">Siempre a la mano</div>
+        <div class="showcase-balance-grid">
+          <div class="showcase-balance-item">
+            <strong>Sin anuncios</strong>
+            <span>enfocado en tu dinero</span>
+          </div>
+          <div class="showcase-balance-item">
+            <strong>Instalable</strong>
+            <span>iPhone · Android · desktop</span>
+          </div>
+          <div class="showcase-balance-item">
+            <strong>Con sync</strong>
+            <span>tu historial en cualquier dispositivo</span>
+          </div>
+        </div>
+      </div>
+      <div class="showcase-block reveal">
       <div class="showcase-title">Registrar un gasto toma segundos</div>
       <div class="showcase-shot" aria-hidden="true">
         <div class="shot-fields">
@@ -1194,31 +1286,25 @@ footer {
           <div class="shot-submit">Guardar movimiento</div>
         </div>
       </div>
-      <ul class="showcase-list">
-        <li>monto</li>
-        <li>categor&iacute;a</li>
-        <li>descripci&oacute;n</li>
-        <li>listo</li>
-      </ul>
     </div>
-  </div>
-  <div class="showcase-flow reveal">
-    <div class="showcase-flow-label">C&oacute;mo funciona</div>
-    <div class="how-grid">
-      <div class="how-card">
-        <div class="how-step">1</div>
-        <div class="how-title">Registra un gasto</div>
-        <div class="how-desc">Monto, categor&iacute;a y listo.</div>
-      </div>
-      <div class="how-card">
-        <div class="how-step">2</div>
-        <div class="how-title">Mira tu mes</div>
-        <div class="how-desc">Saldo, ahorro y categor&iacute;as.</div>
-      </div>
-      <div class="how-card">
-        <div class="how-step">3</div>
-        <div class="how-title">Ajusta tu presupuesto</div>
-        <div class="how-desc">Evita pasarte antes de que termine el mes.</div>
+    <div class="showcase-flow reveal">
+      <div class="showcase-flow-label">C&oacute;mo funciona</div>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-step">1</div>
+          <div class="how-title">Registra un gasto</div>
+          <div class="how-desc">Monto, categor&iacute;a y listo.</div>
+        </div>
+        <div class="how-card">
+          <div class="how-step">2</div>
+          <div class="how-title">Mira tu mes</div>
+          <div class="how-desc">Saldo, ahorro y categor&iacute;as.</div>
+        </div>
+        <div class="how-card">
+          <div class="how-step">3</div>
+          <div class="how-title">Ajusta tu presupuesto</div>
+          <div class="how-desc">Evita pasarte antes de que termine el mes.</div>
+        </div>
       </div>
     </div>
   </div>
