@@ -158,6 +158,26 @@ nav {
   opacity: 0;
   animation: fadeUp 0.8s ease 0.5s forwards;
 }
+.hero-install-hint {
+  margin-top: 14px;
+  width: max-content;
+  max-width: 100%;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.56s forwards;
+}
+.preview-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
 
 .hero-preview {
   margin-top: 34px;
@@ -434,6 +454,299 @@ nav {
   color: var(--muted);
 }
 .section-intro strong { color: var(--text); }
+.showcase-stack { display: grid; gap: 28px; }
+.showcase-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+}
+.showcase-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 18px;
+}
+.showcase-shot {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)), var(--surface2);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 22px;
+  min-height: 320px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.showcase-shot.dashboard-shot::before,
+.showcase-shot.log-shot::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+}
+.shot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.shot-metric,
+.shot-panel {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+}
+.shot-metric {
+  min-height: 82px;
+  padding: 14px;
+}
+.shot-metric-wide {
+  grid-column: span 2;
+}
+.shot-panel {
+  padding: 16px;
+}
+.shot-panel-large {
+  min-height: 138px;
+}
+.shot-lines,
+.shot-bars,
+.shot-fields {
+  display: grid;
+  gap: 10px;
+}
+.shot-line {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+}
+.shot-line.short { width: 48%; }
+.shot-line.mid { width: 68%; }
+.shot-line.long { width: 84%; }
+.shot-summary-list {
+  display: grid;
+  gap: 10px;
+}
+.shot-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.shot-summary-row strong {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+.shot-field {
+  min-height: 58px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+.shot-field span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.shot-field strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.shot-field-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 12px;
+}
+.shot-chip-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.shot-chip {
+  height: 34px;
+  min-width: 92px;
+  border-radius: 999px;
+  background: rgba(91,138,240,0.12);
+  border: 1px solid rgba(91,138,240,0.22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+.shot-submit {
+  margin-top: auto;
+  height: 50px;
+  border-radius: 16px;
+  background: rgba(91,138,240,0.2);
+  border: 1px solid rgba(91,138,240,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.showcase-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.showcase-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.showcase-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+}
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.showcase-list li::before { content: '\2022'; }
+.how-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+}
+.how-step {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.how-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 8px;
+}
+.how-desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.features-layout { display: block; }
+.feature-groups { display: grid; gap: 22px; }
+.features-layout + .features-grid.reveal { display: none; }
+.feature-group-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.features-sticky { display: none; }
+.features-sticky .hero-preview {
+  max-width: 100%;
+  margin-top: 0;
+  opacity: 1;
+  animation: none;
+}
+.features-sticky .preview-shell {
+  box-shadow: 0 20px 56px rgba(0,0,0,0.24);
+}
+.trust-strip {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px 52px;
+}
+.trust-strip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+  overflow: hidden;
+}
+.trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.trust-item + .trust-item {
+  border-left: 1px solid var(--border);
+}
+.trust-check {
+  font-family: var(--font-mono);
+  color: var(--green);
+  font-size: 12px;
+}
+.faq-list {
+  display: grid;
+  gap: 14px;
+}
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.faq-item[open] summary::after { content: '−'; }
+.faq-answer {
+  padding: 0 20px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+}
 
 .features-grid {
   display: grid;
@@ -628,6 +941,50 @@ footer {
   }
 }
 
+@media (min-width: 1100px) {
+  .features-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 40px;
+    align-items: start;
+  }
+  .features-sticky {
+    display: block;
+    position: sticky;
+    top: 120px;
+  }
+}
+
+@media (max-width: 900px) {
+  .how-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .showcase-shot {
+    min-height: 260px;
+  }
+  .shot-grid,
+  .shot-field-row {
+    grid-template-columns: 1fr;
+  }
+  .trust-strip {
+    padding: 0 20px 44px;
+  }
+  .trust-strip-inner {
+    border-radius: 22px;
+  }
+  .trust-item {
+    width: 100%;
+    justify-content: center;
+  }
+  .trust-item + .trust-item {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
 @media (max-width: 600px) {
   nav { padding: 16px 20px; }
   .hero { padding: 100px 20px 60px; }
@@ -637,6 +994,7 @@ footer {
   .install-inner { padding: 70px 20px; }
   .cta-section { padding: 40px 20px 80px; }
   .privacy-strip { padding: 40px 20px; }
+  .showcase-block, .how-card { padding: 22px; }
   footer { padding: 24px 20px; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-secondary { justify-content: center; }
@@ -674,6 +1032,7 @@ footer {
       <span>¿Cómo instalar?</span>
     </a>
   </div>
+  <div class="hero-install-hint">Funciona como app<br>iPhone &middot; Android &middot; Desktop</div>
   <div class="hero-stats">
     <div>
       <div class="stat-num">5<span class="unit"> s</span></div>
@@ -690,6 +1049,7 @@ footer {
   </div>
   </div>
   <div class="hero-side">
+  <div class="preview-kicker">As&iacute; se mueve tu mes</div>
   <div class="hero-preview" data-hero-preview aria-label="Vista previa de BudgetLog">
     <div class="preview-shell">
       <div class="preview-inner">
@@ -765,6 +1125,118 @@ footer {
   </div>
 </section>
 
+<section class="section product-showcase">
+  <div class="section-label reveal">Vista previa</div>
+  <h2 class="section-title reveal">As&iacute; se ve usar BudgetLog</h2>
+  <div class="showcase-stack">
+    <div class="showcase-block reveal">
+      <div class="showcase-title">Tu mes, claro en una sola vista</div>
+      <div class="showcase-shot" aria-hidden="true">
+        <div class="shot-grid">
+          <div class="shot-metric">
+            <span>Saldo del mes</span>
+            <strong>$9,620</strong>
+          </div>
+          <div class="shot-metric">
+            <span>Ahorro</span>
+            <strong>$4,200</strong>
+          </div>
+        </div>
+        <div class="shot-panel">
+          <div class="preview-panel-title">Resumen del mes</div>
+          <div class="shot-summary-list">
+            <div class="shot-summary-row"><span>Mayor gasto</span><strong>Renta</strong></div>
+            <div class="shot-summary-row"><span>Total de movimientos</span><strong>24</strong></div>
+            <div class="shot-summary-row"><span>Meta m&aacute;s cercana</span><strong>Alimentos al 76%</strong></div>
+          </div>
+        </div>
+        <div class="shot-panel">
+          <div class="preview-panel-title">Categor&iacute;as</div>
+          <div class="preview-bars">
+            <div>
+              <div class="preview-bar-head"><span>Renta</span><span>60%</span></div>
+              <div class="preview-bar-track"><div class="preview-bar-fill" style="width:60%; background:#5b8af0;"></div></div>
+            </div>
+            <div>
+              <div class="preview-bar-head"><span>Alimentos</span><span>24%</span></div>
+              <div class="preview-bar-track"><div class="preview-bar-fill" style="width:24%; background:#3dd68c;"></div></div>
+            </div>
+            <div>
+              <div class="preview-bar-head"><span>Transporte</span><span>10%</span></div>
+              <div class="preview-bar-track"><div class="preview-bar-fill" style="width:10%; background:#f0c75b;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="showcase-list">
+        <li>Saldo del mes</li>
+        <li>Categor&iacute;a con mayor gasto</li>
+        <li>Tendencia de meses</li>
+        <li>Proyecci&oacute;n del mes</li>
+      </ul>
+    </div>
+    <div class="showcase-block reveal">
+      <div class="showcase-title">Registrar un gasto toma segundos</div>
+      <div class="showcase-shot" aria-hidden="true">
+        <div class="shot-fields">
+          <div class="shot-field">
+            <span>Monto</span>
+            <strong>$125</strong>
+          </div>
+          <div class="shot-field-row">
+            <div class="shot-field">
+              <span>Categor&iacute;a</span>
+              <strong>Pedidos</strong>
+            </div>
+            <div class="shot-field">
+              <span>Fecha</span>
+              <strong>Hoy</strong>
+            </div>
+          </div>
+          <div class="shot-field">
+            <span>Descripci&oacute;n</span>
+            <strong>Comida a domicilio</strong>
+          </div>
+          <div class="shot-chip-row">
+            <span class="shot-chip">Gasto</span>
+            <span class="shot-chip">Pedidos</span>
+            <span class="shot-chip">Listo</span>
+          </div>
+          <div class="shot-submit">Guardar movimiento</div>
+        </div>
+      </div>
+      <ul class="showcase-list">
+        <li>monto</li>
+        <li>categor&iacute;a</li>
+        <li>descripci&oacute;n</li>
+        <li>listo</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label reveal">Flujo</div>
+  <h2 class="section-title reveal">C&oacute;mo funciona</h2>
+  <div class="how-grid">
+    <div class="how-card reveal">
+      <div class="how-step">1</div>
+      <div class="how-title">Registra un gasto</div>
+      <div class="how-desc">Monto, categor&iacute;a y listo.</div>
+    </div>
+    <div class="how-card reveal">
+      <div class="how-step">2</div>
+      <div class="how-title">Mira tu mes</div>
+      <div class="how-desc">Saldo, ahorro y categor&iacute;as.</div>
+    </div>
+    <div class="how-card reveal">
+      <div class="how-step">3</div>
+      <div class="how-title">Ajusta tu presupuesto</div>
+      <div class="how-desc">Evita pasarte antes de que termine el mes.</div>
+    </div>
+  </div>
+</section>
+
 <div class="marquee-wrap">
   <div class="marquee">
     <span class="marquee-item">Registro rápido</span>
@@ -800,6 +1272,176 @@ footer {
   <div class="section-label reveal">Qué hace</div>
   <h2 class="section-title reveal">Una app simple para ver<br>a dónde se va<br><em>tu dinero.</em></h2>
   <p class="section-intro reveal">BudgetLog es un registro personal de gastos e ingresos. <strong>No vende productos financieros ni vive de anuncios.</strong> Solo te ayuda a entender tu dinero y seguirlo desde el celular.</p>
+  <div class="features-layout">
+    <div class="feature-groups">
+      <div class="reveal">
+        <div class="feature-group-label">Tracking</div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v5h5"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
+            <div class="feature-name">Registro r&aacute;pido</div>
+            <div class="feature-desc">Anota un gasto o ingreso en segundos: categor&iacute;a, monto, descripci&oacute;n y listo.</div>
+            <span class="feature-tag">menos de 5 s</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg></span>
+            <div class="feature-name">Buscar movimientos</div>
+            <div class="feature-desc">Encuentra r&aacute;pido una compra, un ingreso o una suscripci&oacute;n sin recorrer todo el historial.</div>
+            <span class="feature-tag">al instante</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 14h3"/><path d="M13 14h3"/></svg></span>
+            <div class="feature-name">Recurrentes</div>
+            <div class="feature-desc">Renta, suscripciones o quincena. Puedes dejarlas listas y aplicarlas seg&uacute;n toque.</div>
+            <span class="feature-tag">mensual / quincenal / semanal</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="feature-group-label">Understanding</div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9h9"/><path d="M8.5 14.5h.01"/><path d="M9.5 18h.01"/></svg></span>
+            <div class="feature-name">Resumen financiero</div>
+            <div class="feature-desc">Saldo del mes, ahorro, categor&iacute;a m&aacute;s alta y comparaci&oacute;n con el mes anterior en una sola vista.</div>
+            <span class="feature-tag">resumen del mes</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 3-3 3 2 5-6"/></svg></span>
+            <div class="feature-name">Gr&aacute;ficas &uacute;tiles</div>
+            <div class="feature-desc">Barras contra meta, tendencia de 6 meses, saldo neto y distribuci&oacute;n por categor&iacute;a.</div>
+            <span class="feature-tag">5 vistas</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 17 10-10"/><path d="M9 7h8v8"/></svg></span>
+            <div class="feature-name">Pr&oacute;ximo mes</div>
+            <div class="feature-desc">Hazte una idea de lo que viene con base en tus movimientos recurrentes.</div>
+            <span class="feature-tag">estimado mensual</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="feature-group-label">Control</div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7 6.5-4H20v5.5L13 15l-5-5V7Z"/><path d="M13 15 9 19H4v-5l5-4"/><path d="M16 7h.01"/></svg></span>
+            <div class="feature-name">Topes por categor&iacute;a</div>
+            <div class="feature-desc">Define cu&aacute;nto quieres gastar en comida, transporte o salidas y sigue el avance con barras claras.</div>
+            <span class="feature-tag">por categor&iacute;a</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 4 8 14H4l8-14Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+            <div class="feature-name">Avisos de presupuesto</div>
+            <div class="feature-desc">Recibe alertas cuando una categor&iacute;a ya va alta y conviene bajarle antes de cerrar el mes.</div>
+            <span class="feature-tag">80% y 100%</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 7H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 7V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v1"/><path d="M18 13h-2"/><path d="M7 11h5"/></svg></span>
+            <div class="feature-name">Metas de ahorro</div>
+            <div class="feature-desc">Crea una meta, as&iacute;gnale aportaciones y ve cu&aacute;nto llevas sin hacer cuentas aparte.</div>
+            <span class="feature-tag">progreso visible</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="feature-group-label">Tools</div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M12 11v6"/><path d="m9.5 14.5 2.5 2.5 2.5-2.5"/></svg></span>
+            <div class="feature-name">Exportar a Excel</div>
+            <div class="feature-desc">Descarga tus movimientos y res&uacute;menes en un archivo claro para revisarlo o guardarlo aparte.</div>
+            <span class="feature-tag">4 hojas</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .8-7.9A5.5 5.5 0 0 1 18 12a3.5 3.5 0 1 1 0 7H7Z"/></svg></span>
+            <div class="feature-name">Sync con Google</div>
+            <div class="feature-desc">Inicia sesi&oacute;n con Google y sigue viendo lo mismo en cualquiera de tus dispositivos.</div>
+            <span class="feature-tag">mismo historial</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="m16.5 3.5 4 4"/><path d="M19 3a2.1 2.1 0 0 1 3 3L9 19l-4 1 1-4L19 3Z"/></svg></span>
+            <div class="feature-name">Categor&iacute;as editables</div>
+            <div class="feature-desc">Cambia nombres y colores para que la app se parezca a c&oacute;mo t&uacute; organizas tu dinero.</div>
+            <span class="feature-tag">nombres y colores</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 6 5.5v5.8c0 4 2.5 7.7 6 9.7 3.5-2 6-5.7 6-9.7V5.5L12 3Z"/><path d="m9.5 12 1.7 1.7 3.3-3.3"/></svg></span>
+            <div class="feature-name">Tu informaci&oacute;n, tuya</div>
+            <div class="feature-desc">No hay anuncios, no hay rastreo y no se venden datos. Tu cuenta de Google solo sirve para sincronizar.</div>
+            <span class="feature-tag">sin rastreo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="features-sticky reveal" aria-hidden="true">
+      <div class="preview-kicker">As&iacute; se mueve tu mes</div>
+      <div class="hero-preview">
+        <div class="preview-shell">
+          <div class="preview-inner">
+            <div class="preview-top">
+              <div class="preview-month">Marzo 2026</div>
+              <div class="preview-badge">Sincronizado</div>
+            </div>
+            <div class="preview-body">
+              <div class="preview-metrics">
+                <div class="preview-metric">
+                  <div class="preview-metric-label">Gastos del mes</div>
+                  <div class="preview-metric-value">$12,480</div>
+                </div>
+                <div class="preview-metric">
+                  <div class="preview-metric-label">Ahorro</div>
+                  <div class="preview-metric-value saved">$4,200</div>
+                </div>
+              </div>
+              <div class="preview-panel">
+                <div class="preview-panel-title">Movimientos recientes</div>
+                <div class="preview-transactions">
+                  <div class="preview-transaction">
+                    <div class="preview-transaction-left">
+                      <div class="preview-transaction-name">N&oacute;mina</div>
+                      <div class="preview-transaction-meta">Hoy &middot; Ingreso</div>
+                    </div>
+                    <div class="preview-transaction-amount income">+$18,000</div>
+                  </div>
+                  <div class="preview-transaction">
+                    <div class="preview-transaction-left">
+                      <div class="preview-transaction-name">Renta</div>
+                      <div class="preview-transaction-meta">Ayer &middot; Servicios</div>
+                    </div>
+                    <div class="preview-transaction-amount expense">-$7,500</div>
+                  </div>
+                  <div class="preview-transaction">
+                    <div class="preview-transaction-left">
+                      <div class="preview-transaction-name">Supermercado</div>
+                      <div class="preview-transaction-meta">Ayer &middot; Alimentos</div>
+                    </div>
+                    <div class="preview-transaction-amount expense">-$1,280</div>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-panel">
+                <div class="preview-panel-title">Categor&iacute;as</div>
+                <div class="preview-bars">
+                  <div>
+                    <div class="preview-bar-head"><span>Renta</span><span>60%</span></div>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:60%; background:#5b8af0;"></div></div>
+                  </div>
+                  <div>
+                    <div class="preview-bar-head"><span>Alimentos</span><span>24%</span></div>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:24%; background:#3dd68c;"></div></div>
+                  </div>
+                  <div>
+                    <div class="preview-bar-head"><span>Transporte</span><span>10%</span></div>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:10%; background:#f0c75b;"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
   <div class="features-grid reveal">
     <div class="feature-card">
       <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9h9"/><path d="M8.5 14.5h.01"/><path d="M9.5 18h.01"/></svg></span>
@@ -875,6 +1517,16 @@ footer {
     </div>
   </div>
 </section>
+
+<div class="trust-strip">
+  <div class="trust-strip-inner reveal">
+    <div class="trust-item"><span class="trust-check">&#10003;</span> Sin anuncios</div>
+    <div class="trust-item"><span class="trust-check">&#10003;</span> Sin rastreo</div>
+    <div class="trust-item"><span class="trust-check">&#10003;</span> C&oacute;digo abierto</div>
+    <div class="trust-item"><span class="trust-check">&#10003;</span> Exporta a Excel</div>
+    <div class="trust-item"><span class="trust-check">&#10003;</span> Funciona offline</div>
+  </div>
+</div>
 
 <div class="install-section" id="instalar">
   <div class="install-inner">
@@ -975,6 +1627,29 @@ footer {
   <div class="privacy-item reveal"><div class="privacy-dot"></div> Instalable como app</div>
 </div>
 
+<section class="section">
+  <div class="section-label reveal">FAQ</div>
+  <h2 class="section-title reveal">Preguntas frecuentes</h2>
+  <div class="faq-list">
+    <details class="faq-item reveal">
+      <summary>&iquest;Es gratis?</summary>
+      <div class="faq-answer">S&iacute;.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>&iquest;Mis datos est&aacute;n seguros?</summary>
+      <div class="faq-answer">S&iacute;. No vendemos datos ni mostramos anuncios.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>&iquest;Necesito instalar algo?</summary>
+      <div class="faq-answer">No. Puedes usarlo en el navegador o instalarlo como app.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>&iquest;Funciona sin internet?</summary>
+      <div class="faq-answer">S&iacute;, una vez instalada.</div>
+    </details>
+  </div>
+</section>
+
 <section class="cta-section">
   <div class="cta-box reveal">
     <h2 class="cta-title">Abre la app y<br>empieza a registrar.</h2>
@@ -997,6 +1672,7 @@ footer {
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
   window.location.replace('/app.html');
 }
+
 
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
