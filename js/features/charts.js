@@ -72,7 +72,7 @@
       goal:goals[category.id]||0,
       color:catColors[category.id]
     })).filter(category=>category.actual>0||category.goal>0);
-    if(!cats.length)return;
+    if(!cats.length)return false;
     canvas.height=Math.max(180,cats.length*44);
     instances.catChart=new Chart(canvas,{
       type:'bar',
@@ -80,7 +80,7 @@
         labels:cats.map(category=>category.label),
         datasets:[
           {label:'Real',data:cats.map(category=>category.actual),backgroundColor:cats.map(category=>category.color+'cc'),borderColor:cats.map(category=>category.color),borderWidth:1,borderRadius:6},
-          {label:'Meta',data:cats.map(category=>category.goal),backgroundColor:'#2a2d3888',borderColor:'#2a2d38',borderWidth:1,borderRadius:6}
+          {label:'Meta',data:cats.map(category=>category.goal),backgroundColor:'#f0d45b33',borderColor:'#f0d45b',borderWidth:1.5,borderRadius:6}
         ]
       },
       options:{
@@ -90,6 +90,7 @@
         scales:{x:CHART_DEFAULTS.scales.x,y:{grid:{display:false},ticks:{color:'#f0f0f5',font:{family:'Lexend',size:11,weight:'600'}}}}
       }
     });
+    return true;
   }
 
   function renderTrendChart(options){
@@ -102,6 +103,7 @@
       const [year,month]=currentMonthKey.split('-');
       return monthNames[parseInt(month,10)-1].slice(0,3)+' '+year.slice(2);
     });
+    if(incomeData.every(value=>value===0)&&expenseData.every(value=>value===0))return false;
     instances.trendChart=new Chart(canvas,{
       type:'bar',
       data:{labels,datasets:[
@@ -110,6 +112,7 @@
       ]},
       options:{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},boxWidth:12}}}}
     });
+    return true;
   }
 
   function renderNetChart(options){
@@ -125,11 +128,13 @@
       return monthNames[parseInt(month,10)-1].slice(0,3)+' '+year.slice(2);
     });
     const colors=netData.map(value=>value>=0?'#3dd68c':'#f05b5b');
+    if(netData.every(value=>value===0))return false;
     instances.netChart=new Chart(canvas,{
       type:'bar',
       data:{labels,datasets:[{label:'Saldo neto',data:netData,backgroundColor:colors.map(color=>color+'88'),borderColor:colors,borderWidth:1.5,borderRadius:6}]},
       options:{...CHART_DEFAULTS}
     });
+    return true;
   }
 
   function renderCategoryLineChart(options){
@@ -144,6 +149,7 @@
     const color=catColors[selectedCategoryId];
     const goalValue=goals[selectedCategoryId]||0;
     const categoryLabel=categories.find(category=>category.id===selectedCategoryId)?.label||selectedCategoryId;
+    if(!goalValue&&data.every(value=>value===0))return false;
     instances.catLineChart=new Chart(canvas,{
       type:'line',
       data:{
@@ -155,6 +161,7 @@
       },
       options:{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},boxWidth:12}}}}
     });
+    return true;
   }
 
   function renderPieChart(options){
@@ -167,7 +174,7 @@
       color:catColors[category.id],
       total:sumAmounts(monthEntries.filter(entry=>entry.category===category.id))
     })).filter(category=>category.total>0).sort((a,b)=>b.total-a.total);
-    if(!cats.length)return;
+    if(!cats.length)return false;
     instances.pieChart=new Chart(canvas,{
       type:'doughnut',
       data:{labels:cats.map(category=>category.label),datasets:[{data:cats.map(category=>category.total),backgroundColor:cats.map(category=>category.color+'cc'),borderColor:cats.map(category=>category.color),borderWidth:1.5,hoverOffset:6}]},
@@ -196,6 +203,7 @@
         }
       }
     });
+    return true;
   }
 
   root.charting={

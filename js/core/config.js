@@ -54,11 +54,21 @@
       savings:'#f0c45b'
     },
     PALETTE:[
-      '#5bcff0','#f0a25b','#7dd67a','#a0e86e','#a78bfa','#f097c4','#f05b7a','#f0d45b','#c49bfa','#f0c45b',
-      '#3dd68c','#5b8af0','#f05b5b','#ff9500','#34aadc','#5ac8fa','#4cd964','#ff2d55','#ff6b35','#c7f464',
-      '#00c2a8','#0081cf','#845ec2','#d65db1','#ff9671','#ffc75f','#f9f871','#2c73d2','#008e9b','#b39cd0',
-      '#6bcB77','#4d96ff','#ff6f91','#ff9671','#ffc75f','#845460','#2d6a4f','#e76f51','#e9c46a','#577590'
+      '#5b8af0', // azul
+      '#00b8d9', // cyan
+      '#2ec4b6', // teal
+      '#3dd68c', // verde
+      '#94d82d', // lima
+      '#f0d45b', // amarillo
+      '#ff9f1c', // naranja
+      '#f05b5b', // rojo
+      '#ff5d8f', // rosa
+      '#d65db1', // magenta
+      '#9b5de5', // morado
+      '#845ec2', // violeta
+      '#8d6e63', // café
+      '#577590'  // azul grisáceo
     ],
-    SG_COLORS:['#3dd68c','#5b8af0','#f0a25b','#f05b7a','#a78bfa','#5bcff0','#f0d45b','#f097c4']
+    SG_COLORS:['#3dd68c','#5b8af0','#f0d45b','#ff9f1c','#f05b5b','#ff5d8f','#9b5de5','#2ec4b6']
   };
 })();

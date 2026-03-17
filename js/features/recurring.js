@@ -12,9 +12,7 @@
       formatMoney
     }=options;
 
-    if(!recurring.length){
-      return '<div class="empty-state"><div class="empty-icon">\uD83D\uDD01</div><div class="empty-title">Sin recurrentes</div><div class="empty-sub">Agrega gastos fijos como renta, suscripciones o tu quincena.</div></div>';
-    }
+    if(!recurring.length)return '';
 
     return recurring.map(rule=>{
       const normalized=sanitizeRecurringRule(rule);

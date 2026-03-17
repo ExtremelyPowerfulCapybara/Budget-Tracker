@@ -32,23 +32,21 @@
   }
 
   function renderCategoryBarsMarkup(options){
-    const {monthEntries,categories,goals,formatMoney}=options;
+    const {monthEntries,categories,goals,formatMoney,getGoalValue}=options;
     return categories.map(category=>{
       const actual=sumAmounts(monthEntries.filter(entry=>entry.type==='expense'&&entry.category===category.id));
-      if(!actual&&!goals[category.id])return '';
-      const goal=goals[category.id]||0;
+      const goal=typeof getGoalValue==='function'?getGoalValue(category.id):(goals[category.id]||0);
+      if(!actual&&!goal)return '';
       const pct=goal>0?Math.min((actual/goal)*100,100):0;
       const over=goal>0&&actual>goal;
-      return '<div class="category-bar"><div class="category-bar-header"><div class="category-bar-name" style="color:'+category.color+'">'+category.label+'</div><div class="category-bar-nums"><span>'+formatMoney(actual)+'</span>'+(goal?' / '+formatMoney(goal):'')+'</div></div>'+(goal?'<div class="bar-track'+(over?' over':'')+'"><div class="bar-fill" style="width:'+pct+'%;background:'+category.color+'"></div></div><div class="bar-pct'+(over?' over':'')+'">'+pct.toFixed(0)+'%'+(over?' \u00b7 excedido':'')+'</div>':'')+'</div>';
+      return '<div class="category-bar"><div class="category-bar-header"><div class="category-bar-name" style="color:'+category.color+'">'+category.label+'</div><div class="category-bar-nums"><span>'+formatMoney(actual)+'</span>'+(goal?' / '+formatMoney(goal):' <span class="bar-no-goal">Sin meta</span>')+'</div></div>'+(goal?'<div class="bar-track'+(over?' over':'')+'"><div class="bar-fill" style="width:'+pct+'%;background:'+category.color+'"></div></div><div class="bar-pct'+(over?' over':'')+'">'+pct.toFixed(0)+'%'+(over?' \u00b7 excedido':'')+'</div>':'<div class="bar-pct bar-pct-empty">Configura una meta para ver el avance</div>')+'</div>';
     }).join('');
   }
 
   function renderRecentEntriesMarkup(options){
     const {monthEntries,renderEntry}=options;
     const recent=[...monthEntries].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
-    if(!recent.length){
-      return '<div class="empty-state"><div class="empty-icon">\ud83d\udcb8</div><div class="empty-title">Sin movimientos este mes</div><div class="empty-sub">Toca + Registrar para guardar tu primer gasto o ingreso.</div><button class="empty-action" data-dashboard-action="log">+ Registrar movimiento</button></div>';
-    }
+    if(!recent.length)return '';
     return recent.map(renderEntry).join('');
   }
 

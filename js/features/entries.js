@@ -39,7 +39,7 @@
 
   function renderEntriesListMarkup(entries,renderEntry){
     if(!entries.length){
-      return '<div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><div class="empty-title">Sin movimientos</div><div class="empty-sub">No hay movimientos para este filtro o este mes.</div></div>';
+      return '';
     }
     return [...entries].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(renderEntry).join('');
   }

@@ -10,9 +10,7 @@
     }=options;
 
     const unassignedAmount=getUnassignedSavingsAmount();
-    if(!savingsGoals.length){
-      return '<div class="savings-empty">Sin metas de ahorro. Crea una para empezar a apartar dinero con seguimiento independiente.</div><button class="savings-add-btn" data-sg-action="create">+ Nueva meta de ahorro</button>';
-    }
+    if(!savingsGoals.length)return '';
 
     const cards=savingsGoals.map(goal=>{
       const saved=getGoalSavedAmount(goal.id);
