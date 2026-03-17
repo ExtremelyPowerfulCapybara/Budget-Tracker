@@ -6,7 +6,14 @@
   }
 
   function renderInsightMarkup(options){
-    const {monthEntries,previousMonthEntries,categories,formatMoney}=options;
+    const {
+      monthEntries,
+      previousMonthEntries,
+      categories,
+      formatMoney,
+      createSectionCardMarkup,
+      createStatCardMarkup
+    }=options;
     const expense=sumAmounts(monthEntries.filter(entry=>entry.type==='expense'));
     const income=sumAmounts(monthEntries.filter(entry=>entry.type==='income'));
     const prevExpense=sumAmounts(previousMonthEntries.filter(entry=>entry.type==='expense'));
@@ -28,7 +35,21 @@
 
     if(!expense&&!income)return '';
 
-    return '<div class="insight-title">Resumen del mes</div><div class="insight-grid"><div class="insight-item"><div class="insight-item-label">Tasa de ahorro</div><div class="insight-item-value '+(savingsRate>=20?'positive':savingsRate<0?'negative':'neutral')+'">'+savingsRate.toFixed(1)+'%</div><div class="insight-item-sub">'+(savingsRate>=20?'Meta alcanzada':'Meta: 20%')+'</div></div><div class="insight-item"><div class="insight-item-label">Mayor gasto</div><div class="insight-item-value neutral" style="color:'+biggestCategory.color+'">'+biggestCategory.label+'</div><div class="insight-item-sub">'+formatMoney(biggestCategory.total)+'</div></div><div class="insight-divider"></div><div class="insight-item"><div class="insight-item-label">Gastos vs. mes anterior</div><div class="insight-item-value neutral">'+formatMoney(expense)+deltaPill(expenseDelta,true)+'</div><div class="insight-item-sub">'+(prevExpense?'Ant: '+formatMoney(prevExpense):'Sin datos previos')+'</div></div><div class="insight-item"><div class="insight-item-label">Ingresos vs. mes anterior</div><div class="insight-item-value neutral">'+formatMoney(income)+deltaPill(incomeDelta,false)+'</div><div class="insight-item-sub">'+(prevIncome?'Ant: '+formatMoney(prevIncome):'Sin datos previos')+'</div></div></div>';
+    const statMarkup=typeof createStatCardMarkup==='function'
+      ?[
+        createStatCardMarkup({label:'Tasa de ahorro',value:savingsRate.toFixed(1)+'%',subtext:savingsRate>=20?'Meta alcanzada':'Meta: 20%',tone:savingsRate>=20?'positive':savingsRate<0?'warning':'default'}),
+        createStatCardMarkup({label:'Mayor gasto',value:biggestCategory.label,subtext:formatMoney(biggestCategory.total),tone:'default',accent:biggestCategory.color}),
+        createStatCardMarkup({label:'Gastos vs. mes anterior',value:formatMoney(expense),subtext:(prevExpense?'Ant: '+formatMoney(prevExpense):'Sin datos previos'),tone:expenseDelta!==null&&expenseDelta>0?'warning':'default'}),
+        createStatCardMarkup({label:'Ingresos vs. mes anterior',value:formatMoney(income),subtext:(prevIncome?'Ant: '+formatMoney(prevIncome):'Sin datos previos'),tone:incomeDelta!==null&&incomeDelta>0?'positive':'default'})
+      ].join('')
+      :'<div class="insight-grid"><div class="insight-item"><div class="insight-item-label">Tasa de ahorro</div><div class="insight-item-value '+(savingsRate>=20?'positive':savingsRate<0?'negative':'neutral')+'">'+savingsRate.toFixed(1)+'%</div><div class="insight-item-sub">'+(savingsRate>=20?'Meta alcanzada':'Meta: 20%')+'</div></div><div class="insight-item"><div class="insight-item-label">Mayor gasto</div><div class="insight-item-value neutral" style="color:'+biggestCategory.color+'">'+biggestCategory.label+'</div><div class="insight-item-sub">'+formatMoney(biggestCategory.total)+'</div></div><div class="insight-divider"></div><div class="insight-item"><div class="insight-item-label">Gastos vs. mes anterior</div><div class="insight-item-value neutral">'+formatMoney(expense)+deltaPill(expenseDelta,true)+'</div><div class="insight-item-sub">'+(prevExpense?'Ant: '+formatMoney(prevExpense):'Sin datos previos')+'</div></div><div class="insight-item"><div class="insight-item-label">Ingresos vs. mes anterior</div><div class="insight-item-value neutral">'+formatMoney(income)+deltaPill(incomeDelta,false)+'</div><div class="insight-item-sub">'+(prevIncome?'Ant: '+formatMoney(prevIncome):'Sin datos previos')+'</div></div></div>';
+    const body=typeof createStatCardMarkup==='function'
+      ?'<div class="ui-stat-grid">'+statMarkup+'</div><div class="ui-insight-deltas"><div class="ui-insight-delta-row"><span>Gastos</span><span>'+deltaPill(expenseDelta,true)+'</span></div><div class="ui-insight-delta-row"><span>Ingresos</span><span>'+deltaPill(incomeDelta,false)+'</span></div></div>'
+      :statMarkup;
+    if(typeof createSectionCardMarkup==='function'){
+      return createSectionCardMarkup({title:'Resumen del mes',subtitle:'Lectura rapida de tu desempeno actual',content:body,cardClass:'dashboard-section-card'});
+    }
+    return statMarkup;
   }
 
   function renderCategoryBarsMarkup(options){
@@ -61,12 +82,22 @@
   }
 
   function renderForecastMarkup(options){
-    const {viewYear,viewMonth,monthNames,getForecastTotals,formatMoney}=options;
+    const {viewYear,viewMonth,monthNames,getForecastTotals,formatMoney,createSectionCardMarkup,createStatCardMarkup}=options;
     const {nextYear,nextMonth}=getNextMonthRef(viewYear,viewMonth);
     const {income,expense}=getForecastTotals(nextYear,nextMonth);
     const net=income-expense;
     if(!income&&!expense)return '';
-    return '<div class="forecast-card"><div class="forecast-grid"><div class="forecast-item"><div class="forecast-label">Ingresos</div><div class="forecast-val" style="color:var(--income)">'+formatMoney(income)+'</div></div><div class="forecast-item"><div class="forecast-label">Gastos</div><div class="forecast-val" style="color:var(--expense)">'+formatMoney(expense)+'</div></div><div class="forecast-item"><div class="forecast-label">Neto</div><div class="forecast-val" style="color:'+(net>=0?'var(--income)':'var(--expense)')+'">'+(net<0?'-':'')+formatMoney(net)+'</div></div></div><div class="forecast-note">Calculado con la misma programación de tus recurrentes para '+monthNames[nextMonth]+' '+nextYear+'</div></div>';
+    const body=typeof createStatCardMarkup==='function'
+      ?'<div class="ui-stat-grid ui-stat-grid-compact">'+
+        createStatCardMarkup({label:'Ingresos',value:formatMoney(income),subtext:'Esperados',tone:'positive'})+
+        createStatCardMarkup({label:'Gastos',value:formatMoney(expense),subtext:'Esperados',tone:'warning'})+
+        createStatCardMarkup({label:'Neto',value:(net<0?'-':'')+formatMoney(net),subtext:monthNames[nextMonth]+' '+nextYear,tone:net>=0?'positive':'warning'})+
+      '</div><div class="forecast-note">Calculado con la misma programación de tus recurrentes para '+monthNames[nextMonth]+' '+nextYear+'</div>'
+      :'<div class="forecast-card"><div class="forecast-grid"><div class="forecast-item"><div class="forecast-label">Ingresos</div><div class="forecast-val" style="color:var(--income)">'+formatMoney(income)+'</div></div><div class="forecast-item"><div class="forecast-label">Gastos</div><div class="forecast-val" style="color:var(--expense)">'+formatMoney(expense)+'</div></div><div class="forecast-item"><div class="forecast-label">Neto</div><div class="forecast-val" style="color:'+(net>=0?'var(--income)':'var(--expense)')+'">'+(net<0?'-':'')+formatMoney(net)+'</div></div></div><div class="forecast-note">Calculado con la misma programación de tus recurrentes para '+monthNames[nextMonth]+' '+nextYear+'</div></div>';
+    if(typeof createSectionCardMarkup==='function'){
+      return createSectionCardMarkup({title:'Proyeccion del proximo mes',subtitle:'Estimado con tus recurrentes activos',content:body,cardClass:'dashboard-section-card'});
+    }
+    return body;
   }
 
   root.dashboardFeature={
