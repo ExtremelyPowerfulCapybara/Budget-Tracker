@@ -20,7 +20,7 @@
 
   function renderColorPickerMarkup(palette,selectedColor){
     return palette.map(color=>{
-      return `<div class="cp-swatch${selectedColor===color?' active':''}" data-palette-color="${color}" style="background:${color}"></div>`;
+      return `<div class="cp-swatch${selectedColor===color?' active':''}" data-palette-color="${esc(color)}" style="background:${esc(color)}"></div>`;
     }).join('');
   }
 
