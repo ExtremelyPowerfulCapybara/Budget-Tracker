@@ -1,7 +1,7 @@
 # Validation & Hardening Design
 
 **Date:** 2026-03-18
-**Scope:** Three grouped fixes — missed XSS escaping, NaN hardening in selectors, UI input validation
+**Scope:** Three grouped fixes — missed XSS escaping, NaN hardening in selectors/storage, UI input validation
 
 ---
 
@@ -15,10 +15,12 @@ Wrap `color` in both attribute injections:
 - `data-palette-color="${esc(color)}"` (currently unescaped)
 - `style="background:${esc(color)}"` (currently unescaped)
 
-### `js/features/selection-ui.js` — `renderFrequencyButtons`
+### `js/features/selection-ui.js` — `renderFrequencyGridMarkup`
 
 Wrap `frequency.label` in button text content:
 - `>'+esc(frequency.label)+'<` (currently unescaped)
+
+`frequency.id` in `data-selection-id` is intentionally NOT wrapped — it comes from the hardcoded `FREQUENCIES` config constant, contains no HTML-special characters, and all other config-sourced IDs in the file follow the same pattern.
 
 ---
 
@@ -26,53 +28,73 @@ Wrap `frequency.label` in button text content:
 
 ### `js/core/selectors.js` — `sanitizeRecurringRule`
 
-Coerce all numeric and enum fields to safe values before the rule enters any calculation:
+The existing function already handles `anchorDate`, `createdAt`, and `lastApplied`. Add coercions for the remaining fields **at the top of the function, before any existing checks**, so they always run regardless of what fields are already present:
 
 | Field | Validation | Default on failure |
 |-------|-----------|-------------------|
 | `rule.amount` | `parseFloat`, must be finite and > 0 | `0` |
-| `rule.day` | integer 1–31 | `1` |
-| `rule.frequency` | must be `"monthly"`, `"biweekly"`, or `"weekly"` | `"monthly"` |
 | `rule.type` | must be `"income"` or `"expense"` | `"expense"` |
+| `rule.frequency` | must be `"monthly"`, `"biweekly"`, or `"weekly"` | `"monthly"` |
+| `rule.day` | `parseInt`, must be 1–31 | `1` |
+
+Note on `rule.day`: the existing code already sets `day` from `anchorDate` in a later block (`if(!sanitized.day||sanitized.frequency!=='monthly')`). The new coercion runs first and sets a safe integer fallback; the existing block then overwrites it for monthly rules as before. No ordering conflict.
 
 A rule with `amount: 0` produces no forecast impact and no crash.
 
 ### `js/core/storage.js` — `normalizeState`
 
-In the entries array normalization, coerce each entry's `amount`:
-- `parseFloat(entry.amount)` — if not finite or < 0, set to `0`
+**Entry amounts:** In the entries array normalization, coerce each entry's `amount`:
+- `parseFloat(entry.amount)` — if result is not finite or < 0, set to `0`
 
-This ensures bad data loaded from Firestore never reaches selectors as NaN.
+**Goals values:** In goals normalization, coerce each value in the merged goals object:
+- For each key in the final goals object: `parseFloat(val)` — if not finite or < 0, set to `0`
+
+This ensures bad data loaded from Firestore (e.g., `goals: { food: "abc" }`) never reaches selectors as NaN.
 
 ---
 
 ## Fix 3: UI Input Validation
 
-Use the existing `showToast(msg)` utility for all error messages. Block the save and return early on invalid input.
+Use the existing `showToast(msg)` utility for all error messages. Block the save and return early on invalid input. All five save functions live in `index.html`.
 
-### Entry save (`index.html` or `js/features/entries.js`)
+### `logEntry` (new entry save, `index.html`)
+
+Replaces the existing empty-check guards with stricter validation:
 
 | Field | Rule | Toast message |
 |-------|------|--------------|
 | Amount | `parseFloat(val)` must be finite and > 0 | `"Ingresa un monto válido"` |
 | Date | must match `/^\d{4}-\d{2}-\d{2}$/` | `"Selecciona una fecha válida"` |
 
-### Savings goal save (`js/features/savings-goals.js`)
+Note: replaces the existing `if(!amount||!desc||!date)` guard. The date toast message changes from `"Elige una fecha"` to `"Selecciona una fecha válida"`.
+
+### `saveEdit` (edit entry save, `index.html`)
+
+Same validation as `logEntry` — currently uses a simpler `!amount` falsy check. Apply the same `parseFloat` + finite + > 0 rule for amount, and regex check for date.
+
+| Field | Rule | Toast message |
+|-------|------|--------------|
+| Amount | `parseFloat(val)` must be finite and > 0 | `"Ingresa un monto válido"` |
+| Date | must match `/^\d{4}-\d{2}-\d{2}$/` | `"Selecciona una fecha válida"` |
+
+### `saveSavingsGoal` (savings goal save, `index.html`)
+
+Replaces the existing `'Agrega un nombre'` toast with more specific messages:
 
 | Field | Rule | Toast message |
 |-------|------|--------------|
 | Name | `trim()` must be non-empty | `"Ingresa un nombre para la meta"` |
 | Target | `parseFloat(val)` must be finite and > 0 | `"Ingresa una meta válida"` |
 
-### Recurring rule save (`index.html` or `js/features/recurring.js`)
+### `addRecurring` (recurring rule save, `index.html`)
 
 | Field | Rule | Toast message |
 |-------|------|--------------|
 | Amount | `parseFloat(val)` must be finite and > 0 | `"Ingresa un monto válido"` |
 
-### Goals budget inputs (`index.html` — `saveGoals`)
+### `saveGoals` (budget goals, `index.html`)
 
-Each budget goal input: `parseFloat(val)` — if result is negative or non-finite, silently clamp to `0`. No toast needed — `0` is a valid "no goal set" value.
+Each budget goal input: `parseFloat(val)` — if result is negative or non-finite, silently clamp to `0`. No toast — `0` is a valid "no goal set" value.
 
 ---
 
@@ -82,7 +104,8 @@ Each budget goal input: `parseFloat(val)` — if result is negative or non-finit
 - No changes to state shape
 - No new UI components — `showToast` already exists
 - `user.photoURL` remains unescaped (Firebase Auth-issued URL, not user-editable input — intentional)
-- `entry.description` and `goal.name` being empty after save is not blocked — zero-length strings are allowed at save time (only savings goal name requires non-empty)
+- `frequency.id` in `renderFrequencyGridMarkup` is not wrapped (hardcoded config constant — intentional)
+- `entry.description` being empty is allowed — only savings goal name requires non-empty
 
 ---
 
@@ -91,9 +114,7 @@ Each budget goal input: `parseFloat(val)` — if result is negative or non-finit
 | File | Change |
 |------|--------|
 | `js/features/category-customization.js` | `esc()` in `renderColorPickerMarkup` |
-| `js/features/selection-ui.js` | `esc()` in `renderFrequencyButtons` |
+| `js/features/selection-ui.js` | `esc()` in `renderFrequencyGridMarkup` |
 | `js/core/selectors.js` | Coerce fields in `sanitizeRecurringRule` |
-| `js/core/storage.js` | Coerce `entry.amount` in `normalizeState` |
-| `index.html` | Validate amount + date in entry save; validate goals budget inputs |
-| `js/features/savings-goals.js` | Validate name + target in goal save |
-| `js/features/recurring.js` | Validate amount in recurring save |
+| `js/core/storage.js` | Coerce `entry.amount` and goals values in `normalizeState` |
+| `index.html` | Validate `logEntry`, `saveEdit`, `saveSavingsGoal`, `addRecurring`, `saveGoals` |
