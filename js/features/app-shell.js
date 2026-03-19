@@ -1,5 +1,6 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
 
   function showAuthScreen(){
     document.getElementById('loadingScreen').style.display='none';
@@ -20,7 +21,7 @@
       return;
     }
     const initials=(user.displayName||'U').split(' ').map(word=>word[0]).join('').slice(0,2).toUpperCase();
-    wrap.innerHTML=`<div class="header-avatar-placeholder">${initials}</div>`;
+    wrap.innerHTML=`<div class="header-avatar-placeholder">${esc(initials)}</div>`;
   }
 
   function populateUserModal(user){
