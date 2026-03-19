@@ -13,7 +13,7 @@
 
   function renderFrequencyGridMarkup(frequencies,selectedId){
     return frequencies.map(frequency=>{
-      return '<button class="freq-btn'+(selectedId===frequency.id?' active':'')+'" data-selection-action="freq" data-selection-id="'+frequency.id+'">'+frequency.label+'</button>';
+      return '<button class="freq-btn'+(selectedId===frequency.id?' active':'')+'" data-selection-action="freq" data-selection-id="'+frequency.id+'">'+esc(frequency.label)+'</button>';
     }).join('');
   }
 
