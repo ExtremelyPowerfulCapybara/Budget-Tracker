@@ -1,5 +1,6 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
 
   function cloneCategoryDraft(categories){
     const draft={};
@@ -13,7 +14,7 @@
     return categoryIds.map(categoryId=>{
       const category=draft[categoryId];
       if(!category)return '';
-      return `<div class="cat-custom-row"><div class="cat-custom-dot" data-cat-color-target="${categoryId}" style="background:${category.color}"></div><input class="cat-custom-input" data-cat-label-input="${categoryId}" value="${category.label}" placeholder="Nombre de categor\u00eda"><div class="cat-custom-badge">${category.isCustom?'Nueva':'Base'}</div>${category.isCustom?'<button class="cat-custom-delete" data-cat-delete="'+categoryId+'" aria-label="Eliminar categor\u00eda">&#10005;</button>':''}</div>`;
+      return `<div class="cat-custom-row"><div class="cat-custom-dot" data-cat-color-target="${esc(categoryId)}" style="background:${esc(category.color)}"></div><input class="cat-custom-input" data-cat-label-input="${esc(categoryId)}" value="${esc(category.label)}" placeholder="Nombre de categor\u00eda"><div class="cat-custom-badge">${category.isCustom?'Nueva':'Base'}</div>${category.isCustom?'<button class="cat-custom-delete" data-cat-delete="'+esc(categoryId)+'" aria-label="Eliminar categor\u00eda">&#10005;</button>':''}</div>`;
     }).join('');
   }
 
