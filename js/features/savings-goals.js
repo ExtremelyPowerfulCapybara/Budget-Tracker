@@ -25,7 +25,7 @@
   }
 
   function renderSavingsColorGridMarkup(colors,selectedColor){
-    return colors.map(color=>`<div class="color-swatch${selectedColor===color?' active':''}" data-sg-color="${color}" style="background:${color}"></div>`).join('');
+    return colors.map(color=>`<div class="color-swatch${selectedColor===color?' active':''}" data-sg-color="${esc(color)}" style="background:${esc(color)}"></div>`).join('');
   }
 
   function prepareSavingsModalState(savingsGoals,id,fallbackColor){
