@@ -1,5 +1,6 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
 
   const CHART_DEFAULTS={
     responsive:true,
@@ -54,8 +55,8 @@
   function buildCategorySelectorMarkup(categories,selectedCategoryId,catColors){
     return categories.map(category=>{
       const active=selectedCategoryId===category.id;
-      const activeStyle=active?'border-color:'+catColors[category.id]+';color:'+catColors[category.id]:'';
-      return `<button class="cat-sel-btn${active?' active':''}" data-cat-id="${category.id}" style="${activeStyle}">${category.label}</button>`;
+      const activeStyle=active?'border-color:'+esc(catColors[category.id])+';color:'+esc(catColors[category.id]):'';
+      return `<button class="cat-sel-btn${active?' active':''}" data-cat-id="${esc(category.id)}" style="${activeStyle}">${esc(category.label)}</button>`;
     }).join('');
   }
 
