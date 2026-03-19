@@ -1,5 +1,6 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
 
   const FREQUENCY_LABELS={monthly:'Mensual',biweekly:'Quincenal',weekly:'Semanal'};
 
@@ -21,7 +22,7 @@
       const color=normalized.type==='income'?'var(--income)':(category?category.color:'var(--muted)');
       const startText='Inicia: '+normalized.anchorDate;
       const goalText=goal?' \u00b7 Meta: '+goal.name:'';
-      return '<div class="recur-card"><div class="entry-dot" style="background:'+color+'"></div><div class="recur-info"><div class="recur-name">'+normalized.description+'</div><div class="recur-meta">'+FREQUENCY_LABELS[normalized.frequency]+' \u00b7 '+startText+goalText+'</div></div><div class="recur-amount '+normalized.type+'">'+(normalized.type==='income'?'+':'-')+formatMoney(normalized.amount)+'</div><button class="entry-btn delete" data-recurring-delete="'+normalized.id+'">&#10005;</button></div>';
+      return '<div class="recur-card"><div class="entry-dot" style="background:'+esc(color)+'"></div><div class="recur-info"><div class="recur-name">'+esc(normalized.description)+'</div><div class="recur-meta">'+FREQUENCY_LABELS[normalized.frequency]+' \u00b7 '+startText+esc(goalText)+'</div></div><div class="recur-amount '+normalized.type+'">'+(normalized.type==='income'?'+':'-')+formatMoney(normalized.amount)+'</div><button class="entry-btn delete" data-recurring-delete="'+esc(normalized.id)+'">&#10005;</button></div>';
     }).join('');
   }
 
