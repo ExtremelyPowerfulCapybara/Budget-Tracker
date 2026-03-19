@@ -610,10 +610,11 @@ function applyRecurringForMonth(year,monthIndex,cutoffDate){
 }
 function getForecastTotals(year,monthIndex){return getForecastTotalsFromState(recurring,year,monthIndex);}
 function getGoalOptionsMarkup(selectedId){
+  const esc=window.BudgetLogCore.utils.esc;
   if(!savingsGoals.length){
     return '<option value="">Primero crea una meta de ahorro</option>';
   }
-  return ['<option value="">Sin asignar</option>',...savingsGoals.map(goal=>'<option value="'+goal.id+'"'+(goal.id===selectedId?' selected':'')+'>'+goal.name+'</option>')].join('');
+  return ['<option value="">Sin asignar</option>',...savingsGoals.map(goal=>'<option value="'+goal.id+'"'+(goal.id===selectedId?' selected':'')+'>'+esc(goal.name)+'</option>')].join('');
 }
 function toggleSavingsGoalField(type,category,fieldId,selectId,selectedId){
   const wrap=document.getElementById(fieldId);
@@ -832,7 +833,7 @@ function setType(t){currentType=t;document.getElementById('typeExpense').classLi
 function renderCatGrid(gridId,selected,isEdit){document.getElementById(gridId).innerHTML=renderCategoryGridMarkup({categories:CATEGORIES,selectedId:selected,action:isEdit?'edit-category':'log-category'});}
 function setCat(id){currentCat=id;renderCatGrid('catGrid',currentCat,false);toggleSavingsGoalField(currentType,currentCat,'goalGroup','logGoalId',document.getElementById('logGoalId').value);}
 function logEntry(){const amount=parseFloat(document.getElementById('logAmount').value);const desc=document.getElementById('logDesc').value.trim();const date=document.getElementById('logDate').value;const goalId=document.getElementById('logGoalId').value||null;if(!amount||amount<=0){showToast('Ingresa un monto v\u00e1lido');return;}if(!desc){showToast('Agrega una descripci\u00f3n');return;}if(!date){showToast('Elige una fecha');return;}entries.unshift({id:Date.now().toString(),type:currentType,amount,description:desc,category:currentType==='expense'?currentCat:'income',date,goalId:currentType==='expense'&&currentCat==='savings'?goalId:null});save();if(navigator.vibrate)navigator.vibrate([10,30,10]);showToast('Movimiento registrado');initLog();renderDashboard();}
-function renderGoals(){const mk=monthKey(viewYear,viewMonth);const mes=getMonthEntriesByKey(mk);const ia=sumAmounts(mes.filter(e=>e.type==='income'));const allCats=[{id:'income',label:'Ingresos',color:'#3dd68c'},...CATEGORIES];document.getElementById('goalsList').innerHTML=allCats.map(c=>{const actual=c.id==='income'?ia:sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===c.id));return'<div class="goal-card"><div class="goal-dot" style="background:'+c.color+'"></div><div class="goal-info"><div class="goal-name">'+c.label+'</div><div class="goal-current">Actual: '+MXN(actual)+'</div></div><div class="goal-input-wrap"><span class="goal-prefix">$</span><input class="goal-input" type="number" id="goal_'+c.id+'" value="'+getGoalValue(c.id)+'" step="100" min="0"></div></div>';}).join('');}
+function renderGoals(){const esc=window.BudgetLogCore.utils.esc;const mk=monthKey(viewYear,viewMonth);const mes=getMonthEntriesByKey(mk);const ia=sumAmounts(mes.filter(e=>e.type==='income'));const allCats=[{id:'income',label:'Ingresos',color:'#3dd68c'},...CATEGORIES];document.getElementById('goalsList').innerHTML=allCats.map(c=>{const actual=c.id==='income'?ia:sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===c.id));return'<div class="goal-card"><div class="goal-dot" style="background:'+esc(c.color)+'"></div><div class="goal-info"><div class="goal-name">'+esc(c.label)+'</div><div class="goal-current">Actual: '+MXN(actual)+'</div></div><div class="goal-input-wrap"><span class="goal-prefix">$</span><input class="goal-input" type="number" id="goal_'+esc(c.id)+'" value="'+getGoalValue(c.id)+'" step="100" min="0"></div></div>';}).join('');}
 function saveGoals(){[{id:'income'},...CATEGORIES].forEach(c=>{goals[c.id]=parseFloat(document.getElementById('goal_'+c.id).value)||0;});save();showToast('Metas guardadas');}
 
 // Recurring
