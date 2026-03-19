@@ -1,15 +1,7 @@
 (function(){
   const root=window.BudgetLogCore=window.BudgetLogCore||{};
   const ui=root.ui=root.ui||{};
-
-  function escapeHtml(value){
-    return String(value||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
-  }
+  const esc=root.utils.esc;
 
   function toMarkup(content){
     return typeof content==='string'?content:(content?.outerHTML||'');
@@ -25,15 +17,15 @@
       cardClass=''
     }=options||{};
     const hasHead=title||subtitle||actions;
-    return '<div class="ui-section-card '+escapeHtml(cardClass)+'">'+
+    return '<div class="ui-section-card '+esc(cardClass)+'">'+
       (hasHead?'<div class="ui-section-card-head">'+
         '<div class="ui-section-card-copy">'+
-          (title?'<div class="ui-section-card-title">'+escapeHtml(title)+'</div>':'')+
-          (subtitle?'<div class="ui-section-card-subtitle">'+escapeHtml(subtitle)+'</div>':'')+
+          (title?'<div class="ui-section-card-title">'+esc(title)+'</div>':'')+
+          (subtitle?'<div class="ui-section-card-subtitle">'+esc(subtitle)+'</div>':'')+
         '</div>'+
         (actions?'<div class="ui-section-card-actions">'+toMarkup(actions)+'</div>':'')+
       '</div>':'')+
-      '<div class="ui-section-card-body '+escapeHtml(bodyClass)+'">'+toMarkup(content)+'</div>'+
+      '<div class="ui-section-card-body '+esc(bodyClass)+'">'+toMarkup(content)+'</div>'+
     '</div>';
   }
 
@@ -51,13 +43,13 @@
       tone='default',
       accent=''
     }=options||{};
-    const toneClass='ui-stat-card '+escapeHtml(tone||'default');
+    const toneClass='ui-stat-card '+esc(tone||'default');
     const valueClass='ui-stat-card-value'+(tone==='positive'?' positive':tone==='warning'?' negative':'');
-    const accentStyle=accent?' style="color:'+escapeHtml(accent)+'"':'';
+    const accentStyle=accent?' style="color:'+esc(accent)+'"':'';
     return '<div class="'+toneClass+'">'+
-      (label?'<div class="ui-stat-card-label">'+escapeHtml(label)+'</div>':'')+
-      '<div class="'+valueClass+'"'+accentStyle+'>'+escapeHtml(value)+'</div>'+
-      (subtext?'<div class="ui-stat-card-subtext">'+escapeHtml(subtext)+'</div>':'')+
+      (label?'<div class="ui-stat-card-label">'+esc(label)+'</div>':'')+
+      '<div class="'+valueClass+'"'+accentStyle+'>'+esc(value)+'</div>'+
+      (subtext?'<div class="ui-stat-card-subtext">'+esc(subtext)+'</div>':'')+
     '</div>';
   }
 

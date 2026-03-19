@@ -1,14 +1,6 @@
 (function(){
   const root=window.BudgetLogCore=window.BudgetLogCore||{};
-
-  function escapeHtml(value){
-    return String(value||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
-  }
+  const esc=root.utils.esc;
 
   function buildEmptyStateMarkup(options){
     const {
@@ -20,12 +12,12 @@
       variant='default'
     }=options||{};
 
-    return '<div class="empty-state '+escapeHtml(variant)+'">'+
-      '<div class="empty-state-icon">'+escapeHtml(icon)+'</div>'+
-      '<div class="empty-state-title">'+escapeHtml(title)+'</div>'+
-      '<div class="empty-state-message">'+escapeHtml(message)+'</div>'+
-      (ctaLabel?'<div class="empty-state-actions"><button type="button" class="empty-state-cta">'+escapeHtml(ctaLabel)+'</button></div>':'')+
-      (hint?'<div class="empty-state-hint">'+escapeHtml(hint)+'</div>':'')+
+    return '<div class="empty-state '+esc(variant)+'">'+
+      '<div class="empty-state-icon">'+esc(icon)+'</div>'+
+      '<div class="empty-state-title">'+esc(title)+'</div>'+
+      '<div class="empty-state-message">'+esc(message)+'</div>'+
+      (ctaLabel?'<div class="empty-state-actions"><button type="button" class="empty-state-cta">'+esc(ctaLabel)+'</button></div>':'')+
+      (hint?'<div class="empty-state-hint">'+esc(hint)+'</div>':'')+
     '</div>';
   }
 

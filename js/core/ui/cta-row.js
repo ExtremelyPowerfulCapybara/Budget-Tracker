@@ -1,15 +1,7 @@
 (function(){
   const root=window.BudgetLogCore=window.BudgetLogCore||{};
   const ui=root.ui=root.ui||{};
-
-  function escapeHtml(value){
-    return String(value||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
-  }
+  const esc=root.utils.esc;
 
   function createCtaRowMarkup(options){
     const {
@@ -18,9 +10,9 @@
       variant='default'
     }=options||{};
 
-    return '<div class="ui-cta-row '+escapeHtml(variant)+'">'+
-      '<div class="ui-cta-row-text">'+escapeHtml(text)+'</div>'+
-      (buttonLabel?'<button type="button" class="ui-cta-row-btn">'+escapeHtml(buttonLabel)+'</button>':'')+
+    return '<div class="ui-cta-row '+esc(variant)+'">'+
+      '<div class="ui-cta-row-text">'+esc(text)+'</div>'+
+      (buttonLabel?'<button type="button" class="ui-cta-row-btn">'+esc(buttonLabel)+'</button>':'')+
     '</div>';
   }
 
