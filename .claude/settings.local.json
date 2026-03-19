@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"ui-empty-state\" D:/GitHub/Budget-Tracker/*.html)",
+      "Bash(xargs grep:*)",
+      "Bash(for file:*)",
+      "Bash(do echo:*)",
+      "Read(//d/GitHub/Budget-Tracker/**)",
+      "Bash(done)"
+    ]
+  }
+}

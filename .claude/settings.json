@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase *)",
+      "Bash(node *)",
+      "Bash(npm *)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Read(*)",
+      "Write(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(firebase projects:delete*)"
+    ]
+  }
+}
