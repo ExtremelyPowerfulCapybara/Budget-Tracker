@@ -51,6 +51,16 @@
 
   const MXN=n=>'$'+Math.abs(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
+  function escapeHtml(str){
+    if(str==null)return'';
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
   root.utils={
     MXN,
     sumAmounts,
@@ -62,6 +72,8 @@
     daysInMonth,
     monthKey,
     entryMonth,
-    compareMonthRefs
+    compareMonthRefs,
+    escapeHtml,
+    esc:escapeHtml
   };
 })();
