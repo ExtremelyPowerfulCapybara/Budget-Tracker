@@ -1,5 +1,6 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
   const MAX_INSIGHTS=5;
 
   function sumAmounts(list){
@@ -75,7 +76,7 @@
         priority:58+Math.min(18,share/4),
         type:'neutral',
         title:'Categoría principal',
-        body:'Tu categoría más alta este mes es '+biggestCategory.label+'.'
+        body:'Tu categoría más alta este mes es '+esc(biggestCategory.label)+'.'
       });
     }
 
@@ -97,8 +98,8 @@
         type:'warning',
         title:budgetWarning.ratio>=1?'Presupuesto excedido':'Presupuesto en riesgo',
         body:budgetWarning.ratio>=1
-          ?'Ya rebasaste tu presupuesto de '+budgetWarning.label+' por '+overPct+'%.'
-          :'Ya usaste el '+pct+'% de tu presupuesto de '+budgetWarning.label+'.'
+          ?'Ya rebasaste tu presupuesto de '+esc(budgetWarning.label)+' por '+overPct+'%.'
+          :'Ya usaste el '+pct+'% de tu presupuesto de '+esc(budgetWarning.label)+'.'
       });
     }
 
@@ -118,7 +119,7 @@
         priority:74+Math.min(16,categoryIncrease.deltaPct/8),
         type:'warning',
         title:'Subida mensual',
-        body:'Gastaste '+Math.round(categoryIncrease.deltaPct)+'% más en '+categoryIncrease.label+' que el mes pasado.'
+        body:'Gastaste '+Math.round(categoryIncrease.deltaPct)+'% más en '+esc(categoryIncrease.label)+' que el mes pasado.'
       });
     }
 
@@ -138,7 +139,7 @@
         priority:66+Math.min(16,Math.abs(categoryDecrease.deltaPct)/8),
         type:'positive',
         title:'Mejora mensual',
-        body:'Tus gastos en '+categoryDecrease.label+' bajaron '+Math.round(Math.abs(categoryDecrease.deltaPct))+'% vs el mes pasado.'
+        body:'Tus gastos en '+esc(categoryDecrease.label)+' bajaron '+Math.round(Math.abs(categoryDecrease.deltaPct))+'% vs el mes pasado.'
       });
     }
 
