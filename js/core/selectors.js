@@ -15,6 +15,12 @@
 
   function sanitizeRecurringRule(rule){
     const sanitized={...rule};
+    const amt=parseFloat(sanitized.amount);
+    sanitized.amount=isFinite(amt)&&amt>0?amt:0;
+    if(sanitized.type!=='income'&&sanitized.type!=='expense')sanitized.type='expense';
+    if(!['monthly','biweekly','weekly'].includes(sanitized.frequency))sanitized.frequency='monthly';
+    const day=parseInt(sanitized.day,10);
+    sanitized.day=Number.isInteger(day)&&day>=1&&day<=31?day:1;
     const today=utils.toISODate(new Date());
     if(!sanitized.anchorDate){
       if(sanitized.frequency==='monthly'&&sanitized.day){
