@@ -22,9 +22,18 @@
   function normalizeState(rawState,{defaultGoals,sanitizeRecurringRule}){
     const fallback=createEmptyState(defaultGoals);
     const source=rawState||{};
+    const mergedGoals=source.goals&&typeof source.goals==='object'
+      ?{...defaultGoals,...source.goals}
+      :{...fallback.goals};
+    Object.keys(mergedGoals).forEach(k=>{
+      const v=parseFloat(mergedGoals[k]);
+      mergedGoals[k]=isFinite(v)&&v>=0?v:0;
+    });
     return {
-      entries:Array.isArray(source.entries)?source.entries:[],
-      goals:source.goals&&typeof source.goals==='object'?{...defaultGoals,...source.goals}:{...fallback.goals},
+      entries:Array.isArray(source.entries)
+        ?source.entries.map(e=>{const amt=parseFloat(e.amount);return{...e,amount:isFinite(amt)&&amt>=0?amt:0};})
+        :[],
+      goals:mergedGoals,
       recurring:Array.isArray(source.recurring)?source.recurring.map(sanitizeRecurringRule):[],
       savingsGoals:Array.isArray(source.savingsGoals)?source.savingsGoals:[],
       customCategories:source.customCategories&&typeof source.customCategories==='object'?source.customCategories:{}
