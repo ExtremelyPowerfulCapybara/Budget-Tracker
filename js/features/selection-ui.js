@@ -1,12 +1,13 @@
 (function(){
   const root=window.BudgetLogFeatures=window.BudgetLogFeatures||{};
+  const esc=window.BudgetLogCore.utils.esc;
 
   function renderCategoryGridMarkup(options){
     const {categories,selectedId,action}=options;
     return categories.map(category=>{
       const active=selectedId===category.id;
-      const style=active?'border-color:'+category.color+';background:'+category.color+'22':'';
-      return '<button class="cat-btn'+(active?' active':'')+'" style="'+style+'" data-selection-action="'+action+'" data-selection-id="'+category.id+'">'+category.label+'</button>';
+      const style=active?'border-color:'+esc(category.color)+';background:'+esc(category.color)+'22':'';
+      return '<button class="cat-btn'+(active?' active':'')+'" style="'+style+'" data-selection-action="'+action+'" data-selection-id="'+esc(category.id)+'">'+esc(category.label)+'</button>';
     }).join('');
   }
 
