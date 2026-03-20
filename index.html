@@ -382,7 +382,28 @@
   .chart-range-toggle { display:flex; gap:6px; margin-bottom:14px; }
   .chart-range-btn { padding:5px 10px; border:1px solid var(--border); border-radius:999px; background:var(--surface2); color:var(--muted); font-family:var(--font-mono); font-size:10px; font-weight:700; cursor:pointer; transition:all 0.15s; }
   .chart-range-btn.active { border-color:var(--accent); color:var(--accent); }
-  body.light{--bg:#f5f5f7;--surface:#ffffff;--surface2:#ebebed;--border:#d1d1d6;--text:#1c1c1e;--muted:#8e8e93;--accent:#3a6fd8;--income:#28a745;--expense:#dc3545;}
+  body.light{--bg:#F5F3EF;--surface:#FFFFFF;--surface2:#EDEBE5;--border:#DDD9D0;--text:#1A1814;--muted:#7A7570;--accent:#2455D4;--income:#15803D;--expense:#C0392B;}
+  body.light .entry-detail-row{border-bottom-color:rgba(0,0,0,0.07);}
+  body.light .compare-cat-row{border-bottom-color:rgba(0,0,0,0.07);}
+  body.light .ui-stat-card{background:rgba(0,0,0,0.025);}
+  body.light .net-card,body.light .summary-card,body.light .ui-section-card{box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+  body.light .nav-btn.active{box-shadow:0 4px 12px rgba(36,85,212,0.22);}
+  body.light .form-input:focus,body.light .goal-input:focus{box-shadow:0 0 0 3px rgba(36,85,212,0.14);}
+  body.light .type-btn.active{box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+  body.light .cat-btn.active{box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+  body.light .insight-mini-badge.warning{background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.25);}
+  body.light .insight-mini-badge.positive{background:rgba(21,128,61,0.08);border-color:rgba(21,128,61,0.25);}
+  body.light .recur-applied-badge{background:rgba(21,128,61,0.1);border-color:rgba(21,128,61,0.22);}
+  body.light .sg-contribute-btn{background:rgba(21,128,61,0.1);border-color:rgba(21,128,61,0.28);}
+  body.light .sg-contribute-btn:hover{background:rgba(21,128,61,0.18);}
+  body.light .entry-detail-badge.income{background:rgba(21,128,61,0.12);}
+  body.light .entry-detail-badge.expense{background:rgba(192,57,43,0.1);}
+  body.light .entry-rule-link{background:rgba(36,85,212,0.1);}
+  body.light .entry-rule-link:hover{background:rgba(36,85,212,0.18);}
+  body.light .filter-chip.active{background:rgba(36,85,212,0.08);}
+  body.light .template-card:hover{background:rgba(36,85,212,0.05);}
+  body.light .insights-summary:hover{background:rgba(36,85,212,0.04);}
+  body.light .insights-disclosure[open] .insights-summary{box-shadow:0 0 0 2px rgba(36,85,212,0.1);}
   .theme-toggle{font-size:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
   .theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
   .forecast-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:6px;}
@@ -875,8 +896,14 @@ function bindStaticEvents(){
     item.classList.toggle('entry-item--expanded',!isExpanded);
   });
   document.getElementById('recentEntries').addEventListener('click',event=>{
-    const button=event.target.closest('[data-dashboard-action]');
-    if(button?.dataset.dashboardAction==='log')showView('log');
+    const dashBtn=event.target.closest('[data-dashboard-action]');
+    if(dashBtn?.dataset.dashboardAction==='log')showView('log');
+    const entryBtn=event.target.closest('[data-entry-action]');
+    if(entryBtn){
+      const {entryAction,entryId}=entryBtn.dataset;
+      if(entryAction==='edit'&&entryId)openEdit(entryId);
+      if(entryAction==='delete'&&entryId)confirmDelete(entryId);
+    }
   });
   ['catGrid','editCatGrid','recurCatGrid','freqGrid'].forEach(id=>{
     document.getElementById(id).addEventListener('click',event=>{
@@ -989,6 +1016,17 @@ document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
 });
 bindStaticEvents();
 normalizeStaticCopy();
+// Lock body scroll when any modal/sheet is open
+(function(){
+  function syncScrollLock(){
+    const anyOpen=document.querySelector('.modal-overlay.open,.sheet-overlay.open');
+    document.body.style.overflow=anyOpen?'hidden':'';
+  }
+  const observer=new MutationObserver(syncScrollLock);
+  document.querySelectorAll('.modal-overlay,.sheet-overlay').forEach(el=>{
+    observer.observe(el,{attributes:true,attributeFilter:['class']});
+  });
+})();
 
 // App shell
 function showAuth(){showAuthScreen();}
