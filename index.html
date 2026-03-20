@@ -806,6 +806,7 @@ function showApp(user){
   renderHeaderAvatar(user);
   updateMonthLabels();renderDashboard();initLog();
   autoApplyRecurring();
+  syncFcmTokenToFirestore();
   if(!localStorage.getItem('bl_onboarded')){setTimeout(()=>showOnboard(),800);}
 }
 function autoApplyRecurring(){
@@ -1020,7 +1021,8 @@ function renderForecast(){const el=document.getElementById('forecastCard');if(!e
 const VAPID_KEY='BKKSle6PBt_lENMuYxTZncvoPNWKw2V43CgfNwOsOh1wZtUKOtyjmwUHJ2LSohAJeBcfe0weiWhxedCNmEtOPMs';
 let messaging=null;try{if('serviceWorker' in navigator && 'PushManager' in window){messaging=firebase.messaging();}}catch(e){console.log('FCM:',e.message);}
 function updateNotifBtn(){renderNotificationButton(!!localStorage.getItem('bl_fcm_token'));}
-async function toggleNotifications(){if(!messaging){showToast('No disponible en este navegador');return;}const existing=localStorage.getItem('bl_fcm_token');if(existing){localStorage.removeItem('bl_fcm_token');if(userDocRef)await userDocRef.update({fcmToken:firebase.firestore.FieldValue.delete()});updateNotifBtn();showToast('Notificaciones desactivadas');return;}try{const perm=await Notification.requestPermission();if(perm!=='granted'){showToast('Permiso denegado');return;}await navigator.serviceWorker.register('firebase-messaging-sw.js');const token=await messaging.getToken({vapidKey:VAPID_KEY});localStorage.setItem('bl_fcm_token',token);if(userDocRef)await userDocRef.update({fcmToken:token});updateNotifBtn();showToast('Notificaciones activadas \u2714');}catch(err){console.error('FCM:',err);showToast('Error activando notificaciones');}}
+async function toggleNotifications(){if(!messaging){showToast('No disponible en este navegador');return;}const existing=localStorage.getItem('bl_fcm_token');if(existing){localStorage.removeItem('bl_fcm_token');if(userDocRef)await userDocRef.update({fcmToken:firebase.firestore.FieldValue.delete()});updateNotifBtn();showToast('Notificaciones desactivadas');return;}try{const perm=await Notification.requestPermission();if(perm!=='granted'){showToast('Permiso denegado');return;}await navigator.serviceWorker.register('firebase-messaging-sw.js');const swReg=await navigator.serviceWorker.ready;const token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:swReg});if(userDocRef)await userDocRef.update({fcmToken:token});localStorage.setItem('bl_fcm_token',token);updateNotifBtn();showToast('Notificaciones activadas \u2714');}catch(err){console.error('FCM:',err);showToast('Error activando notificaciones');}}
+async function syncFcmTokenToFirestore(){const token=localStorage.getItem('bl_fcm_token');if(!token||!userDocRef)return;try{const snap=await userDocRef.get();if(snap.exists&&snap.data().fcmToken===token)return;await userDocRef.update({fcmToken:token});}catch(e){console.warn('FCM token sync:',e.message);}}
 
 </script>
 </body>
