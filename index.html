@@ -27,8 +27,8 @@
     --cat-entertainment: #f0d45b; --cat-clothing: #c49bfa; --cat-savings: #f0c45b;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-ui); min-height:100vh; max-width:480px; margin:0 auto; overflow-x:hidden; }
-  #authScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 24px; text-align:center; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-ui); min-height:100dvh; max-width:480px; margin:0 auto; overflow-x:hidden; }
+  #authScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:40px 24px; text-align:center; }
   .auth-logo { font-size:36px; font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
   .auth-sub { font-family:var(--font-mono); font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:48px; }
   .auth-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px 24px; width:100%; max-width:340px; }
@@ -146,7 +146,7 @@
   .entry-amount.income { color:var(--income); }
   .entry-amount.expense { color:var(--expense); }
   .entry-actions { display:flex; gap:6px; }
-  .entry-btn { background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:30px; height:30px; border-radius:9px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+  .entry-btn { background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:36px; height:36px; border-radius:9px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
   .entry-btn:hover { border-color:var(--accent); color:var(--text); }
   .entry-btn.delete:hover { border-color:var(--expense); color:var(--expense); }
   .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:44px 24px; text-align:center; gap:10px; background:var(--surface); border:1px dashed var(--border); border-radius:16px; }
@@ -209,7 +209,7 @@
   .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; margin:0 auto; animation:slideUp 0.25s ease; }
   @keyframes slideUp { from { transform:translateY(40px); opacity:0; } to { transform:translateY(0); opacity:1; } }
   .modal-title { font-size:17px; font-weight:800; margin-bottom:20px; }
-  .modal-close { float:right; background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:30px; height:30px; border-radius:8px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .modal-close { float:right; background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:36px; height:36px; border-radius:8px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .confirm-modal { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:28px 20px 40px; width:100%; max-width:480px; margin:0 auto; animation:slideUp 0.25s ease; }
   .confirm-title { font-size:17px; font-weight:800; margin-bottom:8px; }
   .confirm-sub { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.5; }
@@ -247,7 +247,7 @@
   .user-email { font-family:var(--font-mono); font-size:11px; color:var(--muted); margin-top:2px; }
   .signout-btn { width:100%; padding:14px; background:transparent; border:1px solid var(--expense); border-radius:12px; color:var(--expense); font-family:var(--font-ui); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
   .signout-btn:hover { background:var(--expense); color:#fff; }
-  #loadingScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; gap:16px; }
+  #loadingScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; gap:16px; }
   .loading-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); animation:bounce 0.8s infinite; }
   .loading-dot:nth-child(2) { animation-delay:0.15s; }
   .loading-dot:nth-child(3) { animation-delay:0.3s; }
@@ -341,9 +341,17 @@
   .color-picker-pop.open { display:flex; }
   .cp-swatch { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
   .cp-swatch:hover,.cp-swatch.active { border-color:#fff; transform:scale(1.15); }
+  button:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .form-input:focus-visible{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,138,240,0.14);}
+  button:active{transform:scale(0.97);opacity:0.9;}
+  .submit-btn:active{transform:translateY(0) scale(0.97);}
+  .google-btn:active{transform:scale(0.97);}
+  .nav-btn:active{transform:scale(0.97);}
+  .month-arrow:active{transform:scale(0.95);}
 </style>
 </head>
 <body>
+<div id="a11y-announcer" aria-live="polite" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
 <div id="loadingScreen">
   <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;">BudgetLog</div>
   <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
@@ -367,8 +375,8 @@
     <div><div class="header-title">BudgetLog</div><div class="header-month" id="headerMonth"></div></div>
     <div class="header-btns">
       <div class="sync-indicator" id="syncDot" title="Sincronizado"></div>
-      <button class="theme-toggle" id="themeToggle">&#9728;</button>
-      <button class="header-export" id="exportBtn">&#8595; XLSX</button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">&#9728;</button>
+      <button class="header-export" id="exportBtn" aria-label="Exportar datos a Excel">&#8595; XLSX</button>
       <div id="avatarWrap"></div>
     </div>
   </div>
@@ -381,7 +389,7 @@
     <button class="nav-btn" data-view="charts">&#9783; Gráficas</button>
   </div>
   <div class="view active" id="view-dashboard">
-    <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)">&#8249;</button><div class="month-label" id="dashMonth"></div><button class="month-arrow" onclick="changeMonth(1)">&#8250;</button></div>
+    <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="dashMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div>
     <div class="net-card"><div class="net-label">Saldo Neto</div><div class="net-amount" id="netAmount">$0.00</div></div>
     <div class="summary-grid">
       <div class="summary-card"><div class="summary-card-label">Ingresos</div><div class="summary-card-amount income" id="totalIncome">$0.00</div></div>
@@ -410,17 +418,17 @@
     <div class="form-card">
       <div class="form-card-title">Nuevo movimiento</div>
       <div class="type-toggle"><button class="type-btn expense active" id="typeExpense" onclick="setType('expense')">Gasto</button><button class="type-btn income" id="typeIncome" onclick="setType('income')">Ingreso</button></div>
-      <div class="form-group"><label class="form-label">Monto (MXN)</label><input class="form-input" type="number" id="logAmount" placeholder="0.00" step="0.01" min="0"></div>
-      <div class="form-group"><label class="form-label">Descripción</label><input class="form-input" type="text" id="logDesc" placeholder="ej. Despensa"></div>
-      <div class="form-group"><textarea class="form-input" id="logNotes" placeholder="Notas (opcional)" rows="2"></textarea></div>
+      <div class="form-group"><label class="form-label" for="logAmount">Monto (MXN)</label><input class="form-input" type="number" id="logAmount" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="form-group"><label class="form-label" for="logDesc">Descripción</label><input class="form-input" type="text" id="logDesc" placeholder="ej. Despensa"></div>
+      <div class="form-group"><label class="form-label" for="logNotes">Notas (opcional)</label><textarea class="form-input" id="logNotes" placeholder="Notas (opcional)" rows="2"></textarea></div>
       <div class="form-group" id="catGroup"><label class="form-label">Categoría</label><div class="cat-grid" id="catGrid"></div></div>
-      <div class="form-group" id="goalGroup" style="display:none;"><label class="form-label">Meta de ahorro</label><select class="form-input" id="logGoalId"></select></div>
-      <div class="form-group"><label class="form-label">Fecha</label><input class="form-input" type="date" id="logDate"></div>
+      <div class="form-group" id="goalGroup" style="display:none;"><label class="form-label" for="logGoalId">Meta de ahorro</label><select class="form-input" id="logGoalId"></select></div>
+      <div class="form-group"><label class="form-label" for="logDate">Fecha</label><input class="form-input" type="date" id="logDate"></div>
       <button class="submit-btn" onclick="logEntry()">Registrar movimiento</button>
     </div>
   </div>
   <div class="view" id="view-entries">
-    <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)">&#8249;</button><div class="month-label" id="entriesMonth"></div><button class="month-arrow" onclick="changeMonth(1)">&#8250;</button></div>
+    <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="entriesMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div>
     <div class="search-wrap"><input class="search-input" id="entrySearch" type="text" placeholder="Buscar movimientos..." oninput="renderEntries()"></div>
     <div class="filter-row" id="filterRow"></div>
     <div id="entriesList"></div>
@@ -467,19 +475,19 @@
 </div>
 <div class="modal-overlay" id="editModal">
   <div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Editar movimiento</div><button class="modal-close" onclick="closeModal()">&#10005;</button></div>
-    <div class="form-group"><label class="form-label">Monto (MXN)</label><input class="form-input" type="number" id="editAmount" step="0.01" min="0"></div>
-    <div class="form-group"><label class="form-label">Descripción</label><input class="form-input" type="text" id="editDesc"></div>
-    <div class="form-group"><textarea class="form-input" id="editNotes" placeholder="Notas (opcional)" rows="2"></textarea></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Editar movimiento</div><button class="modal-close" onclick="closeModal()" aria-label="Cerrar">&#10005;</button></div>
+    <div class="form-group"><label class="form-label" for="editAmount">Monto (MXN)</label><input class="form-input" type="number" id="editAmount" step="0.01" min="0"></div>
+    <div class="form-group"><label class="form-label" for="editDesc">Descripción</label><input class="form-input" type="text" id="editDesc"></div>
+    <div class="form-group"><label class="form-label" for="editNotes">Notas (opcional)</label><textarea class="form-input" id="editNotes" placeholder="Notas (opcional)" rows="2"></textarea></div>
     <div class="form-group" id="editCatGroup"><label class="form-label">Categoría</label><div class="cat-grid" id="editCatGrid"></div></div>
-    <div class="form-group" id="editGoalGroup" style="display:none;"><label class="form-label">Meta de ahorro</label><select class="form-input" id="editGoalId"></select></div>
-    <div class="form-group"><label class="form-label">Fecha</label><input class="form-input" type="date" id="editDate"></div>
+    <div class="form-group" id="editGoalGroup" style="display:none;"><label class="form-label" for="editGoalId">Meta de ahorro</label><select class="form-input" id="editGoalId"></select></div>
+    <div class="form-group"><label class="form-label" for="editDate">Fecha</label><input class="form-input" type="date" id="editDate"></div>
     <button class="submit-btn" onclick="saveEdit()">Guardar cambios</button>
   </div>
 </div>
 <div class="modal-overlay" id="exportModal">
   <div class="export-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Exportar a Excel</div><button class="modal-close" onclick="closeExportModal()">&#10005;</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Exportar a Excel</div><button class="modal-close" onclick="closeExportModal()" aria-label="Cerrar">&#10005;</button></div>
     <div class="form-group"><label class="form-label">Alcance</label><div class="export-scope-grid"><button class="export-scope-btn active" id="scopeMonth" onclick="setExportScope('month')">Este mes</button><button class="export-scope-btn" id="scopeAll" onclick="setExportScope('all')">Todo el historial</button></div></div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.7;">El archivo incluye:<br><span style="color:var(--text);">&#x2022; Movimientos</span> — todas las transacciones<br><span style="color:var(--text);">&#x2022; Resumen</span> — ingresos, gastos y saldo por mes<br><span style="color:var(--text);">&#x2022; Por categoría</span> — matriz mes por categoría<br><span style="color:var(--text);">&#x2022; Metas</span> — real vs. meta</div>
     <button class="export-btn-main" onclick="runExport()">&#8595; Descargar XLSX</button>
@@ -487,7 +495,7 @@
 </div>
 <div class="modal-overlay" id="userModal">
   <div class="user-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Cuenta</div><button class="modal-close" onclick="closeUserModal()">&#10005;</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Cuenta</div><button class="modal-close" onclick="closeUserModal()" aria-label="Cerrar">&#10005;</button></div>
     <div class="user-info"><img class="user-avatar-lg" id="modalAvatar" src="" alt=""><div><div class="user-name" id="modalName"></div><div class="user-email" id="modalEmail"></div></div></div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.7;">Tus datos se sincronizan automáticamente con Firebase.</div>
     <button class="notif-btn" id="notifBtn">Activar notificaciones</button>
@@ -521,7 +529,7 @@
 <!-- Savings goal modal -->
 <div class="modal-overlay" id="savingsModal">
   <div class="savings-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;" id="savingsModalTitle">Nueva meta de ahorro</div><button class="modal-close" onclick="closeSavingsModal()">&#10005;</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;" id="savingsModalTitle">Nueva meta de ahorro</div><button class="modal-close" onclick="closeSavingsModal()" aria-label="Cerrar">&#10005;</button></div>
     <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" type="text" id="sgName" placeholder="ej. Vacaciones, Fondo emergencia"></div>
     <div class="form-group"><label class="form-label">Meta (MXN)</label><input class="form-input" type="number" id="sgTarget" placeholder="20000" min="1" step="100"></div>
     <div class="form-group"><label class="form-label">Color</label><div class="color-grid" id="sgColorGrid"></div></div>
@@ -531,7 +539,7 @@
 <!-- Category customization modal -->
 <div class="modal-overlay" id="catCustomModal">
   <div class="cat-custom-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Personalizar categorías</div><button class="modal-close" onclick="closeCatCustomize()">&#10005;</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Personalizar categorías</div><button class="modal-close" onclick="closeCatCustomize()" aria-label="Cerrar">&#10005;</button></div>
     <div id="catCustomList"></div>
     <button class="cat-custom-add" id="catAddBtn">+ Agregar categorí­as</button>
     <button class="submit-btn" style="margin-top:12px;" onclick="saveCatCustomize()">Guardar cambios</button>
@@ -882,7 +890,7 @@ function saveEdit(){const e=entries.find(x=>x.id===editId);if(!e)return;const am
 function closeModal(){document.getElementById('editModal').classList.remove('open');editId=null;}
 function deleteEntry(id){entries=entries.filter(e=>e.id!==id);save();renderDashboard();renderEntries();showToast('Movimiento eliminado');}
 let toastTimeout=null;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2200);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2200);const a=document.getElementById('a11y-announcer');if(a)a.textContent=msg;}
 
 // Confirm delete
 let pendingDeleteId=null;

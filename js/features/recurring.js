@@ -22,7 +22,7 @@
       const color=normalized.type==='income'?'var(--income)':(category?category.color:'var(--muted)');
       const startText='Inicia: '+normalized.anchorDate;
       const goalText=goal?' \u00b7 Meta: '+goal.name:'';
-      return '<div class="recur-card"><div class="entry-dot" style="background:'+esc(color)+'"></div><div class="recur-info"><div class="recur-name">'+esc(normalized.description)+'</div><div class="recur-meta">'+FREQUENCY_LABELS[normalized.frequency]+' \u00b7 '+startText+esc(goalText)+'</div></div><div class="recur-amount '+normalized.type+'">'+(normalized.type==='income'?'+':'-')+formatMoney(normalized.amount)+'</div><button class="entry-btn" data-recurring-edit="'+esc(normalized.id)+'">&#9998;</button><button class="entry-btn delete" data-recurring-delete="'+esc(normalized.id)+'">&#10005;</button></div>';
+      return '<div class="recur-card"><div class="entry-dot" style="background:'+esc(color)+'"></div><div class="recur-info"><div class="recur-name">'+esc(normalized.description)+'</div><div class="recur-meta">'+FREQUENCY_LABELS[normalized.frequency]+' \u00b7 '+startText+esc(goalText)+'</div></div><div class="recur-amount '+normalized.type+'">'+(normalized.type==='income'?'+':'-')+formatMoney(normalized.amount)+'</div><button class="entry-btn" data-recurring-edit="'+esc(normalized.id)+'" aria-label="Editar recurrente">&#9998;</button><button class="entry-btn delete" data-recurring-delete="'+esc(normalized.id)+'" aria-label="Eliminar recurrente">&#10005;</button></div>';
     }).join('');
   }
 

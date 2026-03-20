@@ -93,10 +93,12 @@ nav {
   transition: all 0.2s;
 }
 .nav-cta:hover { background: #4a79df; transform: translateY(-1px); }
+.nav-cta:active { transform: scale(0.97); opacity: 0.88; }
+.nav-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -129,7 +131,8 @@ nav {
   opacity: 0;
   animation: fadeUp 0.8s ease 0.2s forwards;
 }
-.hero-title em {
+.hero-title em,
+.hero-title .hero-stroke {
   font-style: normal;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--accent);
@@ -345,6 +348,8 @@ nav {
   transition: all 0.2s;
 }
 .btn-primary:hover { background: #4a79df; transform: translateY(-2px); box-shadow: 0 12px 40px #5b8af030; }
+.btn-primary:active { transform: scale(0.97); opacity: 0.88; }
+.btn-primary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 .btn-secondary {
   font-family: var(--font-ui);
@@ -362,6 +367,8 @@ nav {
   transition: all 0.2s;
 }
 .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+.btn-secondary:active { transform: scale(0.97); opacity: 0.88; }
+.btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .hero-stats {
   display: flex;
@@ -409,6 +416,9 @@ nav {
   line-height: 1.02;
   letter-spacing: -1px;
   margin-bottom: 48px;
+}
+.title-highlight {
+  color: var(--green);
 }
 .section-intro {
   font-family: var(--font-ui);
@@ -806,6 +816,7 @@ nav {
   position: relative;
 }
 .feature-card:hover { background: var(--surface2); transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.22); }
+.feature-card:active { transform: translateY(-2px); }
 .feature-icon { margin-bottom: 16px; display: block; color: var(--accent); opacity: 0.95; line-height: 0; }
 .feature-icon svg { width: 22px; height: 22px; display: block; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .feature-name { font-family: var(--font-ui); font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
@@ -814,7 +825,7 @@ nav {
   display: inline-block;
   margin-top: 14px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--green);
@@ -851,7 +862,7 @@ nav {
   background: var(--bg);
 }
 .platform-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-.platform-icon { font-size: 24px; }
+.platform-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; }
 .platform-name { font-family: var(--font-ui); font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
 .platform-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
 .steps { display: flex; flex-direction: column; gap: 0; }
@@ -1063,6 +1074,38 @@ footer {
   .preview-metric-value { font-size: 24px; }
   .mobile-sticky-cta { display: block; }
 }
+
+.faq-item summary:focus-visible,
+.install-details summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .hero-eyebrow,
+  .hero-title,
+  .hero-sub,
+  .hero-actions,
+  .hero-install-hint,
+  .hero-preview,
+  .hero-stats {
+    opacity: 1;
+    animation: none;
+  }
+  @keyframes fadeUp {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
 </style>
 </head>
 <body>
@@ -1080,7 +1123,7 @@ footer {
   <div class="hero-eyebrow">Registro personal de gastos e ingresos</div>
   <h1 class="hero-title">
     Entiende<br>
-    <em>a dónde</em><br>
+    <span class="hero-stroke">a dónde</span><br>
     <span class="line2">se va tu dinero.</span>
   </h1>
   <p class="hero-sub">
@@ -1312,7 +1355,7 @@ footer {
 
 <section class="section">
   <div class="section-label reveal">Qué hace</div>
-  <h2 class="section-title reveal">Una app simple para ver<br>a dónde se va<br><em>tu dinero.</em></h2>
+  <h2 class="section-title reveal">Una app simple para ver<br>a dónde se va<br><span class="title-highlight">tu dinero.</span></h2>
   <p class="section-intro reveal">BudgetLog es un registro personal de gastos e ingresos. <strong>No vende productos financieros ni vive de anuncios.</strong> Solo te ayuda a entender tu dinero y seguirlo desde el celular.</p>
   <div class="features-grid reveal">
     <div class="feature-card">
@@ -1386,7 +1429,9 @@ footer {
     <div class="install-grid">
       <div class="install-platform">
         <div class="platform-header">
-          <span class="platform-icon">🍎</span>
+          <span class="platform-icon" aria-label="Apple">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5C13.2 4 14.8 3 16.5 3c.1 1.8-.5 3.5-1.6 4.7C13.8 9 12.2 10 10.5 10c-.2-1.8.5-3.5 1.5-4.5Z"/><path d="M8.5 10C5.5 10 3 12.5 3 16c0 3.3 2 6 4 6 1 0 2-.5 3-1 1 .5 2 1 3 1 2 0 4-2.7 4-6 0-3.5-2.5-6-4.5-6-.5 0-1.5.3-2 .5C10 10 9.2 10 8.5 10Z"/></svg>
+          </span>
           <div>
             <div class="platform-name">iPhone / iPad</div>
             <div class="platform-sub">Safari · iOS 14+</div>
@@ -1427,7 +1472,9 @@ footer {
       </div>
       <div class="install-platform">
         <div class="platform-header">
-          <span class="platform-icon">🤖</span>
+          <span class="platform-icon" aria-label="Android">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16a7 7 0 0 1 14 0"/><path d="M12 16v5"/><path d="M8 16v1"/><path d="M16 16v1"/><circle cx="9" cy="13" r=".5" fill="currentColor"/><circle cx="15" cy="13" r=".5" fill="currentColor"/><path d="m7.5 9 1.5-2.5"/><path d="M16.5 9 15 6.5"/></svg>
+          </span>
           <div>
             <div class="platform-name">Android</div>
             <div class="platform-sub">Chrome · Android 8+</div>
