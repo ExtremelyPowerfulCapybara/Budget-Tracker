@@ -207,6 +207,167 @@
     return true;
   }
 
+  function renderSpendingDonut(options){
+    const {Chart,instances,canvas,entries,entryMonth,viewYear,viewMonth,monthKey,categories,catColors,formatMoney}=options;
+    destroyChart(instances,'spendingDonut');
+    const currentMonthKey=monthKey(viewYear,viewMonth);
+    const monthEntries=entries.filter(entry=>entryMonth(entry)===currentMonthKey&&entry.type==='expense');
+    const cats=categories.map(category=>({
+      label:category.label,
+      color:catColors[category.id],
+      total:sumAmounts(monthEntries.filter(entry=>entry.category===category.id))
+    })).filter(category=>category.total>0).sort((a,b)=>b.total-a.total);
+    if(!cats.length)return false;
+    const grandTotal=cats.reduce((acc,category)=>acc+category.total,0);
+    const centerTextPlugin={
+      id:'spendingDonutCenter',
+      afterDraw:function(chart){
+        const {ctx,chartArea:{top,bottom,left,right}}=chart;
+        const cx=(left+right)/2;
+        const cy=(top+bottom)/2;
+        ctx.save();
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillStyle='#6b6f80';
+        ctx.font='600 10px Lexend';
+        ctx.fillText('TOTAL',cx,cy-13);
+        ctx.fillStyle='#f0f0f5';
+        ctx.font='700 15px Lexend Mono';
+        const formatted=formatMoney?formatMoney(grandTotal):('$'+grandTotal.toLocaleString('es-MX',{minimumFractionDigits:2}));
+        ctx.fillText(formatted,cx,cy+6);
+        ctx.restore();
+      }
+    };
+    instances.spendingDonut=new Chart(canvas,{
+      type:'doughnut',
+      data:{
+        labels:cats.map(category=>category.label),
+        datasets:[{
+          data:cats.map(category=>category.total),
+          backgroundColor:cats.map(category=>category.color+'cc'),
+          borderColor:cats.map(category=>category.color),
+          borderWidth:1.5,
+          hoverOffset:6
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        cutout:'68%',
+        plugins:{
+          legend:{
+            display:true,
+            position:'bottom',
+            labels:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},boxWidth:10,padding:10,usePointStyle:true}
+          },
+          tooltip:{
+            backgroundColor:'#1e2029',
+            borderColor:'#2a2d38',
+            borderWidth:1,
+            titleColor:'#f0f0f5',
+            bodyColor:'#6b6f80',
+            titleFont:{family:'Lexend',weight:'700'},
+            bodyFont:{family:'Lexend Mono'},
+            callbacks:{
+              label:function(ctx){
+                const total=ctx.dataset.data.reduce((acc,value)=>acc+value,0);
+                const pct=total>0?((ctx.raw/total)*100).toFixed(1):'0';
+                const amount=formatMoney?formatMoney(ctx.raw):('$'+ctx.raw.toLocaleString('es-MX',{minimumFractionDigits:2}));
+                return ' '+amount+' ('+pct+'%)';
+              }
+            }
+          }
+        }
+      },
+      plugins:[centerTextPlugin]
+    });
+    return true;
+  }
+
+  function renderSavingsProgress(options){
+    const {Chart,instances,canvas,savingsGoals,entries,formatMoney}=options;
+    destroyChart(instances,'savingsProgress');
+    if(!savingsGoals||!savingsGoals.length)return false;
+    const savingsEntries=entries.filter(entry=>entry.type==='expense'&&entry.category==='savings');
+    function getGoalSaved(goalId){
+      if(savingsGoals.length===1){
+        return sumAmounts(savingsEntries.filter(entry=>!entry.goalId||entry.goalId===goalId));
+      }
+      return sumAmounts(savingsEntries.filter(entry=>entry.goalId===goalId));
+    }
+    const data=savingsGoals.map(goal=>{
+      const saved=getGoalSaved(goal.id);
+      const target=goal.target||0;
+      const reached=saved>=target&&target>0;
+      return {label:goal.name,saved,target,reached,color:goal.color||'#5b8af0'};
+    });
+    canvas.height=Math.max(120,data.length*52);
+    instances.savingsProgress=new Chart(canvas,{
+      type:'bar',
+      data:{
+        labels:data.map(goal=>goal.label),
+        datasets:[
+          {
+            label:'Ahorrado',
+            data:data.map(goal=>goal.saved),
+            backgroundColor:data.map(goal=>goal.reached?'#3dd68c88':'#5b8af088'),
+            borderColor:data.map(goal=>goal.reached?'#3dd68c':'#5b8af0'),
+            borderWidth:1.5,
+            borderRadius:6
+          },
+          {
+            label:'Meta',
+            data:data.map(goal=>goal.target),
+            backgroundColor:'#f0d45b22',
+            borderColor:'#f0d45b',
+            borderWidth:1.5,
+            borderRadius:6
+          }
+        ]
+      },
+      options:{
+        ...CHART_DEFAULTS,
+        indexAxis:'y',
+        plugins:{
+          ...CHART_DEFAULTS.plugins,
+          legend:{display:true,position:'top',labels:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},boxWidth:12}},
+          tooltip:{
+            backgroundColor:'#1e2029',
+            borderColor:'#2a2d38',
+            borderWidth:1,
+            titleColor:'#f0f0f5',
+            bodyColor:'#6b6f80',
+            titleFont:{family:'Lexend',weight:'700'},
+            bodyFont:{family:'Lexend Mono'},
+            callbacks:{
+              label:function(ctx){
+                const goal=data[ctx.dataIndex];
+                if(ctx.datasetIndex===0){
+                  const pct=goal.target>0?((goal.saved/goal.target)*100).toFixed(0):'—';
+                  const amount=formatMoney?formatMoney(goal.saved):('$'+goal.saved.toLocaleString('es-MX',{minimumFractionDigits:2}));
+                  return ' '+amount+' ('+pct+'% de la meta)';
+                }
+                const amount=formatMoney?formatMoney(goal.target):('$'+goal.target.toLocaleString('es-MX',{minimumFractionDigits:2}));
+                return ' '+amount;
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            grid:{color:'#2a2d38'},
+            ticks:{color:'#6b6f80',font:{family:'Lexend Mono',size:10},callback:function(v){return '$'+(v>=1000?(v/1000).toFixed(0)+'k':v);}}
+          },
+          y:{
+            grid:{display:false},
+            ticks:{color:'#f0f0f5',font:{family:'Lexend',size:11,weight:'600'}}
+          }
+        }
+      }
+    });
+    return true;
+  }
+
   root.charting={
     destroyChart,
     getLastMonths,
@@ -215,6 +376,8 @@
     renderTrendChart,
     renderNetChart,
     renderCategoryLineChart,
-    renderPieChart
+    renderPieChart,
+    renderSpendingDonut,
+    renderSavingsProgress
   };
 })();

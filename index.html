@@ -135,9 +135,12 @@
   .bar-pct.over { color:var(--expense); }
   .bar-pct-empty { margin-top:10px; text-align:left; }
   .entry-item { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:10px; position:relative; overflow:hidden; touch-action:pan-y; user-select:none; }
-  .entry-swipe-inner { display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border-radius:14px; transition:transform 0.2s ease; will-change:transform; width:100%; }
+  .entry-swipe-inner { display:flex; flex-direction:column; background:var(--surface); border-radius:14px; transition:transform 0.2s ease; will-change:transform; width:100%; }
+  .entry-compact { display:flex; align-items:center; gap:12px; padding:14px; cursor:pointer; }
   .entry-delete-bg { position:absolute; right:0; top:0; bottom:0; width:80px; background:var(--expense); border-radius:0 14px 14px 0; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; }
-  .entry-item.swiping .entry-delete-bg { opacity:1; }
+  .entry-edit-bg { position:absolute; left:0; top:0; bottom:0; width:80px; background:var(--accent); border-radius:14px 0 0 14px; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; color:#fff; }
+  .entry-item.swiping-delete .entry-delete-bg { opacity:1; }
+  .entry-item.swiping-edit .entry-edit-bg { opacity:1; }
   .entry-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
   .entry-info { flex:1; min-width:0; }
   .entry-desc { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -149,6 +152,25 @@
   .entry-btn { background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:36px; height:36px; border-radius:9px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
   .entry-btn:hover { border-color:var(--accent); color:var(--text); }
   .entry-btn.delete:hover { border-color:var(--expense); color:var(--expense); }
+  .entry-detail { display:none; padding:0 14px 14px; border-top:1px solid var(--border); }
+  .entry-item--expanded .entry-detail { display:block; }
+  .entry-item--expanded .entry-compact { padding-bottom:12px; }
+  .entry-detail-row { display:flex; align-items:flex-start; gap:8px; padding:7px 0; border-bottom:1px solid rgba(42,45,56,0.5); }
+  .entry-detail-row+.entry-detail-actions { margin-top:4px; }
+  .entry-detail-row:has(+.entry-detail-actions) { border-bottom:none; }
+  .entry-detail-label { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); min-width:86px; padding-top:2px; flex-shrink:0; }
+  .entry-detail-value { font-size:13px; color:var(--text); line-height:1.45; word-break:break-word; }
+  .entry-detail-notes { font-style:italic; color:var(--muted); }
+  .entry-detail-mono { font-family:var(--font-mono); }
+  .entry-detail-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; flex-shrink:0; }
+  .entry-detail-badge { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; padding:3px 8px; border-radius:6px; }
+  .entry-detail-badge.income { background:rgba(61,214,140,0.15); color:var(--income); }
+  .entry-detail-badge.expense { background:rgba(240,91,91,0.15); color:var(--expense); }
+  .entry-detail-badge.recurrent { background:rgba(91,138,240,0.15); color:var(--accent); }
+  .entry-detail-actions { display:flex; gap:8px; margin-top:12px; }
+  .entry-detail-action-btn { flex:1; padding:10px 0; border-radius:10px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-family:var(--font-ui); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+  .entry-detail-action-btn.edit:hover { border-color:var(--accent); color:var(--accent); }
+  .entry-detail-action-btn.delete:hover { border-color:var(--expense); color:var(--expense); }
   .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:44px 24px; text-align:center; gap:10px; background:var(--surface); border:1px dashed var(--border); border-radius:16px; }
   .empty-state.card { padding:28px 18px; min-height:180px; }
   .empty-state.compact { padding:24px 16px; gap:8px; }
@@ -454,6 +476,7 @@
       <button class="chart-tab active" id="ctab-cats" data-chart-tab="cats">Categorías</button>
       <button class="chart-tab" id="ctab-trend" data-chart-tab="trend">Tendencia</button>
       <button class="chart-tab" id="ctab-catline" data-chart-tab="catline">Por categoría</button>
+      <button class="chart-tab" id="ctab-metas" data-chart-tab="metas">Metas</button>
     </div>
     <div class="chart-panel active" id="cpanel-cats">
       <div class="chart-card"><div class="chart-card-title" id="catChartTitle">Gastos por categoría</div><div class="chart-wrap"><canvas id="catChart"></canvas><div id="catChartEmpty"></div></div></div>
@@ -465,6 +488,10 @@
     </div>
     <div class="chart-panel" id="cpanel-catline">
       <div class="chart-card"><div class="chart-card-title">Tendencia por categoría</div><div class="cat-selector" id="catSelector"></div><div class="chart-wrap"><canvas id="catLineChart"></canvas><div id="catLineChartEmpty"></div></div></div>
+    </div>
+    <div class="chart-panel" id="cpanel-metas">
+      <div class="chart-card"><div class="chart-card-title" id="spendingDonutTitle">Desglose de gastos del mes</div><div class="chart-wrap" style="max-width:300px;margin:0 auto;"><canvas id="spendingDonut"></canvas><div id="spendingDonutEmpty"></div></div></div>
+      <div class="chart-card" style="margin-top:12px;"><div class="chart-card-title">Metas de ahorro</div><div class="chart-wrap"><canvas id="savingsProgress"></canvas><div id="savingsProgressEmpty"></div></div></div>
     </div>
   </div>
   <div class="view" id="view-goals">
@@ -583,7 +610,7 @@ const {MXN,sumAmounts,pad2,toISODate,parseISODate,addDays,datesEqualOrBefore,day
 const {getMonthEntriesByKey:getMonthEntriesByKeyFromState,getMonthTotals:getMonthTotalsFromState,sanitizeRecurringRule:getSanitizedRecurringRule,getRecurringOccurrenceDates:getRecurringOccurrenceDatesFromRule,getPendingRecurringDates:getPendingRecurringDatesFromState,getApplyCutoffForMonth:getApplyCutoffForMonthFromDate,applyRecurringForMonth:applyRecurringForMonthFromState,getForecastTotals:getForecastTotalsFromState,getGoalSavedAmount:getGoalSavedAmountFromState,getUnassignedSavingsAmount:getUnassignedSavingsAmountFromState}=selectors;
 const {createEmptyState,normalizeState,readLocalState,writeLocalState,hasAnyEntries,serializeCloudState}=storage;
 const {createUserDocRef,signInWithGoogle:setGoogleSignIn,setSyncIndicator,loadUserState,persistUserState}=cloud;
-const {destroyChart:destroyFeatureChart,getLastMonths,buildCategorySelectorMarkup,renderCategoryBarChart,renderTrendChart:renderTrendChartFeature,renderNetChart:renderNetChartFeature,renderCategoryLineChart,renderPieChart:renderPieChartFeature}=charting;
+const {destroyChart:destroyFeatureChart,getLastMonths,buildCategorySelectorMarkup,renderCategoryBarChart,renderTrendChart:renderTrendChartFeature,renderNetChart:renderNetChartFeature,renderCategoryLineChart,renderPieChart:renderPieChartFeature,renderSpendingDonut:renderSpendingDonutFeature,renderSavingsProgress:renderSavingsProgressFeature}=charting;
 const {renderInsightMarkup,renderCategoryBarsMarkup,renderRecentEntriesMarkup,renderForecastMarkup}=dashboardFeature;
 const {exportBudgetData}=exporting;
 const {buildEntryFilters,renderEntryMarkup,filterEntries:filterEntriesFeature,renderEntriesListMarkup}=entriesFeature;
@@ -681,11 +708,25 @@ function bindStaticEvents(){
     if(button)setFilter(button.dataset.filterId);
   });
   document.getElementById('entriesList').addEventListener('click',event=>{
+    // Handle action buttons (compact or detail panel)
     const button=event.target.closest('[data-entry-action]');
-    if(!button)return;
-    const {entryAction,entryId}=button.dataset;
-    if(entryAction==='edit'&&entryId)openEdit(entryId);
-    if(entryAction==='delete'&&entryId)confirmDelete(entryId);
+    if(button){
+      const {entryAction,entryId}=button.dataset;
+      if(entryAction==='edit'&&entryId)openEdit(entryId);
+      if(entryAction==='delete'&&entryId)confirmDelete(entryId);
+      return;
+    }
+    // Tap-to-expand: click on compact row toggles entry-item--expanded
+    const compact=event.target.closest('.entry-compact');
+    if(!compact)return;
+    const item=compact.closest('.entry-item');
+    if(!item)return;
+    // Ignore if swipe is/was in progress (threshold: 6px)
+    if(Math.abs(swipeCurrent)>6)return;
+    const isExpanded=item.classList.contains('entry-item--expanded');
+    // Collapse any other open cards
+    document.querySelectorAll('#entriesList .entry-item--expanded').forEach(el=>{if(el!==item)el.classList.remove('entry-item--expanded');});
+    item.classList.toggle('entry-item--expanded',!isExpanded);
   });
   document.getElementById('recentEntries').addEventListener('click',event=>{
     const button=event.target.closest('[data-dashboard-action]');
@@ -906,12 +947,12 @@ function confirmDelete(id){
 }
 function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');pendingDeleteId=null;}
 
-// Swipe to delete
+// Swipe to delete (right) or edit (left)
 let swipeStartX=0,swipeStartY=0,swipeCurrent=0,swipeActive=false;
 const SWIPE_THRESHOLD=72;
 function swipeStart(e,el){swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY;swipeCurrent=0;swipeActive=true;el.querySelector('.entry-swipe-inner').style.transition='none';}
-function swipeMove(e,el){if(!swipeActive)return;const dx=e.touches[0].clientX-swipeStartX;const dy=Math.abs(e.touches[0].clientY-swipeStartY);if(dy>12&&Math.abs(dx)<dy){swipeActive=false;return;}if(dx>=0)return;e.preventDefault();swipeCurrent=dx;const clamp=Math.max(dx,-SWIPE_THRESHOLD-20);el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping',Math.abs(dx)>SWIPE_THRESHOLD*0.4);}
-function swipeEnd(e,el){if(!swipeActive)return;swipeActive=false;const inner=el.querySelector('.entry-swipe-inner');inner.style.transition='transform 0.2s ease';if(Math.abs(swipeCurrent)>=SWIPE_THRESHOLD){inner.style.transform='translateX(-100%)';const id=el.dataset.id;setTimeout(()=>{confirmDelete(id);inner.style.transform='';},180);}else{inner.style.transform='';el.classList.remove('swiping');}}
+function swipeMove(e,el){if(!swipeActive)return;const dx=e.touches[0].clientX-swipeStartX;const dy=Math.abs(e.touches[0].clientY-swipeStartY);if(dy>12&&Math.abs(dx)<dy){swipeActive=false;return;}if(Math.abs(dx)<4)return;e.preventDefault();swipeCurrent=dx;const absDx=Math.abs(dx);if(dx>0){const clamp=Math.min(dx,SWIPE_THRESHOLD+20);el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-delete',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-edit');}else{const clamp=Math.max(dx,-(SWIPE_THRESHOLD+20));el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-edit',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-delete');}}
+function swipeEnd(e,el){if(!swipeActive)return;swipeActive=false;const inner=el.querySelector('.entry-swipe-inner');inner.style.transition='transform 0.2s ease';const id=el.dataset.id;if(swipeCurrent>=SWIPE_THRESHOLD){inner.style.transform='translateX(100%)';setTimeout(()=>{confirmDelete(id);inner.style.transform='';el.classList.remove('swiping-delete');},180);}else if(swipeCurrent<=-SWIPE_THRESHOLD){inner.style.transform='translateX(-100%)';setTimeout(()=>{openEdit(id);inner.style.transform='';el.classList.remove('swiping-edit');},180);}else{inner.style.transform='';el.classList.remove('swiping-delete','swiping-edit');}}
 
 // Export
 let exportScope='month';
@@ -950,7 +991,7 @@ function closeOnboard(){closeShellModal('onboardOverlay');localStorage.setItem('
 let activeChartTab='cats',chartCatSelected='food',chartInstances={},trendRange=6,netRange=6;
 function switchChartTab(tab){activeChartTab=tab;document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.chart-panel').forEach(p=>p.classList.remove('active'));document.getElementById('ctab-'+tab).classList.add('active');document.getElementById('cpanel-'+tab).classList.add('active');renderActiveChart();}
 function renderCharts(){renderActiveChart();}
-function renderActiveChart(){if(activeChartTab==='cats'){renderCatBarChart();renderPieChart();}if(activeChartTab==='trend'){renderTrendChart();renderNetChart();}if(activeChartTab==='catline'){renderCatSelector();renderCatLineChart();}}
+function renderActiveChart(){if(activeChartTab==='cats'){renderCatBarChart();renderPieChart();}if(activeChartTab==='trend'){renderTrendChart();renderNetChart();}if(activeChartTab==='catline'){renderCatSelector();renderCatLineChart();}if(activeChartTab==='metas'){renderSpendingDonutChart();renderSavingsProgressChart();}}
 function destroyChart(id){destroyFeatureChart(chartInstances,id);}
 function getLast6Months(){return getLastMonths(viewYear,viewMonth,monthKey,6);}
 function toggleChartEmptyState(canvasId,emptyId,rendered,options){const canvas=document.getElementById(canvasId);const empty=document.getElementById(emptyId);if(!canvas||!empty)return;canvas.style.display=rendered?'block':'none';if(rendered){empty.innerHTML='';return;}renderEmptyState(empty,options);}
@@ -961,6 +1002,8 @@ function renderCatSelector(){document.getElementById('catSelector').innerHTML=bu
 function selectChartCat(id){chartCatSelected=id;renderCatSelector();renderCatLineChart();}
 function renderCatLineChart(){const rendered=renderCategoryLineChart({Chart,instances:chartInstances,canvas:document.getElementById('catLineChart'),entries,entryMonth,viewYear,viewMonth,monthKey,monthNames:MONTH_NAMES,selectedCategoryId:chartCatSelected,catColors:CAT_COLORS,goals,categories:CATEGORIES});toggleChartEmptyState('catLineChart','catLineChartEmpty',!!rendered,{icon:'📈',title:'Sin datos para esta categoría',message:'Agrega movimientos en esta categoría para ver su tendencia.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),variant:'card'});}
 function renderPieChart(){const rendered=renderPieChartFeature({Chart,instances:chartInstances,canvas:document.getElementById('pieChart'),entries,entryMonth,viewYear,viewMonth,monthKey,categories:CATEGORIES,catColors:CAT_COLORS});toggleChartEmptyState('pieChart','pieChartEmpty',!!rendered,{icon:'🧩',title:'Aún no hay distribución',message:'Registra gastos para ver cómo se reparten tus categorías.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),variant:'card'});}
+function renderSpendingDonutChart(){const mk=monthKey(viewYear,viewMonth);const mName=MONTH_NAMES[viewMonth];const titleEl=document.getElementById('spendingDonutTitle');if(titleEl)titleEl.textContent='Desglose de gastos — '+mName+' '+viewYear;const rendered=renderSpendingDonutFeature({Chart,instances:chartInstances,canvas:document.getElementById('spendingDonut'),entries,entryMonth,viewYear,viewMonth,monthKey,categories:CATEGORIES,catColors:CAT_COLORS,formatMoney:MXN});toggleChartEmptyState('spendingDonut','spendingDonutEmpty',!!rendered,{icon:'🧩',title:'Sin gastos este mes',message:'Registra gastos para ver el desglose por categoría.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),variant:'card'});}
+function renderSavingsProgressChart(){const rendered=renderSavingsProgressFeature({Chart,instances:chartInstances,canvas:document.getElementById('savingsProgress'),savingsGoals,entries,formatMoney:MXN});toggleChartEmptyState('savingsProgress','savingsProgressEmpty',!!rendered,{icon:'🎯',title:'Sin metas de ahorro',message:'Crea metas de ahorro para ver tu progreso aquí.',ctaLabel:'Crear meta',ctaAction:()=>showView('savings'),variant:'card'});}
 
 // ── Category customization ───────────────────────────────────────
 let catDraft={};let catDraftOrder=[];let cpTargetId=null;
