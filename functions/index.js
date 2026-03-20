@@ -22,7 +22,12 @@ exports.budgetAlerts = functions.pubsub
     const sends = snapshot.docs.map(async (doc) => {
       const data = doc.data();
       const { fcmToken, entries = [], goals = {}, customCategories = {} } = data;
+
+      // FIX 1: Skip if no FCM token
       if (!fcmToken) return;
+
+      // FIX 2: Skip if no goals set — nothing to compare against
+      if (!goals || Object.keys(goals).length === 0) return;
 
       // Get this month's expenses
       const monthEntries = entries.filter(e =>
@@ -33,10 +38,17 @@ exports.budgetAlerts = functions.pubsub
       const alerts = [];
       for (const [catId, goal] of Object.entries(goals)) {
         if (!goal || catId === "income") continue;
+
         const spent = monthEntries
           .filter(e => e.category === catId)
-          .reduce((s, e) => s + (e.amount || 0), 0);
+          .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+
+        // FIX 3: Skip categories with zero spending and no goal breach
+        if (spent === 0) continue;
+
         const pct = spent / goal;
+
+        // FIX 4: Resolve label — check customCategories first, then fallback map
         const label = (customCategories[catId]?.label) || CATEGORY_LABELS[catId] || catId;
 
         if (pct >= 1.0) {
@@ -56,12 +68,14 @@ exports.budgetAlerts = functions.pubsub
         },
         webpush: {
           notification: {
-            icon: "https://extremelypowerfulcapybara.github.io/Budget-Tracker/icon-192.png",
-            badge: "https://extremelypowerfulcapybara.github.io/Budget-Tracker/icon-192.png",
+            // FIX 5: Updated to correct Firebase Hosting URL
+            icon: "https://budgetlog-b318d.web.app/icon-192.png",
+            badge: "https://budgetlog-b318d.web.app/icon-192.png",
             requireInteraction: false
           },
           fcmOptions: {
-            link: "https://extremelypowerfulcapybara.github.io/Budget-Tracker/"
+            // FIX 5: Updated to correct Firebase Hosting URL
+            link: "https://budgetlog-b318d.web.app"
           }
         }
       };
@@ -69,9 +83,12 @@ exports.budgetAlerts = functions.pubsub
       try {
         await admin.messaging().send(message);
       } catch (err) {
-        // Token expired — clean it up
         if (err.code === "messaging/registration-token-not-registered") {
+          // Token expired — clean it up
           await doc.ref.update({ fcmToken: admin.firestore.FieldValue.delete() });
+        } else {
+          // FIX 6: Log unexpected errors instead of silently swallowing them
+          console.error(`FCM send error for user ${doc.id}:`, err.code, err.message);
         }
       }
     });
