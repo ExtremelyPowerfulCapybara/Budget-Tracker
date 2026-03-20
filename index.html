@@ -274,6 +274,34 @@
   .recur-name { font-size:13px; font-weight:700; }
   .recur-meta { font-family:var(--font-mono); font-size:11px; color:var(--muted); margin-top:5px; line-height:1.45; }
   .recur-amount { font-family:var(--font-mono); font-size:14px; font-weight:500; margin-right:6px; }
+  .recur-applied-badge { display:inline-block; background:rgba(61,214,140,0.12); color:var(--income); border:1px solid rgba(61,214,140,0.25); border-radius:6px; font-size:9px; font-family:var(--font-mono); font-weight:700; padding:1px 5px; letter-spacing:0.4px; vertical-align:middle; margin-left:4px; }
+  .entry-summary { font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:6px 2px 2px; display:flex; gap:12px; flex-wrap:wrap; }
+  .entry-summary-income { color:var(--income); }
+  .entry-summary-expense { color:var(--expense); }
+  .goal-pct { font-family:var(--font-mono); font-size:10px; color:var(--muted); text-align:right; margin-top:3px; min-width:86px; }
+  .export-btn-pdf { width:100%; padding:12px; background:transparent; border:1.5px solid var(--border); border-radius:12px; color:var(--text); font-family:var(--font-ui); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:8px; }
+  .export-btn-pdf:hover { border-color:var(--accent); color:var(--accent); }
+  #printView { display:none; }
+  @media print {
+    body > *:not(#printView) { display:none !important; }
+    #printView { display:block; font-family:system-ui,sans-serif; color:#111; padding:24px; max-width:700px; margin:0 auto; }
+    .pv-header { display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid #111; padding-bottom:8px; margin-bottom:20px; }
+    .pv-title { font-size:22px; font-weight:800; }
+    .pv-sub { font-size:12px; color:#666; }
+    .pv-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+    .pv-stat { border:1px solid #ddd; border-radius:8px; padding:12px; text-align:center; }
+    .pv-stat-label { font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:#666; margin-bottom:4px; }
+    .pv-stat-val { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .pv-stat-val.income { color:#1a8a55; }
+    .pv-stat-val.expense { color:#c0392b; }
+    .pv-section-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#444; border-bottom:1px solid #ddd; padding-bottom:4px; margin:18px 0 10px; }
+    .pv-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .pv-table th { text-align:left; padding:5px 8px; background:#f0f0f0; font-weight:700; }
+    .pv-table td { padding:5px 8px; border-bottom:1px solid #eee; }
+    .pv-table tr:last-child td { border-bottom:none; }
+    .pv-num { text-align:right; font-variant-numeric:tabular-nums; }
+    .pv-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; }
+  }
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:flex-end; }
   .modal-overlay.open { display:flex; }
   .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; margin:0 auto; animation:slideUp 0.25s ease; }
@@ -500,6 +528,7 @@
     <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="entriesMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div>
     <div class="search-wrap"><input class="search-input" id="entrySearch" type="text" placeholder="Buscar movimientos..." oninput="renderEntries()"></div>
     <div class="filter-row" id="filterRow"></div>
+    <div class="entry-summary" id="entrySummary"></div>
     <div id="entriesList"></div>
   </div>
   <div class="view" id="view-recurring">
@@ -564,8 +593,10 @@
     <div class="form-group"><label class="form-label">Alcance</label><div class="export-scope-grid"><button class="export-scope-btn active" id="scopeMonth" onclick="setExportScope('month')">Este mes</button><button class="export-scope-btn" id="scopeAll" onclick="setExportScope('all')">Todo el historial</button></div></div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.7;">El archivo incluye:<br><span style="color:var(--text);">&#x2022; Movimientos</span> — todas las transacciones<br><span style="color:var(--text);">&#x2022; Resumen</span> — ingresos, gastos y saldo por mes<br><span style="color:var(--text);">&#x2022; Por categoría</span> — matriz mes por categoría<br><span style="color:var(--text);">&#x2022; Metas</span> — real vs. meta</div>
     <button class="export-btn-main" onclick="runExport()">&#8595; Descargar XLSX</button>
+    <button class="export-btn-pdf" onclick="runPrintPdf()">&#9113; Imprimir resumen PDF</button>
   </div>
 </div>
+<div id="printView"></div>
 <div class="modal-overlay" id="userModal">
   <div class="user-modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Cuenta</div><button class="modal-close" onclick="closeUserModal()" aria-label="Cerrar">&#10005;</button></div>
@@ -1006,14 +1037,17 @@ function getGoalValue(categoryId){if(Object.prototype.hasOwnProperty.call(goals,
 
 // Entries
 function entryHTML(e){return renderEntryMarkup(e,{categories:CATEGORIES,savingsGoals,formatMoney:MXN});}
-function renderEntries(){updateMonthLabels();const mk=monthKey(viewYear,viewMonth);const searchQ=(document.getElementById('entrySearch')?.value||'').toLowerCase().trim();const monthEntries=entries.filter(e=>entryMonth(e)===mk);const sourceEntries=searchQ?entries:monthEntries;document.querySelector('#view-entries .month-selector').style.display=searchQ?'none':'';document.getElementById('filterRow').innerHTML=buildEntryFilters(CATEGORIES,activeFilter);const filtered=filterEntriesFeature(sourceEntries,{activeFilter,searchQuery:searchQ,categories:CATEGORIES,formatMoney:MXN});const container=document.getElementById('entriesList');const markup=renderEntriesListMarkup(filtered,entryHTML);if(markup){container.innerHTML=markup;return;}renderEmptyState(container,searchQ?{icon:'🔍',title:'Sin resultados',message:'Ningún movimiento coincide con tu búsqueda.',variant:'default'}:{icon:'🧾',title:'No hay movimientos todavía',message:'Registra tu primer movimiento para empezar a seguir tus gastos.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),hint:'Prueba cambiando el filtro o el mes si ya capturaste datos.',variant:'default'});}
+function renderEntries(){updateMonthLabels();const mk=monthKey(viewYear,viewMonth);const searchQ=(document.getElementById('entrySearch')?.value||'').toLowerCase().trim();const monthEntries=entries.filter(e=>entryMonth(e)===mk);const sourceEntries=searchQ?entries:monthEntries;document.querySelector('#view-entries .month-selector').style.display=searchQ?'none':'';document.getElementById('filterRow').innerHTML=buildEntryFilters(CATEGORIES,activeFilter);const filtered=filterEntriesFeature(sourceEntries,{activeFilter,searchQuery:searchQ,categories:CATEGORIES,formatMoney:MXN});
+  const summaryEl=document.getElementById('entrySummary');
+  if(filtered.length){const inc=filtered.filter(e=>e.type==='income');const exp=filtered.filter(e=>e.type==='expense');const parts=[];if(inc.length)parts.push('<span class="entry-summary-income">\u2191 '+MXN(sumAmounts(inc))+' ('+inc.length+')</span>');if(exp.length)parts.push('<span class="entry-summary-expense">\u2193 '+MXN(sumAmounts(exp))+' ('+exp.length+')</span>');summaryEl.innerHTML=parts.join('<span style="color:var(--border)"> | </span>');}else{summaryEl.innerHTML='';}
+  const container=document.getElementById('entriesList');const markup=renderEntriesListMarkup(filtered,entryHTML);if(markup){container.innerHTML=markup;return;}renderEmptyState(container,searchQ?{icon:'🔍',title:'Sin resultados',message:'Ningún movimiento coincide con tu búsqueda.',variant:'default'}:{icon:'🧾',title:'No hay movimientos todavía',message:'Registra tu primer movimiento para empezar a seguir tus gastos.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),hint:'Prueba cambiando el filtro o el mes si ya capturaste datos.',variant:'default'});}
 function setFilter(f){activeFilter=f;renderEntries();}
 function initLog(){const today=toISODate(new Date());document.getElementById('logDate').value=today;document.getElementById('logAmount').value='';document.getElementById('logDesc').value='';currentType='expense';currentCat='food';document.getElementById('logGoalId').value='';document.getElementById('logNotes').value='';document.getElementById('typeExpense').classList.add('active');document.getElementById('typeIncome').classList.remove('active');renderCatGrid('catGrid',currentCat,false);document.getElementById('catGroup').style.display='block';toggleSavingsGoalField(currentType,currentCat,'goalGroup','logGoalId');}
 function setType(t){currentType=t;document.getElementById('typeExpense').classList.toggle('active',t==='expense');document.getElementById('typeIncome').classList.toggle('active',t==='income');document.getElementById('catGroup').style.display=t==='expense'?'block':'none';toggleSavingsGoalField(currentType,currentCat,'goalGroup','logGoalId',document.getElementById('logGoalId').value);}
 function renderCatGrid(gridId,selected,isEdit){document.getElementById(gridId).innerHTML=renderCategoryGridMarkup({categories:CATEGORIES,selectedId:selected,action:isEdit?'edit-category':'log-category'});}
 function setCat(id){currentCat=id;renderCatGrid('catGrid',currentCat,false);toggleSavingsGoalField(currentType,currentCat,'goalGroup','logGoalId',document.getElementById('logGoalId').value);}
 function logEntry(){const amount=parseFloat(document.getElementById('logAmount').value);const desc=document.getElementById('logDesc').value.trim();const notes=document.getElementById('logNotes').value.trim()||null;const date=document.getElementById('logDate').value;const goalId=document.getElementById('logGoalId').value||null;if(!amount||amount<=0){showToast('Ingresa un monto v\u00e1lido');return;}if(!desc){showToast('Agrega una descripci\u00f3n');return;}if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){showToast('Selecciona una fecha v\u00e1lida');return;}entries.unshift({id:Date.now().toString(),type:currentType,amount,description:desc,notes,category:currentType==='expense'?currentCat:'income',date,goalId:currentType==='expense'&&currentCat==='savings'?goalId:null});save();if(navigator.vibrate)navigator.vibrate([10,30,10]);showToast('Movimiento registrado');initLog();renderDashboard();}
-function renderGoals(){const esc=window.BudgetLogCore.utils.esc;const mk=monthKey(viewYear,viewMonth);const mes=getMonthEntriesByKey(mk);const ia=sumAmounts(mes.filter(e=>e.type==='income'));const allCats=[{id:'income',label:'Ingresos',color:'#3dd68c'},...CATEGORIES];document.getElementById('goalsList').innerHTML=allCats.map(c=>{const actual=c.id==='income'?ia:sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===c.id));return'<div class="goal-card"><div class="goal-dot" style="background:'+esc(c.color)+'"></div><div class="goal-info"><div class="goal-name">'+esc(c.label)+'</div><div class="goal-current">Actual: '+MXN(actual)+'</div></div><div class="goal-input-wrap"><span class="goal-prefix">$</span><input class="goal-input" type="number" id="goal_'+esc(c.id)+'" value="'+getGoalValue(c.id)+'" step="100" min="0"></div></div>';}).join('');}
+function renderGoals(){const esc=window.BudgetLogCore.utils.esc;const mk=monthKey(viewYear,viewMonth);const mes=getMonthEntriesByKey(mk);const ia=sumAmounts(mes.filter(e=>e.type==='income'));const incomeGoal=getGoalValue('income');const allCats=[{id:'income',label:'Ingresos',color:'#3dd68c'},...CATEGORIES];document.getElementById('goalsList').innerHTML=allCats.map(c=>{const actual=c.id==='income'?ia:sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===c.id));const gv=getGoalValue(c.id);const pct=(c.id!=='income'&&incomeGoal>0)?Math.round((gv/incomeGoal)*100):null;const pctHtml=pct!=null?'<div class="goal-pct">'+pct+'% del ingreso</div>':'';return'<div class="goal-card"><div class="goal-dot" style="background:'+esc(c.color)+'"></div><div class="goal-info"><div class="goal-name">'+esc(c.label)+'</div><div class="goal-current">Actual: '+MXN(actual)+'</div></div><div class="goal-input-wrap" style="flex-direction:column;align-items:flex-end;gap:0;"><div style="display:flex;align-items:center;gap:6px;"><span class="goal-prefix">$</span><input class="goal-input" type="number" id="goal_'+esc(c.id)+'" value="'+gv+'" step="100" min="0"></div>'+pctHtml+'</div></div>';}).join('');}
 function saveGoals(){[{id:'income'},...CATEGORIES].forEach(c=>{const v=parseFloat(document.getElementById('goal_'+c.id).value);goals[c.id]=isFinite(v)&&v>=0?v:0;});save();showToast('Metas guardadas');}
 
 // Recurring
@@ -1025,7 +1059,7 @@ function setFreq(f){recurFreq=f;renderFreqGrid();}
 function addRecurring(){const amount=parseFloat(document.getElementById('recurAmount').value);const desc=document.getElementById('recurDesc').value.trim();const startDate=document.getElementById('recurStartDate').value||toISODate(new Date());const goalId=document.getElementById('recurGoalId').value||null;const anchor=parseISODate(startDate);if(!amount||amount<=0){showToast('Ingresa un monto v\u00e1lido');return;}if(!desc){showToast('Agrega una descripci\u00f3n');return;}if(!anchor){showToast('Elige una fecha de inicio v\u00e1lida');return;}const isEditing=!!editingRecurringId;const existingRule=isEditing?recurring.find(r=>r.id===editingRecurringId):null;const rule=sanitizeRecurringRule({id:isEditing?editingRecurringId:Date.now().toString(),type:recurType,amount,description:desc,category:recurType==='expense'?recurCat:'income',frequency:recurFreq,anchorDate:startDate,day:anchor.getDate(),goalId:recurType==='expense'&&recurCat==='savings'?goalId:null,lastApplied:existingRule?existingRule.lastApplied:null,createdAt:existingRule?existingRule.createdAt:toISODate(new Date())});if(isEditing){recurring=recurring.map(r=>r.id===editingRecurringId?rule:r);editingRecurringId=null;}else{recurring.push(rule);}save();document.getElementById('recurAmount').value='';document.getElementById('recurDesc').value='';document.getElementById('recurStartDate').value=toISODate(new Date());document.getElementById('recurGoalId').value='';renderRecurring();showToast(isEditing?'Recurrente actualizada':'Recurrente guardada');}
 function deleteRecurring(id){if(editingRecurringId===id){editingRecurringId=null;}recurring=recurring.filter(r=>r.id!==id);save();renderRecurring();showToast('Recurrente eliminada');}
 function openEditRecurring(id){const rule=recurring.find(r=>r.id===id);if(!rule)return;const normalized=sanitizeRecurringRule(rule);editingRecurringId=id;setRecurType(normalized.type);document.getElementById('recurAmount').value=normalized.amount;document.getElementById('recurDesc').value=normalized.description;document.getElementById('recurStartDate').value=normalized.anchorDate||toISODate(new Date());if(normalized.type==='expense')setRecurCat(normalized.category);setFreq(normalized.frequency);document.getElementById('recurGoalId').value=normalized.goalId||'';document.querySelector('#view-recurring .form-card-title').textContent='Editar recurrente';document.querySelector('#view-recurring .submit-btn').textContent='Guardar cambios';document.querySelector('#view-recurring .form-card').scrollIntoView({behavior:'smooth',block:'start'});}
-function renderRecurring(){document.querySelector('#view-recurring .form-card-title').textContent=editingRecurringId?'Editar recurrente':'Nueva recurrente';document.querySelector('#view-recurring .submit-btn').textContent=editingRecurringId?'Guardar cambios':'Guardar recurrente';renderRecurCatGrid();renderFreqGrid();document.getElementById('recurCatGroup').style.display=recurType==='expense'?'block':'none';if(!document.getElementById('recurStartDate').value){document.getElementById('recurStartDate').value=toISODate(new Date());}toggleSavingsGoalField(recurType,recurCat,'recurGoalGroup','recurGoalId',document.getElementById('recurGoalId').value);const pending=getPendingRecurring();const banner=document.getElementById('recurApplyBanner');if(pending.length>0){banner.style.display='block';renderCtaRow(banner,{text:pending.length+' movimiento(s) recurrente(s) pendiente(s)',buttonLabel:'Aplicar',buttonAction:()=>applyRecurring()});}else{banner.style.display='none';banner.innerHTML='';}const container=document.getElementById('recurList');const markup=renderRecurringListMarkup({recurring,sanitizeRecurringRule,categories:CATEGORIES,savingsGoals,formatMoney:MXN});if(markup){container.innerHTML=markup;return;}renderEmptyState(container,{icon:'🔁',title:'No tienes movimientos recurrentes',message:'Automatiza tus gastos fijos o suscripciones.',ctaLabel:'Crear recurrente',ctaAction:()=>document.querySelector('#view-recurring .form-card')?.scrollIntoView({behavior:'smooth',block:'start'}),hint:'Los movimientos recurrentes te ayudan a mantener tu presupuesto al día.',variant:'default'});}
+function renderRecurring(){document.querySelector('#view-recurring .form-card-title').textContent=editingRecurringId?'Editar recurrente':'Nueva recurrente';document.querySelector('#view-recurring .submit-btn').textContent=editingRecurringId?'Guardar cambios':'Guardar recurrente';renderRecurCatGrid();renderFreqGrid();document.getElementById('recurCatGroup').style.display=recurType==='expense'?'block':'none';if(!document.getElementById('recurStartDate').value){document.getElementById('recurStartDate').value=toISODate(new Date());}toggleSavingsGoalField(recurType,recurCat,'recurGoalGroup','recurGoalId',document.getElementById('recurGoalId').value);const pending=getPendingRecurring();const banner=document.getElementById('recurApplyBanner');if(pending.length>0){banner.style.display='block';renderCtaRow(banner,{text:pending.length+' movimiento(s) recurrente(s) pendiente(s)',buttonLabel:'Aplicar',buttonAction:()=>applyRecurring()});}else{banner.style.display='none';banner.innerHTML='';}const container=document.getElementById('recurList');const markup=renderRecurringListMarkup({recurring,sanitizeRecurringRule,categories:CATEGORIES,savingsGoals,formatMoney:MXN,currentMonthKey:monthKey(viewYear,viewMonth)});if(markup){container.innerHTML=markup;return;}renderEmptyState(container,{icon:'🔁',title:'No tienes movimientos recurrentes',message:'Automatiza tus gastos fijos o suscripciones.',ctaLabel:'Crear recurrente',ctaAction:()=>document.querySelector('#view-recurring .form-card')?.scrollIntoView({behavior:'smooth',block:'start'}),hint:'Los movimientos recurrentes te ayudan a mantener tu presupuesto al día.',variant:'default'});}
 function getPendingRecurring(){const cutoff=getApplyCutoffForMonth(viewYear,viewMonth);if(cutoff==='')return [];return buildPendingRecurring(recurring.map(rule=>({id:rule.id,pendingDates:getPendingRecurringDates(sanitizeRecurringRule(rule),viewYear,viewMonth,cutoff)})));} 
 function applyRecurring(){const cutoff=getApplyCutoffForMonth(viewYear,viewMonth);if(cutoff===''){showToast('No puedes aplicar movimientos en meses futuros');return;}const count=applyRecurringForMonth(viewYear,viewMonth,cutoff);if(!count){showToast('No hay movimientos pendientes');return;}save();renderRecurring();renderDashboard();showToast(count+' movimiento(s) aplicado(s)');}
 
@@ -1085,6 +1119,38 @@ function runExport(){
   });
   closeExportModal();
   showToast('Descargando '+fname);
+}
+
+function runPrintPdf(){
+  const mk=monthKey(viewYear,viewMonth);
+  const monthName=MONTH_NAMES[viewMonth]+' '+viewYear;
+  const mes=entries.filter(e=>entryMonth(e)===mk);
+  const totalInc=sumAmounts(mes.filter(e=>e.type==='income'));
+  const totalExp=sumAmounts(mes.filter(e=>e.type==='expense'));
+  const net=totalInc-totalExp;
+  const fmt=(n)=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(n);
+  const catRows=CATEGORIES.map(cat=>{
+    const actual=sumAmounts(mes.filter(e=>e.type==='expense'&&e.category===cat.id));
+    const goal=getGoalValue(cat.id);
+    if(!actual&&!goal)return '';
+    const pct=goal>0?Math.round((actual/goal)*100)+'%':'—';
+    return '<tr><td><span class="pv-dot" style="background:'+cat.color+'"></span>'+cat.label+'</td><td class="pv-num">'+fmt(actual)+'</td><td class="pv-num">'+fmt(goal)+'</td><td class="pv-num">'+pct+'</td></tr>';
+  }).filter(Boolean).join('');
+  const goalRows=savingsGoals.map(sg=>{
+    const saved=getGoalSavedAmount(sg.id);
+    const pct=sg.target>0?Math.min(Math.round((saved/sg.target)*100),100)+'%':'0%';
+    return '<tr><td><span class="pv-dot" style="background:'+sg.color+'"></span>'+sg.name+'</td><td class="pv-num">'+fmt(saved)+'</td><td class="pv-num">'+fmt(sg.target)+'</td><td class="pv-num">'+pct+'</td></tr>';
+  }).join('');
+  const topExp=[...mes].filter(e=>e.type==='expense').sort((a,b)=>b.amount-a.amount).slice(0,8);
+  const entryRows=topExp.map(e=>{const cat=CATEGORIES.find(c=>c.id===e.category);return'<tr><td>'+e.date+'</td><td>'+e.description+'</td><td>'+(cat?cat.label:'')+'</td><td class="pv-num">'+fmt(e.amount)+'</td></tr>';}).join('');
+  document.getElementById('printView').innerHTML=
+    '<div class="pv-header"><div class="pv-title">BudgetLog — '+monthName+'</div><div class="pv-sub">Generado el '+toISODate(new Date())+'</div></div>'+
+    '<div class="pv-stats"><div class="pv-stat"><div class="pv-stat-label">Ingresos</div><div class="pv-stat-val income">'+fmt(totalInc)+'</div></div><div class="pv-stat"><div class="pv-stat-label">Gastos</div><div class="pv-stat-val expense">'+fmt(totalExp)+'</div></div><div class="pv-stat"><div class="pv-stat-label">Saldo neto</div><div class="pv-stat-val '+(net>=0?'income':'expense')+'">'+fmt(net)+'</div></div></div>'+
+    (catRows?'<div class="pv-section-title">Gastos por categoría</div><table class="pv-table"><thead><tr><th>Categoría</th><th class="pv-num">Real</th><th class="pv-num">Meta</th><th class="pv-num">%</th></tr></thead><tbody>'+catRows+'</tbody></table>':'')+
+    (goalRows?'<div class="pv-section-title">Metas de ahorro</div><table class="pv-table"><thead><tr><th>Meta</th><th class="pv-num">Aportado</th><th class="pv-num">Objetivo</th><th class="pv-num">%</th></tr></thead><tbody>'+goalRows+'</tbody></table>':'')+
+    (entryRows?'<div class="pv-section-title">Principales gastos del mes</div><table class="pv-table"><thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th class="pv-num">Monto</th></tr></thead><tbody>'+entryRows+'</tbody></table>':'');
+  closeExportModal();
+  setTimeout(()=>window.print(),80);
 }
 
 // Onboarding
