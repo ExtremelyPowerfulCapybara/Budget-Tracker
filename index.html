@@ -57,9 +57,8 @@
   .nav-btn.active { background:var(--accent); border-color:rgba(91,138,240,0.5); color:#fff; box-shadow:0 10px 22px rgba(91,138,240,0.18); }
   .view { display:none; padding:20px 20px 108px; }
   .view.active { display:block; }
-  .month-selector { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-bottom:18px; }
-  .month-selector > div { display:flex; align-items:center; gap:8px; justify-content:center; }
-  .month-selector > .compare-btn { justify-self:end; }
+  .month-selector { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px; }
+  .month-compare-row { text-align:center; margin-bottom:14px; }
   .month-arrow { background:var(--surface2); border:1px solid var(--border); color:var(--text); width:36px; height:36px; border-radius:10px; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
   .month-arrow:hover { border-color:var(--accent); }
   .month-label { font-family:var(--font-ui); font-weight:700; font-size:16px; letter-spacing:-0.2px; }
@@ -486,7 +485,8 @@
     <button class="nav-btn" data-view="charts">&#9783; Gráficas</button>
   </div>
   <div class="view active" id="view-dashboard">
-    <div class="month-selector"><span></span><div><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="dashMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div><button class="compare-btn" onclick="openCompareSheet()" aria-label="Comparar con mes anterior">&#8644; Comparar</button></div>
+    <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="dashMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div>
+    <div class="month-compare-row"><button class="compare-btn" onclick="openCompareSheet()" aria-label="Comparar con mes anterior">&#8644; Comparar con mes anterior</button></div>
     <div class="net-card"><div class="net-label">Saldo Neto</div><div class="net-amount" id="netAmount">$0.00</div></div>
     <div class="summary-grid">
       <div class="summary-card"><div class="summary-card-label">Ingresos</div><div class="summary-card-amount income" id="totalIncome">$0.00</div></div>
@@ -549,7 +549,7 @@
   </div>
   <div class="view" id="view-charts">
     <div class="chart-tabs">
-      <button class="chart-tab active" id="ctab-cats" data-chart-tab="cats">Categorías</button>
+      <button class="chart-tab active" id="ctab-cats" data-chart-tab="cats">Gastos</button>
       <button class="chart-tab" id="ctab-trend" data-chart-tab="trend">Tendencia</button>
       <button class="chart-tab" id="ctab-catline" data-chart-tab="catline">Por categoría</button>
       <button class="chart-tab" id="ctab-metas" data-chart-tab="metas">Ahorro</button>
@@ -939,7 +939,7 @@ function normalizeStaticCopy(){
   if(recurLabels[1])recurLabels[1].textContent='Descripción';
   if(recurLabels[2])recurLabels[2].textContent='Categoría';
   const chartTabs=document.querySelectorAll('.chart-tab');
-  if(chartTabs[0])chartTabs[0].textContent='Categorías';
+  if(chartTabs[0])chartTabs[0].textContent='Gastos';
   if(chartTabs[2])chartTabs[2].textContent='Por categoría';
   const chartTitles=document.querySelectorAll('#view-charts .chart-card-title');
   if(chartTitles[0])chartTitles[0].textContent='Gastos por categoría';
@@ -1094,11 +1094,23 @@ function confirmDelete(id){
 function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');pendingDeleteId=null;}
 
 // Swipe to delete (right) or edit (left)
-let swipeStartX=0,swipeStartY=0,swipeCurrent=0,swipeActive=false;
+let swipeStartX=0,swipeStartY=0,swipeCurrent=0,swipeActive=false,swipeDir=null;
 const SWIPE_THRESHOLD=72;
-function swipeStart(e,el){swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY;swipeCurrent=0;swipeActive=true;el.querySelector('.entry-swipe-inner').style.transition='none';}
-function swipeMove(e,el){if(!swipeActive)return;const dx=e.touches[0].clientX-swipeStartX;const dy=Math.abs(e.touches[0].clientY-swipeStartY);if(dy>12&&Math.abs(dx)<dy){swipeActive=false;return;}if(Math.abs(dx)<4)return;e.preventDefault();swipeCurrent=dx;const absDx=Math.abs(dx);if(dx>0){const clamp=Math.min(dx,SWIPE_THRESHOLD+20);el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-delete',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-edit');}else{const clamp=Math.max(dx,-(SWIPE_THRESHOLD+20));el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-edit',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-delete');}}
-function swipeEnd(e,el){if(!swipeActive)return;swipeActive=false;const inner=el.querySelector('.entry-swipe-inner');inner.style.transition='transform 0.2s ease';const id=el.dataset.id;if(swipeCurrent>=SWIPE_THRESHOLD){inner.style.transform='translateX(100%)';setTimeout(()=>{confirmDelete(id);inner.style.transform='';el.classList.remove('swiping-delete');},180);}else if(swipeCurrent<=-SWIPE_THRESHOLD){inner.style.transform='translateX(-100%)';setTimeout(()=>{openEdit(id);inner.style.transform='';el.classList.remove('swiping-edit');},180);}else{inner.style.transform='';el.classList.remove('swiping-delete','swiping-edit');}}
+function swipeStart(e,el){swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY;swipeCurrent=0;swipeActive=true;swipeDir=null;el.querySelector('.entry-swipe-inner').style.transition='none';}
+function swipeMove(e,el){
+  if(!swipeActive)return;
+  const dx=e.touches[0].clientX-swipeStartX;
+  const dy=e.touches[0].clientY-swipeStartY;
+  const absDx=Math.abs(dx),absDy=Math.abs(dy);
+  // Determine direction once we have enough movement
+  if(swipeDir===null&&(absDx>4||absDy>4)){swipeDir=absDx>=absDy?'h':'v';}
+  if(swipeDir==='v'){swipeActive=false;return;}
+  if(swipeDir==='h'){e.preventDefault();}else{return;}
+  swipeCurrent=dx;
+  if(dx>0){const clamp=Math.min(dx,SWIPE_THRESHOLD+20);el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-delete',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-edit');}
+  else{const clamp=Math.max(dx,-(SWIPE_THRESHOLD+20));el.querySelector('.entry-swipe-inner').style.transform='translateX('+clamp+'px)';el.classList.toggle('swiping-edit',absDx>SWIPE_THRESHOLD*0.4);el.classList.remove('swiping-delete');}
+}
+function swipeEnd(e,el){if(!swipeActive)return;swipeActive=false;swipeDir=null;const inner=el.querySelector('.entry-swipe-inner');inner.style.transition='transform 0.2s ease';const id=el.dataset.id;if(swipeCurrent>=SWIPE_THRESHOLD){inner.style.transform='translateX(100%)';setTimeout(()=>{confirmDelete(id);inner.style.transform='';el.classList.remove('swiping-delete');},180);}else if(swipeCurrent<=-SWIPE_THRESHOLD){inner.style.transform='translateX(-100%)';setTimeout(()=>{openEdit(id);inner.style.transform='';el.classList.remove('swiping-edit');},180);}else{inner.style.transform='';el.classList.remove('swiping-delete','swiping-edit');}}
 
 // Export
 let exportScope='month';
