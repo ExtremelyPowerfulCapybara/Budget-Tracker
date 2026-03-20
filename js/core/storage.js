@@ -35,8 +35,28 @@
         :[],
       goals:mergedGoals,
       recurring:Array.isArray(source.recurring)?source.recurring.map(sanitizeRecurringRule):[],
-      savingsGoals:Array.isArray(source.savingsGoals)?source.savingsGoals:[],
-      customCategories:source.customCategories&&typeof source.customCategories==='object'?source.customCategories:{}
+      savingsGoals:Array.isArray(source.savingsGoals)?source.savingsGoals.map(sg=>{
+        const target=parseFloat(sg.target);
+        return {
+          id:typeof sg.id==='string'?sg.id:String(sg.id||''),
+          name:typeof sg.name==='string'?sg.name.slice(0,200):'',
+          target:isFinite(target)&&target>0?target:0,
+          color:typeof sg.color==='string'&&/^#[0-9a-fA-F]{3,8}$/.test(sg.color)?sg.color:'#3dd68c'
+        };
+      }):[],
+      customCategories:(()=>{
+        const src=source.customCategories&&typeof source.customCategories==='object'?source.customCategories:{};
+        const out={};
+        Object.entries(src).forEach(([id,v])=>{
+          if(!v||typeof v!=='object')return;
+          out[id]={
+            label:typeof v.label==='string'?v.label.slice(0,100):'',
+            color:typeof v.color==='string'&&/^#[0-9a-fA-F]{3,8}$/.test(v.color)?v.color:'#5b8af0',
+            ...(v.isCustom?{isCustom:true}:{})
+          };
+        });
+        return out;
+      })()
     };
   }
 
