@@ -305,6 +305,7 @@
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:flex-end; }
   .modal-overlay.open { display:flex; }
   .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; margin:0 auto; animation:slideUp 0.25s ease; max-height:90dvh; overflow-y:auto; }
+  .modal-panel { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; margin:0 auto; animation:slideUp 0.25s ease; max-height:90dvh; overflow-y:auto; }
   @keyframes slideUp { from { transform:translateY(40px); opacity:0; } to { transform:translateY(0); opacity:1; } }
   .modal-title { font-size:17px; font-weight:800; margin-bottom:20px; }
   .modal-close { float:right; background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:36px; height:36px; border-radius:8px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -404,6 +405,16 @@
   body.light .template-card:hover{background:rgba(36,85,212,0.05);}
   body.light .insights-summary:hover{background:rgba(36,85,212,0.04);}
   body.light .insights-disclosure[open] .insights-summary{box-shadow:0 0 0 2px rgba(36,85,212,0.1);}
+  body.light .chart-card{background:#22232E;border-color:#32333E;}
+  body.light .chart-card .chart-card-title{color:#8B8FA8;}
+  body.light .chart-card .chart-range-btn{background:#1A1B24;border-color:#32333E;color:#6b6f80;}
+  body.light .chart-card .chart-range-btn.active{border-color:#4a79df;color:#4a79df;}
+  body.light .chart-card .cat-sel-btn{background:#1A1B24;border-color:#32333E;color:#6b6f80;}
+  body.light .chart-card .cat-sel-btn.active{border-color:#4a79df;color:#4a79df;}
+  body.light .chart-card .empty-state{background:#1A1B24;border-color:#32333E;}
+  body.light .chart-card .empty-state-title{color:#f0f0f5;}
+  body.light .chart-card .empty-state-message,body.light .chart-card .empty-state-hint{color:#6b6f80;}
+  body.light .chart-card .cat-selector{background:transparent;}
   .theme-toggle{font-size:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
   .theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
   .forecast-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:6px;}
