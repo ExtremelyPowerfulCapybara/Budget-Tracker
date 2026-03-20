@@ -57,8 +57,7 @@
   .nav-btn.active { background:var(--accent); border-color:rgba(91,138,240,0.5); color:#fff; box-shadow:0 10px 22px rgba(91,138,240,0.18); }
   .view { display:none; padding:20px 20px 108px; }
   .view.active { display:block; }
-  .month-selector { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px; }
-  .month-compare-row { text-align:center; margin-bottom:14px; }
+  .month-selector { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:18px; }
   .month-arrow { background:var(--surface2); border:1px solid var(--border); color:var(--text); width:36px; height:36px; border-radius:10px; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
   .month-arrow:hover { border-color:var(--accent); }
   .month-label { font-family:var(--font-ui); font-weight:700; font-size:16px; letter-spacing:-0.2px; }
@@ -138,8 +137,8 @@
   .entry-item { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:10px; position:relative; overflow:hidden; touch-action:pan-y; user-select:none; }
   .entry-swipe-inner { display:flex; flex-direction:column; background:var(--surface); border-radius:14px; transition:transform 0.2s ease; will-change:transform; width:100%; }
   .entry-compact { display:flex; align-items:center; gap:12px; padding:14px; cursor:pointer; }
-  .entry-delete-bg { position:absolute; right:0; top:0; bottom:0; width:80px; background:var(--expense); border-radius:0 14px 14px 0; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; }
-  .entry-edit-bg { position:absolute; left:0; top:0; bottom:0; width:80px; background:var(--accent); border-radius:14px 0 0 14px; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; color:#fff; }
+  .entry-delete-bg { position:absolute; left:0; top:0; bottom:0; width:80px; background:var(--expense); border-radius:14px 0 0 14px; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; }
+  .entry-edit-bg { position:absolute; right:0; top:0; bottom:0; width:80px; background:var(--accent); border-radius:0 14px 14px 0; display:flex; align-items:center; justify-content:center; font-size:18px; opacity:0; transition:opacity 0.15s; color:#fff; }
   .entry-item.swiping-delete .entry-delete-bg { opacity:1; }
   .entry-item.swiping-edit .entry-edit-bg { opacity:1; }
   .entry-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
@@ -472,7 +471,7 @@
     <div class="header-btns">
       <div class="sync-indicator" id="syncDot" title="Sincronizado"></div>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">&#9728;</button>
-      <button class="header-export" id="exportBtn" aria-label="Exportar datos a Excel">&#8595; XLSX</button>
+      <button class="header-export" id="exportBtn" aria-label="Exportar datos">&#8659; Exportar</button>
       <div id="avatarWrap"></div>
     </div>
   </div>
@@ -486,7 +485,6 @@
   </div>
   <div class="view active" id="view-dashboard">
     <div class="month-selector"><button class="month-arrow" onclick="changeMonth(-1)" aria-label="Mes anterior">&#8249;</button><div class="month-label" id="dashMonth"></div><button class="month-arrow" onclick="changeMonth(1)" aria-label="Mes siguiente">&#8250;</button></div>
-    <div class="month-compare-row"><button class="compare-btn" onclick="openCompareSheet()" aria-label="Comparar con mes anterior">&#8644; Comparar con mes anterior</button></div>
     <div class="net-card"><div class="net-label">Saldo Neto</div><div class="net-amount" id="netAmount">$0.00</div></div>
     <div class="summary-grid">
       <div class="summary-card"><div class="summary-card-label">Ingresos</div><div class="summary-card-amount income" id="totalIncome">$0.00</div></div>
@@ -502,10 +500,24 @@
         <div id="spendingInsights"></div>
       </div>
     </details>
-    <div class="section-title">Desglose por categoría</div>
-    <div id="categoryBars"></div>
-    <div class="section-title" style="margin-top:24px;">Proyección del próximo mes</div>
-    <div id="forecastCard"></div>
+    <details class="insights-disclosure" id="categoryBarsSection">
+      <summary class="insights-summary">
+        <span class="insights-summary-title">Desglose por categoría</span>
+        <span class="insights-caret">&#9662;</span>
+      </summary>
+      <div class="insights-disclosure-body">
+        <div id="categoryBars"></div>
+      </div>
+    </details>
+    <details class="insights-disclosure" id="forecastSection">
+      <summary class="insights-summary">
+        <span class="insights-summary-title">Proyección del próximo mes</span>
+        <div style="display:flex;align-items:center;gap:8px;"><button class="compare-btn" onclick="event.preventDefault();openCompareSheet()" aria-label="Comparar con mes anterior" style="font-size:11px;">&#8644; Comparar</button><span class="insights-caret">&#9662;</span></div>
+      </summary>
+      <div class="insights-disclosure-body">
+        <div id="forecastCard"></div>
+      </div>
+    </details>
     <div class="section-title" style="margin-top:24px;">Metas de ahorro</div>
     <div id="savingsGoalsList"></div>
     <div class="section-title" style="margin-top:24px;">Movimientos recientes</div>
@@ -928,10 +940,8 @@ function normalizeStaticCopy(){
   const dashboardTitles=document.querySelectorAll('#view-dashboard .section-title');
   const spendingInsightsTitle=document.getElementById('spendingInsightsTitle');
   if(spendingInsightsTitle)spendingInsightsTitle.textContent='Insights de gasto';
-  if(dashboardTitles[0])dashboardTitles[0].textContent='Desglose por categoría';
-  if(dashboardTitles[1])dashboardTitles[1].textContent='Proyección del próximo mes';
-  if(dashboardTitles[2])dashboardTitles[2].textContent='Metas de ahorro';
-  if(dashboardTitles[3])dashboardTitles[3].textContent='Movimientos recientes';
+  if(dashboardTitles[0])dashboardTitles[0].textContent='Metas de ahorro';
+  if(dashboardTitles[1])dashboardTitles[1].textContent='Movimientos recientes';
   const logLabels=document.querySelectorAll('#view-log .form-label');
   if(logLabels[1])logLabels[1].textContent='Descripción';
   if(logLabels[2])logLabels[2].textContent='Categoría';
