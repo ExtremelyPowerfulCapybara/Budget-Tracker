@@ -25,18 +25,19 @@
     const goalMap=Object.fromEntries(savingsGoals.map(goal=>[goal.id,goal.name]));
 
     const entriesData=[
-      ['Fecha','Tipo','Descripción','Categoría','Meta de ahorro','Monto (MXN)'],
+      ['Fecha','Tipo','Descripción','Notas','Categoría','Meta de ahorro','Monto (MXN)'],
       ...[...entries].sort((a,b)=>a.date.localeCompare(b.date)).map(entry=>[
         entry.date,
         entry.type==='income'?'Ingreso':'Gasto',
         entry.description,
+        entry.notes||'',
         entry.type==='income'?'Ingreso':(catMap[entry.category]||entry.category),
         goalMap[entry.goalId]||'',
         entry.type==='income'?entry.amount:-entry.amount
       ])
     ];
     const ws1=XLSX.utils.aoa_to_sheet(entriesData);
-    ws1['!cols']=[{wch:12},{wch:10},{wch:32},{wch:18},{wch:22},{wch:16}];
+    ws1['!cols']=[{wch:12},{wch:10},{wch:32},{wch:28},{wch:18},{wch:22},{wch:16}];
     XLSX.utils.book_append_sheet(wb,ws1,'Movimientos');
 
     const months=[...new Set(entries.map(entry=>entryMonth(entry)))].sort();

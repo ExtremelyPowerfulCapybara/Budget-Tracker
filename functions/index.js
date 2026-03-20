@@ -55,6 +55,8 @@ exports.budgetAlerts = functions.pubsub
           alerts.push(`🔴 ${label}: excediste tu meta (${Math.round(pct * 100)}%)`);
         } else if (pct >= 0.8) {
           alerts.push(`🟡 ${label}: 80%+ de tu meta gastado`);
+        } else if (pct >= 0.5) {
+          alerts.push(`🔵 ${label}: 50% de tu meta gastado`);
         }
       }
 
@@ -89,6 +91,129 @@ exports.budgetAlerts = functions.pubsub
         } else {
           // FIX 6: Log unexpected errors instead of silently swallowing them
           console.error(`FCM send error for user ${doc.id}:`, err.code, err.message);
+        }
+      }
+    });
+
+    await Promise.all(sends);
+    return null;
+  });
+
+// Runs every Monday at 9am Mexico City time (UTC-6 = 15:00 UTC)
+exports.weeklyDigest = functions.pubsub
+  .schedule("0 15 * * 1")
+  .timeZone("America/Mexico_City")
+  .onRun(async () => {
+    const db = admin.firestore();
+    const now = new Date();
+
+    const CATEGORY_LABELS = {
+      food: "Alimentos", restaurant: "Restaurantes", transport: "Transporte",
+      uber: "Uber/Rappi", utilities: "Servicios", shopping: "Compras",
+      health: "Salud", entertainment: "Entretenimiento", clothing: "Ropa", savings: "Ahorro"
+    };
+
+    // Build ISO date strings for the last 7 days and last 8 weeks (56 days)
+    function toDateStr(d) {
+      return d.toISOString().slice(0, 10);
+    }
+    const day7Ago = new Date(now); day7Ago.setDate(now.getDate() - 7);
+    const day56Ago = new Date(now); day56Ago.setDate(now.getDate() - 56);
+    const last7Start = toDateStr(day7Ago);
+    const last56Start = toDateStr(day56Ago);
+
+    const snapshot = await db.collection("users").get();
+
+    const sends = snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      const { fcmToken, entries = [], customCategories = {} } = data;
+
+      if (!fcmToken) return;
+
+      const expenses = entries.filter(e =>
+        e.type === "expense" && e.date && e.date >= last56Start
+      );
+
+      if (!expenses.length) return;
+
+      // Last 7 days spending per category
+      const last7 = expenses.filter(e => e.date >= last7Start);
+      if (!last7.length) return;
+
+      const spendByCategory = {};
+      for (const e of last7) {
+        spendByCategory[e.category] = (spendByCategory[e.category] || 0) + (Number(e.amount) || 0);
+      }
+
+      // 8-week average per category (weeks 1–8 before today, each 7 days)
+      // prior 7 weeks = days 8–56 ago (exclude the most recent 7-day window)
+      const prior7Weeks = expenses.filter(e => e.date < last7Start);
+      const avgByCategory = {};
+      for (const e of prior7Weeks) {
+        avgByCategory[e.category] = (avgByCategory[e.category] || 0) + (Number(e.amount) || 0);
+      }
+      // prior7Weeks covers 7 weeks → divide by 7 to get weekly average
+      for (const catId of Object.keys(avgByCategory)) {
+        avgByCategory[catId] = avgByCategory[catId] / 7;
+      }
+
+      // Total spent last 7 days
+      const totalSpent = Object.values(spendByCategory).reduce((s, v) => s + v, 0);
+
+      // Top 2 categories by spend
+      const sorted = Object.entries(spendByCategory)
+        .sort((a, b) => b[1] - a[1]);
+      const top2 = sorted.slice(0, 2);
+
+      // Spending spikes: 20%+ above 7-week average
+      const spikes = sorted.filter(([catId, spent]) => {
+        const avg = avgByCategory[catId] || 0;
+        return avg > 0 && spent >= avg * 1.2;
+      });
+
+      function resolveLabel(catId) {
+        return (customCategories?.[catId]?.label) || CATEGORY_LABELS[catId] || catId;
+      }
+      function fmt(n) {
+        return "$" + n.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      const parts = [];
+      parts.push(`Total 7 días: ${fmt(totalSpent)}`);
+      if (top2.length) {
+        parts.push("Top: " + top2.map(([catId, v]) => `${resolveLabel(catId)} ${fmt(v)}`).join(", "));
+      }
+      for (const [catId, spent] of spikes) {
+        const avg = avgByCategory[catId];
+        const pct = Math.round(((spent - avg) / avg) * 100);
+        parts.push(`⚠️ ${resolveLabel(catId)}: +${pct}% vs promedio`);
+      }
+
+      const message = {
+        token: fcmToken,
+        notification: {
+          title: "BudgetLog · Resumen semanal",
+          body: parts.slice(0, 3).join(" · ")
+        },
+        webpush: {
+          notification: {
+            icon: "https://budgetlog-b318d.web.app/icon-192.png",
+            badge: "https://budgetlog-b318d.web.app/icon-192.png",
+            requireInteraction: false
+          },
+          fcmOptions: {
+            link: "https://budgetlog-b318d.web.app"
+          }
+        }
+      };
+
+      try {
+        await admin.messaging().send(message);
+      } catch (err) {
+        if (err.code === "messaging/registration-token-not-registered") {
+          await doc.ref.update({ fcmToken: admin.firestore.FieldValue.delete() });
+        } else {
+          console.error(`FCM weekly digest error for user ${doc.id}:`, err.code, err.message);
         }
       }
     });

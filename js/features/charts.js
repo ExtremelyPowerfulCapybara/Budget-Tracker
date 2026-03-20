@@ -95,9 +95,9 @@
   }
 
   function renderTrendChart(options){
-    const {Chart,instances,canvas,entries,entryMonth,viewYear,viewMonth,monthKey,monthNames}=options;
+    const {Chart,instances,canvas,entries,entryMonth,viewYear,viewMonth,monthKey,monthNames,rangeMonths=6}=options;
     destroyChart(instances,'trendChart');
-    const months=getLastMonths(viewYear,viewMonth,monthKey,6);
+    const months=getLastMonths(viewYear,viewMonth,monthKey,rangeMonths);
     const incomeData=months.map(currentMonthKey=>sumAmounts(entries.filter(entry=>entryMonth(entry)===currentMonthKey&&entry.type==='income')));
     const expenseData=months.map(currentMonthKey=>sumAmounts(entries.filter(entry=>entryMonth(entry)===currentMonthKey&&entry.type==='expense')));
     const labels=months.map(currentMonthKey=>{
@@ -117,9 +117,9 @@
   }
 
   function renderNetChart(options){
-    const {Chart,instances,canvas,entries,entryMonth,viewYear,viewMonth,monthKey,monthNames}=options;
+    const {Chart,instances,canvas,entries,entryMonth,viewYear,viewMonth,monthKey,monthNames,rangeMonths=6}=options;
     destroyChart(instances,'netChart');
-    const months=getLastMonths(viewYear,viewMonth,monthKey,6);
+    const months=getLastMonths(viewYear,viewMonth,monthKey,rangeMonths);
     const netData=months.map(currentMonthKey=>{
       const monthEntries=entries.filter(entry=>entryMonth(entry)===currentMonthKey);
       return sumAmounts(monthEntries.filter(entry=>entry.type==='income'))-sumAmounts(monthEntries.filter(entry=>entry.type==='expense'));

@@ -54,10 +54,10 @@
   }
 
   function renderCategoryBarsMarkup(options){
-    const {monthEntries,categories,goals,formatMoney,getGoalValue}=options;
+    const {monthEntries,categories,goals,formatMoney,getGoalValue,getEffectiveGoal}=options;
     return categories.map(category=>{
       const actual=sumAmounts(monthEntries.filter(entry=>entry.type==='expense'&&entry.category===category.id));
-      const goal=typeof getGoalValue==='function'?getGoalValue(category.id):(goals[category.id]||0);
+      const goal=typeof getEffectiveGoal==='function'?getEffectiveGoal(category.id):typeof getGoalValue==='function'?getGoalValue(category.id):(goals[category.id]||0);
       if(!actual&&!goal)return '';
       const pct=goal>0?Math.min((actual/goal)*100,100):0;
       const over=goal>0&&actual>goal;

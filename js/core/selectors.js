@@ -144,6 +144,19 @@
     return utils.sumAmounts(entries.filter(entry=>entry.type==='expense'&&entry.category==='savings'&&!entry.goalId));
   }
 
+  function getRolloverGoal(entries,goals,categoryId,year,monthIndex){
+    const currentGoal=goals[categoryId]||0;
+    if(!currentGoal)return currentGoal;
+    const prevMonth=monthIndex===0?11:monthIndex-1;
+    const prevYear=monthIndex===0?year-1:year;
+    const prevMk=utils.monthKey(prevYear,prevMonth);
+    const prevSpent=getMonthEntriesByKey(entries,prevMk)
+      .filter(e=>e.type==='expense'&&e.category===categoryId)
+      .reduce((sum,e)=>sum+e.amount,0);
+    const surplus=Math.max(0,currentGoal-prevSpent);
+    return currentGoal+surplus;
+  }
+
   root.selectors={
     getMonthEntriesByKey,
     getMonthTotals,
@@ -154,6 +167,7 @@
     applyRecurringForMonth,
     getForecastTotals,
     getGoalSavedAmount,
-    getUnassignedSavingsAmount
+    getUnassignedSavingsAmount,
+    getRolloverGoal
   };
 })();
