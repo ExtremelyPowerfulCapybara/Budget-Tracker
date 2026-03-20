@@ -17,6 +17,6 @@ messaging.onBackgroundMessage(payload => {
   self.registration.showNotification(title, {
     body,
     icon: '/icon-192.png',
-    badge: '/icon-192.png'
+    badge: '/badge-96.png'
   });
 });

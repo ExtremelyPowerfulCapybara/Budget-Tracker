@@ -72,7 +72,7 @@ exports.budgetAlerts = functions.pubsub
           notification: {
             // FIX 5: Updated to correct Firebase Hosting URL
             icon: "https://budgetlog-b318d.web.app/icon-192.png",
-            badge: "https://budgetlog-b318d.web.app/icon-192.png",
+            badge: "https://budgetlog-b318d.web.app/badge-96.png",
             requireInteraction: false
           },
           fcmOptions: {
@@ -198,7 +198,7 @@ exports.weeklyDigest = functions.pubsub
         webpush: {
           notification: {
             icon: "https://budgetlog-b318d.web.app/icon-192.png",
-            badge: "https://budgetlog-b318d.web.app/icon-192.png",
+            badge: "https://budgetlog-b318d.web.app/badge-96.png",
             requireInteraction: false
           },
           fcmOptions: {
