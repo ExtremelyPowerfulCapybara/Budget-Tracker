@@ -29,7 +29,7 @@
       '<div class="entry-detail-row"><span class="entry-detail-label">Categor\u00eda</span><span class="entry-detail-value"><span class="entry-detail-dot" style="background:'+esc(color)+'"></span>'+esc(categoryLabel)+'</span></div>'+
       '<div class="entry-detail-row"><span class="entry-detail-label">Fecha</span><span class="entry-detail-value entry-detail-mono">'+esc(entry.date)+'</span></div>'+
       '<div class="entry-detail-row"><span class="entry-detail-label">Tipo</span><span class="'+typeBadgeClass+'">'+typeBadgeText+'</span></div>'+
-      (entry.recurringId?'<div class="entry-detail-row"><span class="entry-detail-label">Recurrencia</span><span class="entry-detail-badge recurrent">Recurrente</span></div>':'')+
+      (entry.recurringId?'<div class="entry-detail-row"><span class="entry-detail-label">Recurrencia</span><button class="entry-rule-link" data-goto-rule="'+esc(entry.recurringId)+'">Recurrente \u2197</button></div>':'')+
       (goal?'<div class="entry-detail-row"><span class="entry-detail-label">Meta</span><span class="entry-detail-value">'+esc(goal.name)+'</span></div>':'')+
       '<div class="entry-detail-actions"><button class="entry-detail-action-btn edit" data-entry-action="edit" data-entry-id="'+esc(entry.id)+'" aria-label="Editar movimiento">&#9998; Editar</button><button class="entry-detail-action-btn delete" data-entry-action="delete" data-entry-id="'+esc(entry.id)+'" aria-label="Eliminar movimiento">&#10005; Eliminar</button></div>';
     const safeType=(entry.type==='income'||entry.type==='expense')?entry.type:'expense';
