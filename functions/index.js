@@ -261,8 +261,12 @@ exports.removeMember = functions.https.onCall(async (data, context) => {
     if (memberUid === spaceData.createdBy) {
       throw new functions.https.HttpsError('invalid-argument', 'Creator cannot be removed');
     }
+    if (!spaceData.members.includes(memberUid)) {
+      throw new functions.https.HttpsError('not-found', 'User is not a member of this space');
+    }
 
     const memberRef = db.collection('users').doc(memberUid);
+    await tx.get(memberRef); // lock the doc in the transaction for serializability
     tx.update(spaceRef, { members: admin.firestore.FieldValue.arrayRemove(memberUid) });
     tx.update(memberRef, { spaceId: null });
   });
@@ -298,7 +302,9 @@ exports.deleteSpace = functions.https.onCall(async (data, context) => {
     tx.delete(spaceRef);
   });
 
-  // Clean up orphaned invites (batched write, outside transaction)
+  // Clean up orphaned invites (batched write, outside transaction).
+  // NOTE: If this batch fails after the transaction commits, orphaned invites
+  // remain. They are harmless (the space doc is gone) but may need cleanup.
   const invitesSnap = await db.collection('invites').where('spaceId', '==', spaceId).get();
   if (!invitesSnap.empty) {
     const batch = db.batch();
