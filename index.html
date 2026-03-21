@@ -57,7 +57,7 @@
   .ctx-pill{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:4px 12px;font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;}
   .ctx-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   /* Invite banner */
-  #inviteBanner{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;gap:10px;align-items:center;font-size:13px;color:var(--text);}
+  #inviteBanner{display:none;flex-direction:row;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;gap:10px;align-items:center;font-size:13px;color:var(--text);}
   .invite-banner-text{flex:1;}
   .invite-banner-actions{display:flex;gap:8px;flex-shrink:0;}
   .invite-accept-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-family:var(--font-ui);font-size:12px;font-weight:600;cursor:pointer;}
@@ -516,12 +516,12 @@
       <button class="header-export" id="exportBtn" aria-label="Exportar datos">&#8659; Exportar</button>
       <div id="contextSwitcher">
         <button class="ctx-pill active" data-ctx="personal">Yo</button>
-        <button class="ctx-pill" data-ctx="__space__">Hogar</button>
+        <button class="ctx-pill" data-ctx="__space__" data-ctx-type="space">Hogar</button>
       </div>
       <div id="avatarWrap"></div>
     </div>
   </div>
-  <div id="inviteBanner" style="display:none;flex-direction:row;">
+  <div id="inviteBanner" style="display:none;">
     <div class="invite-banner-text" id="inviteBannerText"></div>
     <div class="invite-banner-actions">
       <button class="invite-accept-btn" id="inviteAcceptBtn">Aceptar</button>
@@ -1053,7 +1053,7 @@ function showContextSwitcher(sid){
   const sw=document.getElementById('contextSwitcher');
   sw.style.display='flex';
   // Update the space pill's data-ctx to the real spaceId
-  const spacePill=sw.querySelector('[data-ctx="__space__"]');
+  const spacePill=sw.querySelector('[data-ctx-type="space"]');
   if(spacePill)spacePill.dataset.ctx=sid;
   // Update active state
   sw.querySelectorAll('.ctx-pill').forEach(p=>p.classList.toggle('active',p.dataset.ctx===activeContext));
@@ -1062,7 +1062,7 @@ function showContextSwitcher(sid){
 let pendingInviteData=null;
 function showInviteBanner(invite){
   pendingInviteData=invite;
-  document.getElementById('inviteBannerText').textContent=invite.inviterName+' te invitó al presupuesto compartido. ¿Aceptar?';
+  document.getElementById('inviteBannerText').textContent=(invite.inviterName||'Alguien')+' te invitó al presupuesto compartido. ¿Aceptar?';
   document.getElementById('inviteBanner').style.display='flex';
 }
 async function acceptInvite(){
@@ -1082,7 +1082,11 @@ async function acceptInvite(){
     spaceId=inv.spaceId;
     showContextSwitcher(inv.spaceId);
     showToast('Te uniste al presupuesto compartido');
-  }catch(e){console.error('acceptInvite:',e);showToast('Error al aceptar la invitación');}
+  }catch(e){
+    pendingInviteData=inv;
+    document.getElementById('inviteBanner').style.display='flex';
+    console.error('acceptInvite:',e);showToast('Error al aceptar la invitación');
+  }
 }
 async function declineInvite(){
   if(!pendingInviteData)return;
@@ -1186,7 +1190,7 @@ async function persistToFirestore(){
 }
 function renderAll(){applyCustomCategories();renderDashboard();renderEntries();renderRecurring();renderSavingsGoals();updateMonthLabels();}
 async function switchContext(ctx){
-  if(ctx===activeContext)return;
+  if(ctx===activeContext||ctx==='__space__')return;  // reject sentinel
   activeContext=ctx;
   activeMemberFilter='all';
   if(ctx==='personal'){
