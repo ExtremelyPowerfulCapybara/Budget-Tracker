@@ -221,3 +221,90 @@ exports.weeklyDigest = functions.pubsub
     await Promise.all(sends);
     return null;
   });
+
+// Returns the caller's pending invite, if any.
+// Called on every login — uses Admin SDK to query server-side (no client list permission needed).
+exports.getPendingInvite = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required');
+  const email = context.auth.token.email;
+  if (!email) throw new functions.https.HttpsError('failed-precondition', 'No email on account');
+
+  const db = admin.firestore();
+  const snap = await db.collection('invites')
+    .where('inviteeEmail', '==', email)
+    .where('status', '==', 'pending')
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return { id: doc.id, ...doc.data() };
+});
+
+// Atomically removes a member from a space and clears their spaceId pointer.
+// Only the space creator can call this. Creator cannot remove themselves.
+exports.removeMember = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required');
+  const { spaceId, memberUid } = data;
+  if (!spaceId || !memberUid) throw new functions.https.HttpsError('invalid-argument', 'spaceId and memberUid required');
+
+  const db = admin.firestore();
+  await db.runTransaction(async (tx) => {
+    const spaceRef = db.collection('spaces').doc(spaceId);
+    const spaceDoc = await tx.get(spaceRef);
+    if (!spaceDoc.exists) throw new functions.https.HttpsError('not-found', 'Space not found');
+
+    const spaceData = spaceDoc.data();
+    if (spaceData.createdBy !== context.auth.uid) {
+      throw new functions.https.HttpsError('permission-denied', 'Only the creator can remove members');
+    }
+    if (memberUid === spaceData.createdBy) {
+      throw new functions.https.HttpsError('invalid-argument', 'Creator cannot be removed');
+    }
+
+    const memberRef = db.collection('users').doc(memberUid);
+    tx.update(spaceRef, { members: admin.firestore.FieldValue.arrayRemove(memberUid) });
+    tx.update(memberRef, { spaceId: null });
+  });
+
+  return { success: true };
+});
+
+// Deletes a shared space: clears all members' spaceId, deletes the space doc,
+// and cleans up any pending invites for the space.
+// Only the space creator can call this.
+exports.deleteSpace = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required');
+  const { spaceId } = data;
+  if (!spaceId) throw new functions.https.HttpsError('invalid-argument', 'spaceId required');
+
+  const db = admin.firestore();
+
+  // Transaction: read members, clear their spaceId, delete space doc
+  await db.runTransaction(async (tx) => {
+    const spaceRef = db.collection('spaces').doc(spaceId);
+    const spaceDoc = await tx.get(spaceRef);
+    if (!spaceDoc.exists) throw new functions.https.HttpsError('not-found', 'Space not found');
+
+    const spaceData = spaceDoc.data();
+    if (spaceData.createdBy !== context.auth.uid) {
+      throw new functions.https.HttpsError('permission-denied', 'Only the creator can delete the space');
+    }
+
+    const members = spaceData.members || [];
+    for (const uid of members) {
+      tx.update(db.collection('users').doc(uid), { spaceId: null });
+    }
+    tx.delete(spaceRef);
+  });
+
+  // Clean up orphaned invites (batched write, outside transaction)
+  const invitesSnap = await db.collection('invites').where('spaceId', '==', spaceId).get();
+  if (!invitesSnap.empty) {
+    const batch = db.batch();
+    invitesSnap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
+
+  return { success: true };
+});
