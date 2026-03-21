@@ -744,6 +744,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="js/core/config.js"></script>
 <script src="js/core/utils.js"></script>
 <script src="js/core/selectors.js"></script>
@@ -795,6 +796,8 @@ let currentUser=null,userDocRef=null;
 let {entries,goals,recurring,savingsGoals,customCategories}=createEmptyState(DEFAULT_GOALS);
 let currentType='expense',currentCat='food',recurType='expense',recurCat='food';
 let recurFreq='monthly',editCat='food',editId=null,activeFilter='all',editingRecurringId=null;
+// Shared budget context
+let activeContext='personal',spaceId=null,spaceMeta=null,activeMemberFilter='all';
 let syncTimeout=null;
 const now=new Date();let viewYear=now.getFullYear(),viewMonth=now.getMonth();
 
@@ -1018,9 +1021,29 @@ function normalizeStaticCopy(){
 }
 
 // Auth bootstrap
+function showContextSwitcher(sid){}
+function showInviteBanner(invite){}
 auth.onAuthStateChanged(async user=>{
-  if(user){currentUser=user;userDocRef=createUserDocRef(db,user);await loadFromFirestore();showApp(user);}
-  else{currentUser=null;userDocRef=null;showAuth();}
+  if(user){
+    currentUser=user;
+    userDocRef=createUserDocRef(db,user);
+    activeContext='personal';
+    spaceId=null;
+    spaceMeta=null;
+    await loadFromFirestore();
+    if(spaceId)showContextSwitcher(spaceId);
+    try{
+      const fn=firebase.functions().httpsCallable('getPendingInvite');
+      const result=await fn();
+      if(result.data)showInviteBanner(result.data);
+    }catch(e){console.warn('Invite check:',e.message);}
+    showApp(user);
+  }else{
+    currentUser=null;userDocRef=null;activeContext='personal';spaceId=null;spaceMeta=null;
+    document.getElementById('contextSwitcher').style.display='none';
+    document.getElementById('inviteBanner').style.display='none';
+    showAuth();
+  }
 });
 document.getElementById('googleSignInBtn').addEventListener('click',async()=>{
   try{await setGoogleSignIn(auth,firebase);}catch(e){showToast('Error al iniciar sesi\u00f3n');console.error(e);}
@@ -1057,7 +1080,7 @@ function autoApplyRecurring(){
   renderDashboard();
   showToast(count+' movimiento(s) recurrente(s) aplicado(s) autom\u00e1ticamente \u2714');
 }
-async function signOut(){closeUserModal();await auth.signOut();applyState(createEmptyState(DEFAULT_GOALS));showToast('Sesi\u00f3n cerrada');}
+async function signOut(){closeUserModal();await auth.signOut();applyState(createEmptyState(DEFAULT_GOALS));activeContext='personal';spaceId=null;spaceMeta=null;activeMemberFilter='all';showToast('Sesi\u00f3n cerrada');}
 async function loadFromFirestore(){
   await loadUserState({
     userDocRef,
@@ -1069,17 +1092,42 @@ async function loadFromFirestore(){
     hasAnyEntries,
     persistUserState:()=>persistToFirestore(),
     setSyncState,
-    showToast
+    showToast,
+    onRawDoc:(data)=>{
+      if(activeContext==='personal'){
+        if(data.spaceId)spaceId=data.spaceId;
+      }else{
+        spaceMeta={name:data.name||'Hogar',createdBy:data.createdBy||'',members:Array.isArray(data.members)?data.members:[]};
+      }
+    }
   });
 }
 async function persistToFirestore(){
+  const serialize=activeContext==='personal'
+    ?serializeCloudState
+    :(s)=>({...serializeCloudState(s),name:spaceMeta.name,createdBy:spaceMeta.createdBy,members:spaceMeta.members});
   await persistUserState({
     userDocRef,
     firebase,
     state:getStateSnapshot(),
-    serializeCloudState,
+    serializeCloudState:serialize,
     setSyncState
   });
+}
+function renderAll(){applyCustomCategories();renderDashboard();renderEntries();renderRecurring();renderSavingsGoals();updateMonthLabels();}
+async function switchContext(ctx){
+  if(ctx===activeContext)return;
+  activeContext=ctx;
+  activeMemberFilter='all';
+  if(ctx==='personal'){
+    userDocRef=db.collection('users').doc(currentUser.uid);
+    spaceMeta=null;
+  }else{
+    userDocRef=db.collection('spaces').doc(ctx);
+  }
+  await loadFromFirestore();
+  renderAll();
+  document.querySelectorAll('.ctx-pill').forEach(p=>p.classList.toggle('active',p.dataset.ctx===ctx));
 }
 function save(){
   writeLocalState(getStateSnapshot());
