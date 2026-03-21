@@ -162,6 +162,12 @@
   .entry-btn { background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:36px; height:36px; border-radius:9px; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
   .entry-btn:hover { border-color:var(--accent); color:var(--text); }
   .entry-btn.delete:hover { border-color:var(--expense); color:var(--expense); }
+  /* Entry author badge (shared context) */
+  .entry-author{display:flex;align-items:center;justify-content:center;margin-right:4px;}
+  .entry-author-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid var(--border);}
+  .entry-author-initial{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--muted);}
+  /* Member filter row */
+  #memberFilterRow{display:none;padding:0 16px 8px;}
   .entry-detail { display:none; padding:0 14px 14px; border-top:1px solid var(--border); }
   .entry-item--expanded .entry-detail { display:block; }
   .entry-item--expanded .entry-compact { padding-bottom:12px; }
