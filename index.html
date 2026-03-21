@@ -1075,6 +1075,7 @@ function showContextSwitcher(sid){
 }
 
 let pendingInviteData=null;
+let _sendingInvite=false;
 function showInviteBanner(invite){
   pendingInviteData=invite;
   document.getElementById('inviteBannerText').textContent=(invite.inviterName||'Alguien')+' te invitó al presupuesto compartido. ¿Aceptar?';
@@ -1281,43 +1282,50 @@ function renderUserModal(){
 }
 
 async function sendInvite(){
-  const input=document.getElementById('inviteEmailInput');
-  if(!input)return;
-  const email=input.value.trim().toLowerCase();
-  if(!email||!email.includes('@')){showToast('Ingresa un correo válido');return;}
-  if(email===currentUser.email){showToast('No puedes invitarte a ti mismo');return;}
-
+  if(_sendingInvite)return;
+  _sendingInvite=true;
   try{
-    let sid=spaceId;
-    // Create space if it doesn't exist yet
-    if(!sid){
-      sid=Date.now().toString();
-      const spaceRef=db.collection('spaces').doc(sid);
-      await spaceRef.set({
-        name:'Hogar',
-        createdBy:currentUser.uid,
-        members:[currentUser.uid],
-        entries:[],goals:{},recurring:[],savingsGoals:[],customCategories:{},
-        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
-      await db.collection('users').doc(currentUser.uid).update({spaceId:sid});
-      spaceId=sid;
-      showContextSwitcher(sid);
-    }
-    // Create invite (deterministic ID prevents duplicates)
-    const inviteId=sid+'_'+email;
-    await db.collection('invites').doc(inviteId).set({
-      spaceId:sid,
-      inviterUid:currentUser.uid,
-      inviterName:currentUser.displayName||currentUser.email,
-      inviteeEmail:email,
-      status:'pending',
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true});
-    input.value='';
-    showToast('Invitación enviada a '+email);
-    renderUserModal();
-  }catch(e){console.error('sendInvite:',e);showToast('Error al enviar invitación');}
+    const input=document.getElementById('inviteEmailInput');
+    if(!input)return;
+    const email=input.value.trim().toLowerCase();
+    if(!email||!email.includes('@')){showToast('Ingresa un correo válido');return;}
+    if(email===currentUser.email){showToast('No puedes invitarte a ti mismo');return;}
+
+    try{
+      let sid=spaceId;
+      // Create space if it doesn't exist yet
+      if(!sid){
+        sid=Date.now().toString();
+        const spaceRef=db.collection('spaces').doc(sid);
+        await spaceRef.set({
+          name:'Hogar',
+          createdBy:currentUser.uid,
+          members:[currentUser.uid],
+          entries:[],goals:{},recurring:[],savingsGoals:[],customCategories:{},
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await db.collection('users').doc(currentUser.uid).update({spaceId:sid});
+        spaceId=sid;
+        spaceMeta={name:'Hogar',createdBy:currentUser.uid,members:[currentUser.uid]};
+        showContextSwitcher(sid);
+      }
+      // Create invite (deterministic ID prevents duplicates)
+      const inviteId=sid+'_'+email;
+      await db.collection('invites').doc(inviteId).set({
+        spaceId:sid,
+        inviterUid:currentUser.uid,
+        inviterName:currentUser.displayName||currentUser.email,
+        inviteeEmail:email,
+        status:'pending',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+      input.value='';
+      showToast('Invitación enviada a '+email);
+      renderUserModal();
+    }catch(e){console.error('sendInvite:',e);showToast('Error al enviar invitación');}
+  }finally{
+    _sendingInvite=false;
+  }
 }
 
 async function removeMemberFromSpace(memberUid){
@@ -1338,9 +1346,9 @@ async function leaveSpace(){
     await db.collection('spaces').doc(spaceId).update({
       members:firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
     });
-    await db.collection('users').doc(currentUser.uid).update({spaceId:null});
-    // Switch back to personal context
+    // Clear local state before second write so any subsequent failure leaves a recoverable state
     spaceId=null;spaceMeta=null;
+    await db.collection('users').doc(currentUser.uid).update({spaceId:null});
     await switchContext('personal');
     document.getElementById('contextSwitcher').style.display='none';
     closeUserModal();
