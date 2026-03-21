@@ -355,6 +355,20 @@
   .user-email { font-family:var(--font-mono); font-size:11px; color:var(--muted); margin-top:2px; }
   .signout-btn { width:100%; padding:14px; background:transparent; border:1px solid var(--expense); border-radius:12px; color:var(--expense); font-family:var(--font-ui); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
   .signout-btn:hover { background:var(--expense); color:#fff; }
+  /* Shared budget sections in user modal */
+  .space-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+  .space-section-title{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+  .member-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
+  .member-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;}
+  .member-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;}
+  .member-name{flex:1;font-size:13px;color:var(--text);}
+  .member-remove-btn{background:none;border:none;color:var(--expense);font-size:16px;cursor:pointer;padding:2px 6px;line-height:1;}
+  .invite-input-row{display:flex;gap:8px;margin-top:8px;}
+  .invite-email-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-family:var(--font-ui);font-size:13px;color:var(--text);}
+  .invite-email-input::placeholder{color:var(--muted);}
+  .invite-send-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-family:var(--font-ui);font-size:13px;font-weight:600;cursor:pointer;}
+  .space-danger-btn{width:100%;background:none;border:1px solid var(--expense);color:var(--expense);border-radius:12px;padding:10px;font-family:var(--font-ui);font-size:13px;cursor:pointer;margin-top:10px;}
+  .leave-space-btn{width:100%;background:none;border:1px solid var(--border);color:var(--muted);border-radius:12px;padding:10px;font-family:var(--font-ui);font-size:13px;cursor:pointer;margin-top:10px;}
   #loadingScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; gap:16px; }
   .loading-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); animation:bounce 0.8s infinite; }
   .loading-dot:nth-child(2) { animation-delay:0.15s; }
@@ -669,6 +683,7 @@
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.7;">Tus datos se sincronizan automáticamente con Firebase.</div>
     <button class="notif-btn" id="notifBtn">Activar notificaciones</button>
     <button class="signout-btn" id="signOutBtn" style="margin-top:10px;">Cerrar sesión</button>
+    <div id="spaceSections"></div>
   </div>
 </div>
 <!-- Confirm delete modal -->
@@ -1208,8 +1223,143 @@ function save(){
   clearTimeout(syncTimeout);setSyncState('syncing');syncTimeout=setTimeout(()=>persistToFirestore(),800);
 }
 function setSyncState(state){setSyncIndicator(document.getElementById('syncDot'),state);}
-function openUserModal(){if(!currentUser)return;populateUserModal(currentUser);openShellModal('userModal');updateNotifBtn();}
+function openUserModal(){if(!currentUser)return;populateUserModal(currentUser);renderUserModal();openShellModal('userModal');updateNotifBtn();}
 function closeUserModal(){closeShellModal('userModal');}
+
+function renderUserModal(){
+  const esc=window.BudgetLogCore.utils.esc;
+  const el=document.getElementById('spaceSections');
+  if(!currentUser)return;
+
+  // No shared space yet — show invite input for any user
+  if(!spaceId){
+    el.innerHTML=
+      '<div class="space-section">'+
+        '<div class="space-section-title">Presupuesto compartido</div>'+
+        '<p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Comparte tu presupuesto con otra persona ingresando su correo de Google.</p>'+
+        '<div class="invite-input-row">'+
+          '<input class="invite-email-input" id="inviteEmailInput" type="email" placeholder="correo@gmail.com">'+
+          '<button class="invite-send-btn" onclick="sendInvite()">Invitar</button>'+
+        '</div>'+
+      '</div>';
+    return;
+  }
+
+  // Has a shared space — show members section
+  const isCreator=spaceMeta&&spaceMeta.createdBy===currentUser.uid;
+  const members=spaceMeta?spaceMeta.members:[];
+  const memberRows=members.map(uid=>{
+    const isSelf=uid===currentUser.uid;
+    const isOwner=spaceMeta&&uid===spaceMeta.createdBy;
+    const name=isSelf?(currentUser.displayName||currentUser.email):'UID: '+uid.slice(0,8)+'…';
+    const removeBtn=isCreator&&!isSelf
+      ?'<button class="member-remove-btn" onclick="removeMemberFromSpace(\''+esc(uid)+'\')" title="Eliminar miembro">&#10005;</button>'
+      :'';
+    return '<div class="member-row"><div class="member-avatar-placeholder">'+esc(name.charAt(0).toUpperCase())+'</div><div class="member-name">'+esc(name)+(isOwner?' <span style="font-size:10px;color:var(--muted);">(creador)</span>':'')+'</div>'+removeBtn+'</div>';
+  }).join('');
+
+  const inviteSection=isCreator&&members.length<6
+    ?'<div class="space-section-title" style="margin-top:12px;">Invitar persona</div>'+
+      '<div class="invite-input-row">'+
+        '<input class="invite-email-input" id="inviteEmailInput" type="email" placeholder="correo@gmail.com">'+
+        '<button class="invite-send-btn" onclick="sendInvite()">Invitar</button>'+
+      '</div>'
+    :'';
+
+  const actionBtn=isCreator
+    ?'<button class="space-danger-btn" onclick="deleteSharedSpace()">Eliminar presupuesto compartido</button>'+
+      '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px;">Eres el creador. Para salir, elimina el presupuesto compartido.</p>'
+    :'<button class="leave-space-btn" onclick="leaveSpace()">Salir del presupuesto compartido</button>';
+
+  el.innerHTML=
+    '<div class="space-section">'+
+      '<div class="space-section-title">Miembros</div>'+
+      memberRows+
+      inviteSection+
+      actionBtn+
+    '</div>';
+}
+
+async function sendInvite(){
+  const input=document.getElementById('inviteEmailInput');
+  if(!input)return;
+  const email=input.value.trim().toLowerCase();
+  if(!email||!email.includes('@')){showToast('Ingresa un correo válido');return;}
+  if(email===currentUser.email){showToast('No puedes invitarte a ti mismo');return;}
+
+  try{
+    let sid=spaceId;
+    // Create space if it doesn't exist yet
+    if(!sid){
+      sid=Date.now().toString();
+      const spaceRef=db.collection('spaces').doc(sid);
+      await spaceRef.set({
+        name:'Hogar',
+        createdBy:currentUser.uid,
+        members:[currentUser.uid],
+        entries:[],goals:{},recurring:[],savingsGoals:[],customCategories:{},
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await db.collection('users').doc(currentUser.uid).update({spaceId:sid});
+      spaceId=sid;
+      showContextSwitcher(sid);
+    }
+    // Create invite (deterministic ID prevents duplicates)
+    const inviteId=sid+'_'+email;
+    await db.collection('invites').doc(inviteId).set({
+      spaceId:sid,
+      inviterUid:currentUser.uid,
+      inviterName:currentUser.displayName||currentUser.email,
+      inviteeEmail:email,
+      status:'pending',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    input.value='';
+    showToast('Invitación enviada a '+email);
+    renderUserModal();
+  }catch(e){console.error('sendInvite:',e);showToast('Error al enviar invitación');}
+}
+
+async function removeMemberFromSpace(memberUid){
+  if(!confirm('¿Eliminar a este miembro del presupuesto compartido?'))return;
+  try{
+    const fn=firebase.functions().httpsCallable('removeMember');
+    await fn({spaceId,memberUid});
+    // Update local spaceMeta
+    if(spaceMeta)spaceMeta.members=spaceMeta.members.filter(uid=>uid!==memberUid);
+    renderUserModal();
+    showToast('Miembro eliminado');
+  }catch(e){console.error('removeMember:',e);showToast('Error al eliminar miembro');}
+}
+
+async function leaveSpace(){
+  if(!confirm('¿Salir del presupuesto compartido? Volverás a tu presupuesto personal.'))return;
+  try{
+    await db.collection('spaces').doc(spaceId).update({
+      members:firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
+    });
+    await db.collection('users').doc(currentUser.uid).update({spaceId:null});
+    // Switch back to personal context
+    spaceId=null;spaceMeta=null;
+    await switchContext('personal');
+    document.getElementById('contextSwitcher').style.display='none';
+    closeUserModal();
+    showToast('Saliste del presupuesto compartido');
+  }catch(e){console.error('leaveSpace:',e);showToast('Error al salir');}
+}
+
+async function deleteSharedSpace(){
+  if(!confirm('¿Eliminar el presupuesto compartido? Esta acción no se puede deshacer. Todos los miembros volverán a su presupuesto personal.'))return;
+  try{
+    const fn=firebase.functions().httpsCallable('deleteSpace');
+    await fn({spaceId});
+    spaceId=null;spaceMeta=null;
+    await switchContext('personal');
+    document.getElementById('contextSwitcher').style.display='none';
+    closeUserModal();
+    showToast('Presupuesto compartido eliminado');
+  }catch(e){console.error('deleteSpace:',e);showToast('Error al eliminar el espacio');}
+}
 
 // Navigation and dashboard
 function showView(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelectorAll('.nav-btn')[['dashboard','log','entries','recurring','goals','charts'].indexOf(v)].classList.add('active');if(v==='dashboard'){renderDashboard();renderSavingsGoals();renderForecast();}if(v==='entries')renderEntries();if(v==='goals')renderGoals();if(v==='log')initLog();if(v==='recurring')renderRecurring();if(v==='charts')renderCharts();}
