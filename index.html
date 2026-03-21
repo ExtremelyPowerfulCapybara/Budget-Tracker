@@ -1032,16 +1032,16 @@ auth.onAuthStateChanged(async user=>{
     spaceMeta=null;
     await loadFromFirestore();
     if(spaceId)showContextSwitcher(spaceId);
+    showApp(user);
     try{
       const fn=firebase.functions().httpsCallable('getPendingInvite');
       const result=await fn();
       if(result.data)showInviteBanner(result.data);
     }catch(e){console.warn('Invite check:',e.message);}
-    showApp(user);
   }else{
-    currentUser=null;userDocRef=null;activeContext='personal';spaceId=null;spaceMeta=null;
-    document.getElementById('contextSwitcher').style.display='none';
-    document.getElementById('inviteBanner').style.display='none';
+    currentUser=null;userDocRef=null;activeContext='personal';spaceId=null;spaceMeta=null;activeMemberFilter='all';
+    const cs=document.getElementById('contextSwitcher');if(cs)cs.style.display='none';
+    const ib=document.getElementById('inviteBanner');if(ib)ib.style.display='none';
     showAuth();
   }
 });
@@ -1105,7 +1105,7 @@ async function loadFromFirestore(){
 async function persistToFirestore(){
   const serialize=activeContext==='personal'
     ?serializeCloudState
-    :(s)=>({...serializeCloudState(s),name:spaceMeta.name,createdBy:spaceMeta.createdBy,members:spaceMeta.members});
+    :(s)=>({...serializeCloudState(s),...(spaceMeta?{name:spaceMeta.name,createdBy:spaceMeta.createdBy,members:spaceMeta.members}:{})});
   await persistUserState({
     userDocRef,
     firebase,
@@ -1120,7 +1120,7 @@ async function switchContext(ctx){
   activeContext=ctx;
   activeMemberFilter='all';
   if(ctx==='personal'){
-    userDocRef=db.collection('users').doc(currentUser.uid);
+    userDocRef=createUserDocRef(db,currentUser);
     spaceMeta=null;
   }else{
     userDocRef=db.collection('spaces').doc(ctx);
