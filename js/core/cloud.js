@@ -27,13 +27,15 @@
       hasAnyEntries,
       persistUserState,
       setSyncState,
-      showToast
+      showToast,
+      onRawDoc
     }=options;
 
     setSyncState('syncing');
     try{
       const doc=await userDocRef.get();
       if(doc.exists){
+        if(typeof onRawDoc==='function')onRawDoc(doc.data());
         applyState(doc.data());
         applyCustomCategories();
       }else{
