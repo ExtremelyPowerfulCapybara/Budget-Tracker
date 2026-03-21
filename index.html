@@ -1110,6 +1110,7 @@ async function acceptInvite(){
     await db.collection('users').doc(currentUser.uid).update({spaceId:inv.spaceId});
     spaceId=inv.spaceId;
     showContextSwitcher(inv.spaceId);
+    await switchContext(inv.spaceId);
     showToast('Te uniste al presupuesto compartido');
   }catch(e){
     pendingInviteData=inv;
@@ -1229,6 +1230,7 @@ async function switchContext(ctx){
     userDocRef=db.collection('spaces').doc(ctx);
   }
   await loadFromFirestore();
+  autoApplyRecurring();
   renderAll();
   document.querySelectorAll('.ctx-pill').forEach(p=>p.classList.toggle('active',p.dataset.ctx===ctx));
 }
@@ -1359,9 +1361,8 @@ async function leaveSpace(){
     await db.collection('spaces').doc(spaceId).update({
       members:firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
     });
-    // Clear local state before second write so any subsequent failure leaves a recoverable state
-    spaceId=null;spaceMeta=null;
     await db.collection('users').doc(currentUser.uid).update({spaceId:null});
+    spaceId=null;spaceMeta=null;
     await switchContext('personal');
     document.getElementById('contextSwitcher').style.display='none';
     closeUserModal();
