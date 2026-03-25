@@ -12,8 +12,10 @@
 
   function sanitizeAccount(a){
     if(!a||typeof a!=='object')return null;
+    const id=typeof a.id==='string'?a.id:String(a.id||'');
+    if(!id)return null;
     return {
-      id:typeof a.id==='string'?a.id:String(a.id||''),
+      id,
       label:typeof a.label==='string'?a.label.slice(0,80):'',
       type:['debit','credit','cash'].includes(a.type)?a.type:'debit',
       color:typeof a.color==='string'&&/^#[0-9a-fA-F]{3,8}$/.test(a.color)?a.color:'#5b8af0'
