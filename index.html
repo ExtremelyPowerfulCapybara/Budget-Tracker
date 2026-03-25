@@ -53,9 +53,7 @@
   .sync-indicator.error { background:var(--expense); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   /* Context switcher */
-  #contextSwitcher{display:none;flex-direction:row;gap:4px;align-items:center;}
-  .ctx-pill{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:4px 12px;font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;}
-  .ctx-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  #contextSwitcher{display:none;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:4px 8px;font-family:var(--font-ui);font-size:12px;font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;}
   /* Invite banner */
   #inviteBanner{display:none;flex-direction:row;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;gap:10px;align-items:center;font-size:13px;color:var(--text);}
   .invite-banner-text{flex:1;}
@@ -534,10 +532,10 @@
       <div class="sync-indicator" id="syncDot" title="Sincronizado"></div>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">&#9728;</button>
       <button class="header-export" id="exportBtn" aria-label="Exportar datos">&#8659; Exportar</button>
-      <div id="contextSwitcher">
-        <button class="ctx-pill active" data-ctx="personal">Yo</button>
-        <button class="ctx-pill" data-ctx="__space__" data-ctx-type="space">Hogar</button>
-      </div>
+      <select id="contextSwitcher">
+        <option value="personal">Yo</option>
+        <option value="__space__" data-ctx-type="space">Hogar</option>
+      </select>
       <div id="avatarWrap"></div>
     </div>
   </div>
@@ -1018,10 +1016,8 @@ function bindStaticEvents(){
     const editBtn=event.target.closest('[data-recurring-edit]');
     if(editBtn)openEditRecurring(editBtn.dataset.recurringEdit);
   });
-  document.getElementById('contextSwitcher').addEventListener('click',event=>{
-    const pill=event.target.closest('.ctx-pill');
-    if(!pill)return;
-    switchContext(pill.dataset.ctx);
+  document.getElementById('contextSwitcher').addEventListener('change',event=>{
+    switchContext(event.target.value);
   });
   document.getElementById('inviteAcceptBtn').addEventListener('click',acceptInvite);
   document.getElementById('inviteDeclineBtn').addEventListener('click',declineInvite);
@@ -1079,12 +1075,12 @@ function normalizeStaticCopy(){
 // Auth bootstrap
 function showContextSwitcher(sid){
   const sw=document.getElementById('contextSwitcher');
-  sw.style.display='flex';
-  // Update the space pill's data-ctx to the real spaceId
-  const spacePill=sw.querySelector('[data-ctx-type="space"]');
-  if(spacePill)spacePill.dataset.ctx=sid;
-  // Update active state
-  sw.querySelectorAll('.ctx-pill').forEach(p=>p.classList.toggle('active',p.dataset.ctx===activeContext));
+  sw.style.display='block';
+  // Update the Hogar option value to the real spaceId
+  const spaceOpt=sw.querySelector('[data-ctx-type="space"]');
+  if(spaceOpt)spaceOpt.value=sid;
+  // Reflect current context
+  sw.value=activeContext;
 }
 
 let pendingInviteData=null;
@@ -1232,7 +1228,7 @@ async function switchContext(ctx){
   await loadFromFirestore();
   autoApplyRecurring();
   renderAll();
-  document.querySelectorAll('.ctx-pill').forEach(p=>p.classList.toggle('active',p.dataset.ctx===ctx));
+  const cs=document.getElementById('contextSwitcher');if(cs)cs.value=ctx;
 }
 function save(){
   writeLocalState(getStateSnapshot());
