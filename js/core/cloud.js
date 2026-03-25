@@ -20,6 +20,7 @@
     const {
       userDocRef,
       defaultGoals,
+      defaultAccounts,
       sanitizeRecurringRule,
       readLocalState,
       applyState,
@@ -39,7 +40,7 @@
         applyState(doc.data());
         applyCustomCategories();
       }else{
-        const localState=readLocalState({defaultGoals,sanitizeRecurringRule});
+        const localState=readLocalState({defaultGoals,defaultAccounts,sanitizeRecurringRule});
         applyState(localState);
         applyCustomCategories();
         if(hasAnyEntries(localState)){
@@ -51,7 +52,7 @@
     }catch(error){
       console.error('Firestore load:',error);
       setSyncState('error');
-      applyState(readLocalState({defaultGoals,sanitizeRecurringRule}));
+      applyState(readLocalState({defaultGoals,defaultAccounts,sanitizeRecurringRule}));
       applyCustomCategories();
     }
   }

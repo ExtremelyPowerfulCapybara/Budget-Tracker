@@ -6,21 +6,33 @@
     goals:'bl_goals',
     recurring:'bl_recurring',
     savingsGoals:'bl_savings',
-    customCategories:'bl_catcustom'
+    customCategories:'bl_catcustom',
+    accounts:'bl_accounts'
   };
 
-  function createEmptyState(defaultGoals){
+  function sanitizeAccount(a){
+    if(!a||typeof a!=='object')return null;
+    return {
+      id:typeof a.id==='string'?a.id:String(a.id||''),
+      label:typeof a.label==='string'?a.label.slice(0,80):'',
+      type:['debit','credit','cash'].includes(a.type)?a.type:'debit',
+      color:typeof a.color==='string'&&/^#[0-9a-fA-F]{3,8}$/.test(a.color)?a.color:'#5b8af0'
+    };
+  }
+
+  function createEmptyState(defaultGoals,defaultAccounts){
     return {
       entries:[],
       goals:{...defaultGoals},
       recurring:[],
       savingsGoals:[],
-      customCategories:{}
+      customCategories:{},
+      accounts:Array.isArray(defaultAccounts)?defaultAccounts.map(a=>({...a})):[]
     };
   }
 
-  function normalizeState(rawState,{defaultGoals,sanitizeRecurringRule}){
-    const fallback=createEmptyState(defaultGoals);
+  function normalizeState(rawState,{defaultGoals,defaultAccounts,sanitizeRecurringRule}){
+    const fallback=createEmptyState(defaultGoals,defaultAccounts);
     const source=rawState||{};
     const mergedGoals=source.goals&&typeof source.goals==='object'
       ?{...defaultGoals,...source.goals}
@@ -56,18 +68,27 @@
           };
         });
         return out;
+      })(),
+      accounts:(()=>{
+        const src=source.accounts;
+        if(Array.isArray(src)&&src.length>0){
+          const sanitized=src.map(sanitizeAccount).filter(Boolean);
+          if(sanitized.length>0)return sanitized;
+        }
+        return Array.isArray(defaultAccounts)?defaultAccounts.map(a=>({...a})):[];
       })()
     };
   }
 
-  function readLocalState({storage=window.localStorage,defaultGoals,sanitizeRecurringRule}){
+  function readLocalState({storage=window.localStorage,defaultGoals,defaultAccounts,sanitizeRecurringRule}){
     return normalizeState({
       entries:JSON.parse(storage.getItem(STORAGE_KEYS.entries)||'[]'),
       goals:JSON.parse(storage.getItem(STORAGE_KEYS.goals)||'null'),
       recurring:JSON.parse(storage.getItem(STORAGE_KEYS.recurring)||'[]'),
       savingsGoals:JSON.parse(storage.getItem(STORAGE_KEYS.savingsGoals)||'[]'),
-      customCategories:JSON.parse(storage.getItem(STORAGE_KEYS.customCategories)||'{}')
-    },{defaultGoals,sanitizeRecurringRule});
+      customCategories:JSON.parse(storage.getItem(STORAGE_KEYS.customCategories)||'{}'),
+      accounts:JSON.parse(storage.getItem(STORAGE_KEYS.accounts)||'null')
+    },{defaultGoals,defaultAccounts,sanitizeRecurringRule});
   }
 
   function writeLocalState(state,{storage=window.localStorage}={}){
@@ -76,6 +97,7 @@
     storage.setItem(STORAGE_KEYS.recurring,JSON.stringify(state.recurring));
     storage.setItem(STORAGE_KEYS.savingsGoals,JSON.stringify(state.savingsGoals));
     storage.setItem(STORAGE_KEYS.customCategories,JSON.stringify(state.customCategories));
+    storage.setItem(STORAGE_KEYS.accounts,JSON.stringify(state.accounts));
   }
 
   function hasAnyEntries(state){
@@ -88,7 +110,8 @@
       goals:state.goals,
       recurring:state.recurring,
       savingsGoals:state.savingsGoals,
-      customCategories:state.customCategories
+      customCategories:state.customCategories,
+      accounts:state.accounts
     };
   }
 

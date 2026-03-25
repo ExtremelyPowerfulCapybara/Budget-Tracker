@@ -69,6 +69,11 @@
       '#8d6e63', // café
       '#577590'  // azul grisáceo
     ],
-    SG_COLORS:['#3dd68c','#5b8af0','#f0d45b','#ff9f1c','#f05b5b','#ff5d8f','#9b5de5','#2ec4b6']
+    SG_COLORS:['#3dd68c','#5b8af0','#f0d45b','#ff9f1c','#f05b5b','#ff5d8f','#9b5de5','#2ec4b6'],
+    DEFAULT_ACCOUNTS:[
+      {id:'acc_bbva', label:'BBVA Débito',       type:'debit',  color:'#5b8af0'},
+      {id:'acc_cash', label:'Efectivo',           type:'cash',   color:'#3dd68c'},
+      {id:'acc_cc',   label:'Tarjeta de crédito', type:'credit', color:'#f05b5b'}
+    ]
   };
 })();
