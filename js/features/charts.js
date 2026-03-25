@@ -368,6 +368,45 @@
     return true;
   }
 
+  function renderAccountBarChart(options){
+    const {Chart,instances,canvas,titleEl,entries,viewYear,viewMonth,monthKey,entryMonth,accounts,monthNames}=options;
+    destroyChart(instances,'accountChart');
+    const currentMonthKey=monthKey(viewYear,viewMonth);
+    const monthEntries=entries.filter(entry=>entryMonth(entry)===currentMonthKey&&entry.type==='expense'&&entry.accountId);
+    titleEl.textContent='Gastos por cuenta \u2014 '+monthNames[viewMonth]+' '+viewYear;
+    const accs=accounts.map(acc=>({
+      label:acc.label,
+      id:acc.id,
+      color:acc.color,
+      total:sumAmounts(monthEntries.filter(entry=>entry.accountId===acc.id))
+    })).filter(acc=>acc.total>0);
+    if(!accs.length)return false;
+    canvas.height=Math.max(120,accs.length*52);
+    instances.accountChart=new Chart(canvas,{
+      type:'bar',
+      data:{
+        labels:accs.map(acc=>acc.label),
+        datasets:[{
+          label:'Gasto',
+          data:accs.map(acc=>acc.total),
+          backgroundColor:accs.map(acc=>acc.color+'cc'),
+          borderColor:accs.map(acc=>acc.color),
+          borderWidth:1,
+          borderRadius:6
+        }]
+      },
+      options:{
+        ...CHART_DEFAULTS,
+        indexAxis:'y',
+        scales:{
+          x:CHART_DEFAULTS.scales.x,
+          y:{grid:{display:false},ticks:{color:'#f0f0f5',font:{family:'Lexend',size:11,weight:'600'}}}
+        }
+      }
+    });
+    return true;
+  }
+
   root.charting={
     destroyChart,
     getLastMonths,
@@ -378,6 +417,7 @@
     renderCategoryLineChart,
     renderPieChart,
     renderSpendingDonut,
-    renderSavingsProgress
+    renderSavingsProgress,
+    renderAccountBarChart
   };
 })();
