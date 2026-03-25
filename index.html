@@ -656,7 +656,7 @@
     </div>
   </div>
   <div class="view" id="view-goals">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;margin-top:4px;"><div class="section-title" style="margin:0;">Metas mensuales</div><div style="display:flex;gap:6px;"><button class="cat-customize-btn" onclick="openTemplatesModal()">&#9881; Plantillas</button><button class="cat-customize-btn" onclick="openCatCustomize()">&#9998; Categorías</button></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;margin-top:4px;"><div class="section-title" style="margin:0;">Metas mensuales</div><div style="display:flex;gap:6px;"><button class="cat-customize-btn" onclick="openTemplatesModal()">&#9881; Plantillas</button><button class="cat-customize-btn" onclick="openAccountModal()">&#128179; Cuentas</button><button class="cat-customize-btn" onclick="openCatCustomize()">&#9998; Categorías</button></div></div>
     <div id="goalsList"></div>
     <button class="goals-save-btn" onclick="saveGoals()">Guardar metas</button>
   </div>
@@ -726,6 +726,15 @@
     <div class="form-group"><label class="form-label">Meta (MXN)</label><input class="form-input" type="number" id="sgTarget" placeholder="20000" min="1" step="100"></div>
     <div class="form-group"><label class="form-label">Color</label><div class="color-grid" id="sgColorGrid"></div></div>
     <button class="submit-btn" onclick="saveSavingsGoal()">Guardar</button>
+  </div>
+</div>
+<!-- Account management modal -->
+<div class="modal-overlay" id="accountModal">
+  <div class="cat-custom-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="modal-title" style="margin-bottom:0;">Cuentas</div><button class="modal-close" onclick="closeAccountModal()" aria-label="Cerrar">&#10005;</button></div>
+    <div id="accountCustomList"></div>
+    <button class="cat-custom-add" id="accountAddBtn">+ Agregar cuenta</button>
+    <button class="submit-btn" style="margin-top:12px;" onclick="saveAccountCustomize()">Guardar cambios</button>
   </div>
 </div>
 <!-- Category customization modal -->
@@ -1003,6 +1012,7 @@ function bindStaticEvents(){
     if(input)catDraft[input.dataset.catLabelInput].label=input.value;
   });
   document.getElementById('catAddBtn').addEventListener('click',addCategoryDraft);
+  document.getElementById('accountAddBtn').addEventListener('click',addAccountDraft);
   document.getElementById('catCustomList').addEventListener('click',event=>{
     const deleteBtn=event.target.closest('[data-cat-delete]');
     if(deleteBtn){deleteCategoryDraft(deleteBtn.dataset.catDelete);return;}
@@ -1557,6 +1567,22 @@ function renderPieChart(){const rendered=renderPieChartFeature({Chart,instances:
 
 function renderSavingsProgressChart(){const rendered=renderSavingsProgressFeature({Chart,instances:chartInstances,canvas:document.getElementById('savingsProgress'),savingsGoals,entries,formatMoney:MXN});toggleChartEmptyState('savingsProgress','savingsProgressEmpty',!!rendered,{icon:'🎯',title:'Sin metas de ahorro',message:'Crea metas de ahorro para ver tu progreso aquí.',ctaLabel:'Crear meta',ctaAction:()=>showView('savings'),variant:'card'});}
 
+// ── Account customization ─────────────────────────────────────────
+let accountDraft=[];let acpTargetId=null;
+function openAccountModal(){accountDraft=accounts.map(a=>({...a}));renderAccountCustomList();document.getElementById('accountModal').classList.add('open');}
+function closeAccountModal(){document.getElementById('accountModal').classList.remove('open');closeAccountColorPicker();}
+function renderAccountCustomList(){
+  const esc=window.BudgetLogCore.utils.esc;
+  document.getElementById('accountCustomList').innerHTML=accountDraft.map(a=>{
+    return '<div class="cat-custom-row"><div class="cat-custom-dot" data-acc-color-target="'+esc(a.id)+'" style="background:'+esc(a.color)+'"></div><input class="cat-custom-input" data-acc-label-input="'+esc(a.id)+'" value="'+esc(a.label)+'" placeholder="Nombre de cuenta"><button class="cat-custom-delete" data-acc-delete="'+esc(a.id)+'" aria-label="Eliminar cuenta">&#10005;</button></div>';
+  }).join('');
+}
+function addAccountDraft(){accountDraft.push({id:'acc_'+Date.now().toString(),label:'Nueva cuenta',type:'debit',color:PALETTE[accountDraft.length%PALETTE.length]||'#5b8af0'});renderAccountCustomList();}
+function deleteAccountDraft(id){accountDraft=accountDraft.filter(a=>a.id!==id);if(acpTargetId===id)closeAccountColorPicker();renderAccountCustomList();}
+function openAccountColorPicker(accId,dotEl){closeColorPicker();if(acpTargetId===accId){closeAccountColorPicker();return;}acpTargetId=accId;const acc=accountDraft.find(a=>a.id===accId);if(!acc)return;const pop=document.getElementById('colorPickerPop');pop.innerHTML=renderColorPickerMarkup(PALETTE,acc.color);const r=dotEl.getBoundingClientRect();pop.style.top=(r.bottom+8)+'px';pop.style.left=Math.min(r.left,window.innerWidth-196)+'px';pop.classList.add('open');}
+function pickAccountColor(col){if(!acpTargetId)return;const acc=accountDraft.find(a=>a.id===acpTargetId);if(acc)acc.color=col;renderAccountCustomList();closeAccountColorPicker();}
+function closeAccountColorPicker(){document.getElementById('colorPickerPop').classList.remove('open');acpTargetId=null;}
+function saveAccountCustomize(){accountDraft.forEach(a=>{const input=document.querySelector('[data-acc-label-input="'+a.id+'"]');if(input)a.label=(input.value||'').trim()||'Cuenta';});accounts=accountDraft.filter(a=>a.label&&a.id);save();renderAccountSelect(document.getElementById('logAccountId'));renderAccountSelect(document.getElementById('editAccountId'));closeAccountModal();showToast('Cuentas actualizadas');}
 // ── Category customization ───────────────────────────────────────
 let catDraft={};let catDraftOrder=[];let cpTargetId=null;
 function syncCategoryColors(){Object.keys(CAT_COLORS).forEach(key=>delete CAT_COLORS[key]);CATEGORIES.forEach(category=>{CAT_COLORS[category.id]=category.color;});}
@@ -1575,7 +1601,23 @@ function openColorPicker(catId,dotEl){if(cpTargetId===catId){closeColorPicker();
 function pickColor(col){if(!cpTargetId)return;catDraft[cpTargetId].color=col;renderCatCustomList();closeColorPicker();}
 function closeColorPicker(){document.getElementById('colorPickerPop').classList.remove('open');cpTargetId=null;}
 function saveCatCustomize(){const keptIds=new Set(getCategoryDraftList());Object.keys(goals).forEach(id=>{if(id.startsWith('custom_')&&!keptIds.has(id))delete goals[id];});const nextCustomCategories={};getCategoryDraftList().forEach(id=>{const draft=catDraft[id];const label=(draft.label||'').trim()||'Nueva categor\u00eda';nextCustomCategories[id]={label,color:draft.color,isCustom:!!draft.isCustom};if(goals[id]==null)goals[id]=0;});customCategories=nextCustomCategories;applyCustomCategories();resetCategorySelections();save();closeCatCustomize();renderDashboard();renderEntries();renderGoals();renderRecurring();renderCharts();showToast('Categor\u00edas actualizadas');}
-document.addEventListener('click',e=>{const pop=document.getElementById('colorPickerPop');if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.classList.contains('cat-custom-dot')){closeColorPicker();}});
+document.addEventListener('click',e=>{
+  const pop=document.getElementById('colorPickerPop');
+  if(pop&&pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.classList.contains('cat-custom-dot')){
+    if(cpTargetId)closeColorPicker();
+    else if(acpTargetId)closeAccountColorPicker();
+  }
+  // Account modal delegated clicks
+  const accColorDot=e.target.closest('[data-acc-color-target]');
+  if(accColorDot){openAccountColorPicker(accColorDot.dataset.accColorTarget,accColorDot);return;}
+  const accDelete=e.target.closest('[data-acc-delete]');
+  if(accDelete){deleteAccountDraft(accDelete.dataset.accDelete);return;}
+  // Color picker swatch for accounts
+  if(acpTargetId&&e.target.closest('#colorPickerPop')){
+    const swatch=e.target.closest('[data-palette-color]');
+    if(swatch){pickAccountColor(swatch.dataset.paletteColor);return;}
+  }
+});
 
 // ── Savings goal tracker ─────────────────────────────────────────
 let sgEditId=null;let sgColorSelected=SG_COLORS[0];
