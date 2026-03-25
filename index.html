@@ -46,7 +46,7 @@
   .header-avatar { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); cursor:pointer; object-fit:cover; transition:border-color 0.2s; }
   .header-avatar:hover { border-color:var(--accent); }
   .header-avatar-placeholder { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--accent); cursor:pointer; }
-  .header-export { font-family:var(--font-ui); font-size:11px; font-weight:700; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:8px 11px; border-radius:10px; cursor:pointer; transition:all 0.2s; }
+  .header-export { font-size:15px; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:0; width:32px; height:32px; border-radius:10px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .header-export:hover { border-color:#3dd68c; color:#3dd68c; }
   .sync-indicator { width:7px; height:7px; border-radius:50%; background:var(--income); flex-shrink:0; transition:background 0.3s; }
   .sync-indicator.syncing { background:var(--accent); animation:pulse 1s infinite; }
@@ -531,7 +531,7 @@
     <div class="header-btns">
       <div class="sync-indicator" id="syncDot" title="Sincronizado"></div>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">&#9728;</button>
-      <button class="header-export" id="exportBtn" aria-label="Exportar datos">&#8659; Exportar</button>
+      <button class="header-export" id="exportBtn" aria-label="Exportar datos">&#8615;</button>
       <select id="contextSwitcher">
         <option value="personal">Yo</option>
         <option value="__space__" data-ctx-type="space">Hogar</option>
@@ -1169,7 +1169,7 @@ function showApp(user){
   updateMonthLabels();renderDashboard();initLog();
   autoApplyRecurring();
   syncFcmTokenToFirestore();
-  if(!localStorage.getItem('bl_onboarded')){setTimeout(()=>showOnboard(),800);}else if(!entries.length){setTimeout(()=>openTemplatesModal(),600);}
+  if(!localStorage.getItem('bl_onboarded')){setTimeout(()=>showOnboard(),800);}else if(!entries.length&&!localStorage.getItem('bl_plan_chosen')){setTimeout(()=>openTemplatesModal(),600);}
 }
 function autoApplyRecurring(){
   const today=new Date();
@@ -1592,17 +1592,20 @@ function closeSavingsModal(){document.getElementById('savingsModal').classList.r
 const BUDGET_TEMPLATES=[
   {id:'student',label:'Estudiante',icon:'\uD83C\uDF93',description:'Presupuesto ajustado para estudiante universitario.',goals:{income:8000,food:1500,restaurant:400,transport:400,uber:200,utilities:600,shopping:500,health:300,entertainment:300,clothing:200,savings:500}},
   {id:'professional',label:'Profesional',icon:'\uD83D\uDCBC',description:'Presupuesto equilibrado para profesional independiente.',goals:{income:25000,food:3000,restaurant:1500,transport:800,uber:600,utilities:1500,shopping:2000,health:1000,entertainment:1000,clothing:800,savings:3000}},
-  {id:'family',label:'Familia',icon:'\uD83C\uDFE0',description:'Presupuesto familiar con gastos compartidos.',goals:{income:50000,food:6000,restaurant:2500,transport:2000,uber:1000,utilities:3000,shopping:4000,health:2500,entertainment:2000,clothing:1500,savings:5000}}
+  {id:'family',label:'Familia',icon:'\uD83C\uDFE0',description:'Presupuesto familiar con gastos compartidos.',goals:{income:50000,food:6000,restaurant:2500,transport:2000,uber:1000,utilities:3000,shopping:4000,health:2500,entertainment:2000,clothing:1500,savings:5000}},
+  {id:'custom',label:'Personalizable',icon:'\u270F\uFE0F',description:'Define tus propias metas desde cero, sin valores precargados.',goals:null}
 ];
 function openTemplatesModal(){
   const esc=window.BudgetLogCore.utils.esc;
   const list=document.getElementById('templatesList');
   if(list){
     list.innerHTML=BUDGET_TEMPLATES.map(t=>{
-      const previewItems=Object.entries(t.goals).filter(([k])=>k!=='income').slice(0,4).map(([k,v])=>{
-        const cat=CATEGORIES.find(c=>c.id===k);
-        return '<span class="template-preview-pill">'+esc(cat?cat.label:k)+' '+MXN(v)+'</span>';
-      }).join('')+'<span class="template-preview-pill">+m\u00e1s\u2026</span>';
+      const previewItems=t.goals
+        ? Object.entries(t.goals).filter(([k])=>k!=='income').slice(0,4).map(([k,v])=>{
+            const cat=CATEGORIES.find(c=>c.id===k);
+            return '<span class="template-preview-pill">'+esc(cat?cat.label:k)+' '+MXN(v)+'</span>';
+          }).join('')+'<span class="template-preview-pill">+m\u00e1s\u2026</span>'
+        : '<span class="template-preview-pill" style="color:var(--muted);">Sin metas precargadas</span>';
       return '<div class="template-card"><div class="template-card-header"><span class="template-card-icon">'+t.icon+'</span><div><div class="template-card-title">'+esc(t.label)+'</div><div class="template-card-desc">'+esc(t.description)+'</div></div></div><div class="template-preview">'+previewItems+'</div><button class="sg-contribute-btn" style="margin-top:10px;width:100%;justify-content:center;" onclick="applyTemplate(\''+esc(t.id)+'\')">Aplicar plantilla</button></div>';
     }).join('');
   }
@@ -1612,8 +1615,8 @@ function closeTemplatesModal(event){if(!event||event.target===document.getElemen
 function applyTemplate(templateId){
   const t=BUDGET_TEMPLATES.find(x=>x.id===templateId);
   if(!t)return;
-  Object.assign(goals,t.goals);
-  save();renderGoals();renderDashboard();
+  localStorage.setItem('bl_plan_chosen','1');
+  if(t.goals){Object.assign(goals,t.goals);save();renderGoals();renderDashboard();}
   document.getElementById('templatesModal').classList.remove('open');
   showToast('Plantilla "'+t.label+'" aplicada');
 }
