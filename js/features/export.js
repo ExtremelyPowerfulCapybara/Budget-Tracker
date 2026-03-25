@@ -13,6 +13,7 @@
       categories,
       savingsGoals,
       goals,
+      accounts=[],
       entryMonth,
       exportScope,
       monthKey,
@@ -23,9 +24,10 @@
     const wb=XLSX.utils.book_new();
     const catMap=Object.fromEntries(categories.map(category=>[category.id,category.label]));
     const goalMap=Object.fromEntries(savingsGoals.map(goal=>[goal.id,goal.name]));
+    const accMap=Object.fromEntries(accounts.map(a=>[a.id,a.label]));
 
     const entriesData=[
-      ['Fecha','Tipo','Descripción','Notas','Categoría','Meta de ahorro','Monto (MXN)'],
+      ['Fecha','Tipo','Descripción','Notas','Categoría','Meta de ahorro','Cuenta','Monto (MXN)'],
       ...[...entries].sort((a,b)=>a.date.localeCompare(b.date)).map(entry=>[
         entry.date,
         entry.type==='income'?'Ingreso':'Gasto',
@@ -33,11 +35,12 @@
         entry.notes||'',
         entry.type==='income'?'Ingreso':(catMap[entry.category]||entry.category),
         goalMap[entry.goalId]||'',
+        accMap[entry.accountId]||'',
         entry.type==='income'?entry.amount:-entry.amount
       ])
     ];
     const ws1=XLSX.utils.aoa_to_sheet(entriesData);
-    ws1['!cols']=[{wch:12},{wch:10},{wch:32},{wch:28},{wch:18},{wch:22},{wch:16}];
+    ws1['!cols']=[{wch:12},{wch:10},{wch:32},{wch:28},{wch:18},{wch:22},{wch:18},{wch:16}];
     XLSX.utils.book_append_sheet(wb,ws1,'Movimientos');
 
     const months=[...new Set(entries.map(entry=>entryMonth(entry)))].sort();
