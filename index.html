@@ -1096,13 +1096,12 @@ async function acceptInvite(){
   pendingInviteData=null;
   document.getElementById('inviteBanner').style.display='none';
   try{
-    // Update invite status
-    await db.collection('invites').doc(inv.id).update({status:'accepted'});
-    // Add self to space members
+    // Add self to space members FIRST (rule checks invite status == 'pending')
     await db.collection('spaces').doc(inv.spaceId).update({
       members:firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
     });
-    // Set spaceId on user doc
+    // Mark invite accepted and set spaceId on user doc
+    await db.collection('invites').doc(inv.id).update({status:'accepted'});
     await db.collection('users').doc(currentUser.uid).update({spaceId:inv.spaceId});
     spaceId=inv.spaceId;
     showContextSwitcher(inv.spaceId);
