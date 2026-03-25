@@ -1179,7 +1179,7 @@ function autoApplyRecurring(){
   renderDashboard();
   showToast(count+' movimiento(s) recurrente(s) aplicado(s) autom\u00e1ticamente \u2714');
 }
-async function signOut(){closeUserModal();await auth.signOut();applyState(createEmptyState(DEFAULT_GOALS));activeContext='personal';spaceId=null;spaceMeta=null;activeMemberFilter='all';showToast('Sesi\u00f3n cerrada');}
+async function signOut(){closeUserModal();await auth.signOut();applyState(createEmptyState(DEFAULT_GOALS,DEFAULT_ACCOUNTS));activeContext='personal';spaceId=null;spaceMeta=null;activeMemberFilter='all';showToast('Sesi\u00f3n cerrada');}
 async function loadFromFirestore(){
   await loadUserState({
     userDocRef,
