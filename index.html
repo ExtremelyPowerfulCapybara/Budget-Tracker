@@ -177,6 +177,7 @@
   .entry-detail-notes { font-style:italic; color:var(--muted); }
   .entry-detail-mono { font-family:var(--font-mono); }
   .entry-detail-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; flex-shrink:0; }
+  .entry-account-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle;}
   .entry-detail-badge { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; padding:3px 8px; border-radius:6px; }
   .entry-detail-badge.income { background:rgba(61,214,140,0.15); color:var(--income); }
   .entry-detail-badge.expense { background:rgba(240,91,91,0.15); color:var(--expense); }
@@ -1390,7 +1391,7 @@ function renderDashboard(){updateMonthLabels();const mk=monthKey(viewYear,viewMo
 function getGoalValue(categoryId){if(Object.prototype.hasOwnProperty.call(goals,categoryId)){const value=Number(goals[categoryId]);return Number.isFinite(value)?value:0;}return DEFAULT_GOALS[categoryId]??0;}
 
 // Entries
-function entryHTML(e){return renderEntryMarkup(e,{categories:CATEGORIES,savingsGoals,formatMoney:MXN});}
+function entryHTML(e){return renderEntryMarkup(e,{categories:CATEGORIES,savingsGoals,formatMoney:MXN,accounts});}
 function renderEntries(){updateMonthLabels();const mk=monthKey(viewYear,viewMonth);const searchQ=(document.getElementById('entrySearch')?.value||'').toLowerCase().trim();const monthEntries=entries.filter(e=>entryMonth(e)===mk);const sourceEntries=searchQ?entries:monthEntries;document.querySelector('#view-entries .month-selector').style.display=searchQ?'none':'';document.getElementById('filterRow').innerHTML=buildEntryFilters(CATEGORIES,activeFilter);const memberFilterEl=document.getElementById('memberFilterRow');if(activeContext!=='personal'&&spaceMeta&&spaceMeta.members.length>1){const nameMap={};entries.forEach(e=>{if(e.createdBy&&e.createdBy.uid)nameMap[e.createdBy.uid]=e.createdBy.displayName||e.createdBy.uid.slice(0,8);});if(currentUser)nameMap[currentUser.uid]=currentUser.displayName||currentUser.email;const memberObjects=spaceMeta.members.map(uid=>({uid,displayName:nameMap[uid]||uid.slice(0,8)}));memberFilterEl.innerHTML=buildMemberFilters(memberObjects,activeMemberFilter);memberFilterEl.style.display='';}else{memberFilterEl.innerHTML='';memberFilterEl.style.display='none';}const filtered=filterEntriesFeature(sourceEntries,{activeFilter,activeMemberFilter,searchQuery:searchQ,categories:CATEGORIES,formatMoney:MXN});
   const summaryEl=document.getElementById('entrySummary');
   if(filtered.length){const inc=filtered.filter(e=>e.type==='income');const exp=filtered.filter(e=>e.type==='expense');const parts=[];if(inc.length)parts.push('<span class="entry-summary-income">\u2191 '+MXN(sumAmounts(inc))+' ('+inc.length+')</span>');if(exp.length)parts.push('<span class="entry-summary-expense">\u2193 '+MXN(sumAmounts(exp))+' ('+exp.length+')</span>');summaryEl.innerHTML=parts.join('<span style="color:var(--border)"> | </span>');}else{summaryEl.innerHTML='';}

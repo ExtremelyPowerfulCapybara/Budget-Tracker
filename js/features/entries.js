@@ -22,7 +22,10 @@
   }
 
   function renderEntryMarkup(entry,options){
-    const {categories,savingsGoals,formatMoney}=options;
+    const {categories,savingsGoals,formatMoney,accounts=[]}=options;
+    const account=entry.accountId?accounts.find(a=>a.id===entry.accountId):null;
+    const accountMeta=account?' \u00b7 <span class="entry-account-dot" style="background:'+esc(account.color)+'"></span>'+esc(account.label):'';
+    const accountDetailRow=account?'<div class="entry-detail-row"><span class="entry-detail-label">Cuenta</span><span class="entry-detail-value"><span class="entry-detail-dot" style="background:'+esc(account.color)+'"></span>'+esc(account.label)+'</span></div>':'';
     const category=categories.find(item=>item.id===entry.category);
     const goal=savingsGoals.find(item=>item.id===entry.goalId);
     const color=entry.type==='income'?'var(--income)':(category?category.color:'var(--muted)');
@@ -38,6 +41,7 @@
       '<div class="entry-detail-row"><span class="entry-detail-label">Tipo</span><span class="'+typeBadgeClass+'">'+typeBadgeText+'</span></div>'+
       (entry.recurringId?'<div class="entry-detail-row"><span class="entry-detail-label">Recurrencia</span><button class="entry-rule-link" data-goto-rule="'+esc(entry.recurringId)+'">Recurrente \u2197</button></div>':'')+
       (goal?'<div class="entry-detail-row"><span class="entry-detail-label">Meta</span><span class="entry-detail-value">'+esc(goal.name)+'</span></div>':'')+
+      accountDetailRow+
       '<div class="entry-detail-actions"><button class="entry-detail-action-btn edit" data-entry-action="edit" data-entry-id="'+esc(entry.id)+'" aria-label="Editar movimiento">&#9998; Editar</button><button class="entry-detail-action-btn delete" data-entry-action="delete" data-entry-id="'+esc(entry.id)+'" aria-label="Eliminar movimiento">&#10005; Eliminar</button></div>';
     const safeType=(entry.type==='income'||entry.type==='expense')?entry.type:'expense';
     const authorBadge=entry.createdBy
@@ -47,7 +51,7 @@
             :'<div class="entry-author-initial">'+esc((entry.createdBy.displayName||'?').charAt(0).toUpperCase())+'</div>')+
         '</div>'
       :'';
-    return '<div class="entry-item" data-id="'+esc(entry.id)+'"><div class="entry-edit-bg">&#9998;</div><div class="entry-delete-bg">\uD83D\uDDD1</div><div class="entry-swipe-inner"><div class="entry-compact"><div class="entry-dot" style="background:'+esc(color)+'"></div><div class="entry-info"><div class="entry-desc">'+esc(entry.description)+'</div><div class="entry-meta">'+esc(entry.date)+' \u00b7 '+esc(categoryLabel)+esc(goalLabel)+'</div>'+(entry.notes?'<div class="entry-notes">'+esc(entry.notes)+'</div>':'')+'</div><div class="entry-amount '+safeType+'">'+(safeType==='income'?'+':'-')+formatMoney(entry.amount)+'</div>'+authorBadge+'<div class="entry-actions"><button class="entry-btn" data-entry-action="edit" data-entry-id="'+esc(entry.id)+'" aria-label="Editar movimiento">&#9998;</button><button class="entry-btn delete" data-entry-action="delete" data-entry-id="'+esc(entry.id)+'" aria-label="Eliminar movimiento">&#10005;</button></div></div><div class="entry-detail">'+detailRows+'</div></div></div>';
+    return '<div class="entry-item" data-id="'+esc(entry.id)+'"><div class="entry-edit-bg">&#9998;</div><div class="entry-delete-bg">\uD83D\uDDD1</div><div class="entry-swipe-inner"><div class="entry-compact"><div class="entry-dot" style="background:'+esc(color)+'"></div><div class="entry-info"><div class="entry-desc">'+esc(entry.description)+'</div><div class="entry-meta">'+esc(entry.date)+' \u00b7 '+esc(categoryLabel)+esc(goalLabel)+accountMeta+'</div>'+(entry.notes?'<div class="entry-notes">'+esc(entry.notes)+'</div>':'')+'</div><div class="entry-amount '+safeType+'">'+(safeType==='income'?'+':'-')+formatMoney(entry.amount)+'</div>'+authorBadge+'<div class="entry-actions"><button class="entry-btn" data-entry-action="edit" data-entry-id="'+esc(entry.id)+'" aria-label="Editar movimiento">&#9998;</button><button class="entry-btn delete" data-entry-action="delete" data-entry-id="'+esc(entry.id)+'" aria-label="Eliminar movimiento">&#10005;</button></div></div><div class="entry-detail">'+detailRows+'</div></div></div>';
   }
 
   function filterEntries(entries,options){
