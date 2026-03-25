@@ -808,7 +808,7 @@
 // Modules
 const {config,utils,selectors,storage,ui,cloud}=window.BudgetLogCore;
 const {charting,dashboardFeature,exporting,entriesFeature,appShell,selectionUi,categoryCustomization,recurringFeature,savingsGoalsFeature,insightsFeature}=window.BudgetLogFeatures;
-const {firebaseConfig,CATEGORIES,FREQUENCIES,DEFAULT_GOALS,MONTH_NAMES,CAT_COLORS,PALETTE,SG_COLORS}=config;
+const {firebaseConfig,CATEGORIES,FREQUENCIES,DEFAULT_GOALS,DEFAULT_ACCOUNTS,MONTH_NAMES,CAT_COLORS,PALETTE,SG_COLORS}=config;
 const BASE_CATEGORIES=CATEGORIES.map(category=>({...category}));
 const {emptyState,cards,ctaRow}=ui;
 const {renderEmptyState}=emptyState;
@@ -834,7 +834,7 @@ const db=firebase.firestore();
 
 // App state
 let currentUser=null,userDocRef=null;
-let {entries,goals,recurring,savingsGoals,customCategories}=createEmptyState(DEFAULT_GOALS);
+let {entries,goals,recurring,savingsGoals,customCategories,accounts}=createEmptyState(DEFAULT_GOALS,DEFAULT_ACCOUNTS);
 let currentType='expense',currentCat='food',recurType='expense',recurCat='food';
 let recurFreq='monthly',editCat='food',editId=null,activeFilter='all',editingRecurringId=null;
 // Shared budget context
@@ -843,9 +843,9 @@ let syncTimeout=null;
 const now=new Date();let viewYear=now.getFullYear(),viewMonth=now.getMonth();
 
 // State and shared wrappers
-function getStateSnapshot(){return {entries,goals,recurring,savingsGoals,customCategories};}
+function getStateSnapshot(){return {entries,goals,recurring,savingsGoals,customCategories,accounts};}
 function applyState(nextState){
-  ({entries,goals,recurring,savingsGoals,customCategories}=normalizeState(nextState,{defaultGoals:DEFAULT_GOALS,sanitizeRecurringRule}));
+  ({entries,goals,recurring,savingsGoals,customCategories,accounts}=normalizeState(nextState,{defaultGoals:DEFAULT_GOALS,defaultAccounts:DEFAULT_ACCOUNTS,sanitizeRecurringRule}));
 }
 function getMonthEntriesByKey(mk){return getMonthEntriesByKeyFromState(entries,mk);}
 function getMonthTotals(mk){
@@ -1184,6 +1184,7 @@ async function loadFromFirestore(){
   await loadUserState({
     userDocRef,
     defaultGoals:DEFAULT_GOALS,
+    defaultAccounts:DEFAULT_ACCOUNTS,
     sanitizeRecurringRule,
     readLocalState,
     applyState,
@@ -1524,6 +1525,15 @@ function initOnboard(){document.getElementById('onboardDots').innerHTML=renderOn
 function showOnboard(){onboardCurrentStep=0;initOnboard();showOnboardingStep(0,ONBOARD_STEPS);openShellModal('onboardOverlay');}
 function onboardNext(){onboardCurrentStep++;if(onboardCurrentStep>=ONBOARD_STEPS){closeOnboard();return;}showOnboardingStep(onboardCurrentStep,ONBOARD_STEPS);}
 function closeOnboard(){closeShellModal('onboardOverlay');localStorage.setItem('bl_onboarded','1');}
+
+// Account select helper
+function renderAccountSelect(selectEl){
+  if(!selectEl)return;
+  const current=selectEl.value;
+  const esc=window.BudgetLogCore.utils.esc;
+  selectEl.innerHTML='<option value="">\u2014 Sin cuenta \u2014</option>'+
+    accounts.map(a=>'<option value="'+esc(a.id)+'"'+(current===a.id?' selected':'')+'>'+esc(a.label)+'</option>').join('');
+}
 
 // Charts
 let activeChartTab='cats',chartCatSelected='food',chartInstances={},trendRange=6,netRange=6;
