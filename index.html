@@ -477,7 +477,7 @@
   .color-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
   .color-swatch.active { border-color:#fff; transform:scale(1.15); }
   @media (min-width:560px) {
-    .chart-tabs { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .chart-tabs { grid-template-columns:repeat(5,minmax(0,1fr)); }
   }
   /* Category customization */
   .cat-customize-btn { font-family:var(--font-mono); font-size:11px; color:var(--muted); background:var(--surface2); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; transition:all 0.2s; }
@@ -639,6 +639,7 @@
       <button class="chart-tab" id="ctab-trend" data-chart-tab="trend">Tendencia</button>
       <button class="chart-tab" id="ctab-catline" data-chart-tab="catline">Por categoría</button>
       <button class="chart-tab" id="ctab-metas" data-chart-tab="metas">Ahorro</button>
+      <button class="chart-tab" id="ctab-cuentas" data-chart-tab="cuentas">Cuentas</button>
     </div>
     <div class="chart-panel active" id="cpanel-cats">
       <div class="chart-card"><div class="chart-card-title" id="catChartTitle">Gastos por categoría</div><div class="chart-wrap"><canvas id="catChart"></canvas><div id="catChartEmpty"></div></div></div>
@@ -653,6 +654,9 @@
     </div>
     <div class="chart-panel" id="cpanel-metas">
       <div class="chart-card"><div class="chart-card-title">Progreso de metas de ahorro</div><div class="chart-wrap"><canvas id="savingsProgress"></canvas><div id="savingsProgressEmpty"></div></div></div>
+    </div>
+    <div class="chart-panel" id="cpanel-cuentas">
+      <div class="chart-card"><div class="chart-card-title" id="accountChartTitle">Gastos por cuenta</div><div class="chart-wrap"><canvas id="accountChart"></canvas><div id="accountChartEmpty"></div></div></div>
     </div>
   </div>
   <div class="view" id="view-goals">
@@ -830,7 +834,7 @@ const {MXN,sumAmounts,pad2,toISODate,parseISODate,addDays,datesEqualOrBefore,day
 const {getMonthEntriesByKey:getMonthEntriesByKeyFromState,getMonthTotals:getMonthTotalsFromState,sanitizeRecurringRule:getSanitizedRecurringRule,getRecurringOccurrenceDates:getRecurringOccurrenceDatesFromRule,getPendingRecurringDates:getPendingRecurringDatesFromState,getApplyCutoffForMonth:getApplyCutoffForMonthFromDate,applyRecurringForMonth:applyRecurringForMonthFromState,getForecastTotals:getForecastTotalsFromState,getGoalSavedAmount:getGoalSavedAmountFromState,getUnassignedSavingsAmount:getUnassignedSavingsAmountFromState}=selectors;
 const {createEmptyState,normalizeState,readLocalState,writeLocalState,hasAnyEntries,serializeCloudState}=storage;
 const {createUserDocRef,signInWithGoogle:setGoogleSignIn,setSyncIndicator,loadUserState,persistUserState}=cloud;
-const {destroyChart:destroyFeatureChart,getLastMonths,buildCategorySelectorMarkup,renderCategoryBarChart,renderTrendChart:renderTrendChartFeature,renderNetChart:renderNetChartFeature,renderCategoryLineChart,renderPieChart:renderPieChartFeature,renderSpendingDonut:renderSpendingDonutFeature,renderSavingsProgress:renderSavingsProgressFeature}=charting;
+const {destroyChart:destroyFeatureChart,getLastMonths,buildCategorySelectorMarkup,renderCategoryBarChart,renderTrendChart:renderTrendChartFeature,renderNetChart:renderNetChartFeature,renderCategoryLineChart,renderPieChart:renderPieChartFeature,renderSpendingDonut:renderSpendingDonutFeature,renderSavingsProgress:renderSavingsProgressFeature,renderAccountBarChart:renderAccountBarChartFeature}=charting;
 const {renderInsightMarkup,renderCategoryBarsMarkup,renderRecentEntriesMarkup,renderForecastMarkup}=dashboardFeature;
 const {exportBudgetData}=exporting;
 const {buildEntryFilters,renderEntryMarkup,filterEntries:filterEntriesFeature,renderEntriesListMarkup,buildMemberFilters}=entriesFeature;
@@ -1553,7 +1557,7 @@ function renderAccountSelect(selectEl){
 let activeChartTab='cats',chartCatSelected='food',chartInstances={},trendRange=6,netRange=6;
 function switchChartTab(tab){activeChartTab=tab;document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.chart-panel').forEach(p=>p.classList.remove('active'));document.getElementById('ctab-'+tab).classList.add('active');document.getElementById('cpanel-'+tab).classList.add('active');renderActiveChart();}
 function renderCharts(){renderActiveChart();}
-function renderActiveChart(){if(activeChartTab==='cats'){renderCatBarChart();renderPieChart();}if(activeChartTab==='trend'){renderTrendChart();renderNetChart();}if(activeChartTab==='catline'){renderCatSelector();renderCatLineChart();}if(activeChartTab==='metas'){renderSavingsProgressChart();}}
+function renderActiveChart(){if(activeChartTab==='cats'){renderCatBarChart();renderPieChart();}if(activeChartTab==='trend'){renderTrendChart();renderNetChart();}if(activeChartTab==='catline'){renderCatSelector();renderCatLineChart();}if(activeChartTab==='metas'){renderSavingsProgressChart();}if(activeChartTab==='cuentas'){renderAccountChart();}}
 function destroyChart(id){destroyFeatureChart(chartInstances,id);}
 function getLast6Months(){return getLastMonths(viewYear,viewMonth,monthKey,6);}
 function toggleChartEmptyState(canvasId,emptyId,rendered,options){const canvas=document.getElementById(canvasId);const empty=document.getElementById(emptyId);if(!canvas||!empty)return;canvas.style.display=rendered?'block':'none';if(rendered){empty.innerHTML='';return;}renderEmptyState(empty,options);}
@@ -1566,6 +1570,7 @@ function renderCatLineChart(){const rendered=renderCategoryLineChart({Chart,inst
 function renderPieChart(){const rendered=renderPieChartFeature({Chart,instances:chartInstances,canvas:document.getElementById('pieChart'),entries,entryMonth,viewYear,viewMonth,monthKey,categories:CATEGORIES,catColors:CAT_COLORS});toggleChartEmptyState('pieChart','pieChartEmpty',!!rendered,{icon:'🧩',title:'Aún no hay distribución',message:'Registra gastos para ver cómo se reparten tus categorías.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),variant:'card'});}
 
 function renderSavingsProgressChart(){const rendered=renderSavingsProgressFeature({Chart,instances:chartInstances,canvas:document.getElementById('savingsProgress'),savingsGoals,entries,formatMoney:MXN});toggleChartEmptyState('savingsProgress','savingsProgressEmpty',!!rendered,{icon:'🎯',title:'Sin metas de ahorro',message:'Crea metas de ahorro para ver tu progreso aquí.',ctaLabel:'Crear meta',ctaAction:()=>showView('savings'),variant:'card'});}
+function renderAccountChart(){const rendered=renderAccountBarChartFeature({Chart,instances:chartInstances,canvas:document.getElementById('accountChart'),titleEl:document.getElementById('accountChartTitle'),entries,viewYear,viewMonth,monthKey,entryMonth,accounts,monthNames:MONTH_NAMES});toggleChartEmptyState('accountChart','accountChartEmpty',!!rendered,{icon:'\uD83D\uDCB3',title:'Sin movimientos etiquetados',message:'Asigna una cuenta al registrar movimientos para ver este gráfico.',ctaLabel:'+ Agregar movimiento',ctaAction:()=>showView('log'),variant:'card'});}
 
 // ── Account customization ─────────────────────────────────────────
 let accountDraft=[];let acpTargetId=null;
