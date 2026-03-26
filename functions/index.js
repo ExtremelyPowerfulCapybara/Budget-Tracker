@@ -255,11 +255,15 @@ exports.removeMember = functions.https.onCall(async (data, context) => {
     if (!spaceDoc.exists) throw new functions.https.HttpsError('not-found', 'Space not found');
 
     const spaceData = spaceDoc.data();
-    if (spaceData.createdBy !== context.auth.uid) {
+    // Allow if caller is creator, or if createdBy was wiped (data corruption recovery)
+    if (spaceData.createdBy && spaceData.createdBy !== context.auth.uid) {
       throw new functions.https.HttpsError('permission-denied', 'Only the creator can remove members');
     }
-    if (memberUid === spaceData.createdBy) {
-      throw new functions.https.HttpsError('invalid-argument', 'Creator cannot be removed');
+    if (!spaceData.members.includes(context.auth.uid)) {
+      throw new functions.https.HttpsError('permission-denied', 'Must be a space member');
+    }
+    if (memberUid === context.auth.uid) {
+      throw new functions.https.HttpsError('invalid-argument', 'Cannot remove yourself; use leaveSpace');
     }
     if (!spaceData.members.includes(memberUid)) {
       throw new functions.https.HttpsError('not-found', 'User is not a member of this space');
@@ -291,8 +295,12 @@ exports.deleteSpace = functions.https.onCall(async (data, context) => {
     if (!spaceDoc.exists) throw new functions.https.HttpsError('not-found', 'Space not found');
 
     const spaceData = spaceDoc.data();
-    if (spaceData.createdBy !== context.auth.uid) {
+    // Allow if caller is creator, or if createdBy was wiped (data corruption recovery)
+    if (spaceData.createdBy && spaceData.createdBy !== context.auth.uid) {
       throw new functions.https.HttpsError('permission-denied', 'Only the creator can delete the space');
+    }
+    if (!spaceData.members || !spaceData.members.includes(context.auth.uid)) {
+      throw new functions.https.HttpsError('permission-denied', 'Must be a space member');
     }
 
     const members = spaceData.members || [];

@@ -63,16 +63,22 @@
       firebase,
       state,
       serializeCloudState,
-      setSyncState
+      setSyncState,
+      merge=false
     }=options;
 
     if(!userDocRef)return;
     setSyncState('syncing');
     try{
-      await userDocRef.set({
+      const data={
         ...serializeCloudState(state),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
+      };
+      if(merge){
+        await userDocRef.set(data,{merge:true});
+      }else{
+        await userDocRef.set(data);
+      }
       setSyncState('ok');
     }catch(error){
       console.error('Firestore save:',error);

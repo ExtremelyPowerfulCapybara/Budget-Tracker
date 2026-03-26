@@ -1222,15 +1222,16 @@ async function loadFromFirestore(){
   });
 }
 async function persistToFirestore(){
-  const serialize=activeContext==='personal'
-    ?serializeCloudState
-    :(s)=>({...serializeCloudState(s),...(spaceMeta?{name:spaceMeta.name,createdBy:spaceMeta.createdBy,members:spaceMeta.members}:{})});
+  const isSpace=activeContext!=='personal';
+  // Guard: never write to a space doc before spaceMeta is loaded — would wipe createdBy/members
+  if(isSpace&&!spaceMeta)return;
   await persistUserState({
     userDocRef,
     firebase,
     state:getStateSnapshot(),
-    serializeCloudState:serialize,
-    setSyncState
+    serializeCloudState,
+    setSyncState,
+    merge:isSpace  // merge preserves createdBy/name/members managed by space operations
   });
 }
 function renderAll(){applyCustomCategories();renderDashboard();renderEntries();renderRecurring();renderSavingsGoals();updateMonthLabels();}
