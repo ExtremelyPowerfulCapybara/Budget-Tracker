@@ -1127,7 +1127,9 @@ async function acceptInvite(){
   }catch(e){
     pendingInviteData=inv;
     document.getElementById('inviteBanner').style.display='flex';
-    console.error('acceptInvite:',e);showToast('Error al aceptar la invitación');
+    console.error('acceptInvite:',e);
+    const msg=e?.code==='permission-denied'?'Sin permiso para unirse. Verifica que tu cuenta de Google tenga email verificado.':'Error al aceptar la invitación';
+    showToast(msg);
   }
 }
 async function declineInvite(){
@@ -1369,6 +1371,7 @@ async function removeMemberFromSpace(memberUid){
 }
 
 async function leaveSpace(){
+  if(spaceMeta&&spaceMeta.createdBy===currentUser.uid){showToast('Eres el creador. Elimina el presupuesto compartido para salir.');return;}
   if(!confirm('¿Salir del presupuesto compartido? Volverás a tu presupuesto personal.'))return;
   try{
     await db.collection('spaces').doc(spaceId).update({
