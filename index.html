@@ -1254,7 +1254,17 @@ function save(){
   clearTimeout(syncTimeout);setSyncState('syncing');syncTimeout=setTimeout(()=>persistToFirestore(),800);
 }
 function setSyncState(state){setSyncIndicator(document.getElementById('syncDot'),state);}
-function openUserModal(){if(!currentUser)return;populateUserModal(currentUser);renderUserModal();openShellModal('userModal');updateNotifBtn();}
+async function openUserModal(){
+  if(!currentUser)return;
+  if(spaceId&&!spaceMeta){
+    try{
+      const doc=await db.collection('spaces').doc(spaceId).get();
+      if(doc.exists){const d=doc.data();spaceMeta={name:d.name||'Hogar',createdBy:d.createdBy||'',members:Array.isArray(d.members)?d.members:[]};}
+      else{spaceId=null;await db.collection('users').doc(currentUser.uid).update({spaceId:null});}
+    }catch(e){console.warn('loadSpaceMeta:',e);}
+  }
+  populateUserModal(currentUser);renderUserModal();openShellModal('userModal');updateNotifBtn();
+}
 function closeUserModal(){closeShellModal('userModal');}
 
 function renderUserModal(){
