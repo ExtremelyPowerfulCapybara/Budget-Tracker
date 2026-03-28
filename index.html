@@ -1347,12 +1347,13 @@ async function sendInvite(){
           name:'Hogar',
           createdBy:currentUser.uid,
           members:[currentUser.uid],
+          memberNames:{[currentUser.uid]:currentUser.displayName||currentUser.email||currentUser.uid},
           entries:[],goals:{},recurring:[],savingsGoals:[],customCategories:{},
           updatedAt:firebase.firestore.FieldValue.serverTimestamp()
         });
         await db.collection('users').doc(currentUser.uid).update({spaceId:sid});
         spaceId=sid;
-        spaceMeta={name:'Hogar',createdBy:currentUser.uid,members:[currentUser.uid]};
+        spaceMeta={name:'Hogar',createdBy:currentUser.uid,members:[currentUser.uid],memberNames:{[currentUser.uid]:currentUser.displayName||currentUser.email||currentUser.uid}};
         showContextSwitcher(sid);
       }
       // Create invite (deterministic ID prevents duplicates)
