@@ -1221,7 +1221,7 @@ async function loadFromFirestore(){
       if(activeContext==='personal'){
         if(data.spaceId)spaceId=data.spaceId;
       }else{
-        spaceMeta={name:data.name||'Hogar',createdBy:data.createdBy||'',members:Array.isArray(data.members)?data.members:[]};
+        spaceMeta={name:data.name||'Hogar',createdBy:data.createdBy||'',members:Array.isArray(data.members)?data.members:[],memberNames:data.memberNames||{}};
       }
     }
   });
@@ -1266,7 +1266,7 @@ async function openUserModal(){
   if(spaceId&&!spaceMeta){
     try{
       const doc=await db.collection('spaces').doc(spaceId).get();
-      if(doc.exists){const d=doc.data();spaceMeta={name:d.name||'Hogar',createdBy:d.createdBy||'',members:Array.isArray(d.members)?d.members:[]};}
+      if(doc.exists){const d=doc.data();spaceMeta={name:d.name||'Hogar',createdBy:d.createdBy||'',members:Array.isArray(d.members)?d.members:[],memberNames:d.memberNames||{}};}
       else{spaceId=null;await db.collection('users').doc(currentUser.uid).update({spaceId:null});}
     }catch(e){console.warn('loadSpaceMeta:',e);}
   }
