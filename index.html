@@ -1149,7 +1149,11 @@ auth.onAuthStateChanged(async user=>{
     spaceId=null;
     spaceMeta=null;
     await loadFromFirestore();
-    if(spaceId)showContextSwitcher(spaceId);
+    if(spaceId){
+      showContextSwitcher(spaceId);
+      const savedCtx=localStorage.getItem('budgetlog_active_ctx');
+      if(savedCtx&&savedCtx===spaceId){await switchContext(spaceId);}
+    }
     showApp(user);
     try{
       const fn=firebase.functions().httpsCallable('getPendingInvite');
@@ -1239,6 +1243,7 @@ async function switchContext(ctx){
   if(ctx===activeContext||ctx==='__space__')return;  // reject sentinel
   activeContext=ctx;
   activeMemberFilter='all';
+  try{localStorage.setItem('budgetlog_active_ctx',ctx);}catch(e){}
   if(ctx==='personal'){
     userDocRef=createUserDocRef(db,currentUser);
     spaceMeta=null;
