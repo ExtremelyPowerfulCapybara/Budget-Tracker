@@ -1299,7 +1299,7 @@ function renderUserModal(){
   const memberRows=members.map(uid=>{
     const isSelf=uid===currentUser.uid;
     const isOwner=spaceMeta&&uid===spaceMeta.createdBy;
-    const name=isSelf?(currentUser.displayName||currentUser.email):'UID: '+uid.slice(0,8)+'…';
+    const name=isSelf?(currentUser.displayName||currentUser.email):(spaceMeta.memberNames&&spaceMeta.memberNames[uid])||uid.slice(0,8)+'…';
     const removeBtn=isCreator&&!isSelf
       ?'<button class="member-remove-btn" onclick="removeMemberFromSpace(\''+esc(uid)+'\')" title="Eliminar miembro">&#10005;</button>'
       :'';
