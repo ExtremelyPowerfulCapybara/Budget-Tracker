@@ -299,12 +299,16 @@ exports.deleteSpace = functions.https.onCall(async (data, context) => {
     if (spaceData.createdBy && spaceData.createdBy !== context.auth.uid) {
       throw new functions.https.HttpsError('permission-denied', 'Only the creator can delete the space');
     }
-    if (!spaceData.members || !spaceData.members.includes(context.auth.uid)) {
+    // Skip membership check for the creator — members array may be corrupted/wiped
+    const isCreator = !spaceData.createdBy || spaceData.createdBy === context.auth.uid;
+    if (!isCreator && (!spaceData.members || !spaceData.members.includes(context.auth.uid))) {
       throw new functions.https.HttpsError('permission-denied', 'Must be a space member');
     }
 
     const members = spaceData.members || [];
-    for (const uid of members) {
+    // Always clear the caller's own spaceId in case they're not in the members list (corruption recovery)
+    const membersToClear = members.includes(context.auth.uid) ? members : [...members, context.auth.uid];
+    for (const uid of membersToClear) {
       tx.update(db.collection('users').doc(uid), { spaceId: null });
     }
     tx.delete(spaceRef);
