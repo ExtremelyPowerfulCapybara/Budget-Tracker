@@ -1115,7 +1115,8 @@ async function acceptInvite(){
   try{
     // Add self to space members FIRST (rule checks invite status == 'pending')
     await db.collection('spaces').doc(inv.spaceId).update({
-      members:firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+      members:firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+      ['memberNames.'+currentUser.uid]:currentUser.displayName||currentUser.email||currentUser.uid
     });
     // Mark invite accepted and set spaceId on user doc
     await db.collection('invites').doc(inv.id).update({status:'accepted'});
