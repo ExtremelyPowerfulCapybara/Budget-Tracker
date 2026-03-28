@@ -363,6 +363,9 @@
   /* Shared budget sections in user modal */
   .space-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
   .space-section-title{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+  .space-name-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:14px;font-weight:600;padding:4px 8px;width:100%;box-sizing:border-box;margin-bottom:8px;}
+  .space-name-input:focus{outline:none;border-color:var(--accent);}
+  .space-name-save-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:var(--font-ui);font-size:13px;cursor:pointer;margin-bottom:8px;}
   .member-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
   .member-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;}
   .member-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;}
@@ -1314,6 +1317,11 @@ function renderUserModal(){
       '</div>'
     :'';
 
+  const spaceNameField=isCreator
+    ?'<input class="space-name-input" id="spaceNameInput" type="text" value="'+esc(spaceMeta.name||'Hogar')+'" placeholder="Nombre del presupuesto" maxlength="40">'+
+     '<button class="space-name-save-btn" onclick="renameSpace()">Guardar nombre</button>'
+    :'<div class="space-section-title" style="font-size:15px;font-weight:700;margin-bottom:8px;">'+esc(spaceMeta.name||'Hogar')+'</div>';
+
   const actionBtn=isCreator
     ?'<button class="space-danger-btn" onclick="deleteSharedSpace()">Eliminar presupuesto compartido</button>'+
       '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px;">Eres el creador. Para salir, elimina el presupuesto compartido.</p>'
@@ -1321,6 +1329,7 @@ function renderUserModal(){
 
   el.innerHTML=
     '<div class="space-section">'+
+      spaceNameField+
       '<div class="space-section-title">Miembros</div>'+
       memberRows+
       inviteSection+
