@@ -1096,10 +1096,11 @@ function normalizeStaticCopy(){
 function showContextSwitcher(sid){
   const sw=document.getElementById('contextSwitcher');
   sw.style.display='block';
-  // Update the Hogar option value to the real spaceId
   const spaceOpt=sw.querySelector('[data-ctx-type="space"]');
-  if(spaceOpt)spaceOpt.value=sid;
-  // Reflect current context
+  if(spaceOpt){
+    spaceOpt.value=sid;
+    spaceOpt.textContent=spaceMeta&&spaceMeta.name?spaceMeta.name:'Hogar';
+  }
   sw.value=activeContext;
 }
 
