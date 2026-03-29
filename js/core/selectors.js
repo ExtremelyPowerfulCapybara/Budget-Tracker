@@ -82,7 +82,8 @@
       date,
       recurringId:rule.id,
       recurringDate:date,
-      goalId:rule.goalId||null
+      goalId:rule.goalId||null,
+      accountId:rule.accountId||null
     };
   }
 

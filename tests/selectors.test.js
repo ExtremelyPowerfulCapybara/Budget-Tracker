@@ -60,3 +60,38 @@ assert.strictEqual(sanitizeRecurringRule({ amount: 1, type: 'expense', frequency
 assert.strictEqual(sanitizeRecurringRule({ amount: 1, type: 'expense', frequency: 'monthly', day: 15 }).day, 15, 'valid day preserved');
 
 console.log('All sanitizeRecurringRule tests passed ✓');
+
+// createRecurringEntry — inline copy for testing
+function createRecurringEntry(rule, date) {
+  return {
+    id: 'recur_' + rule.id + '_' + date,
+    type: rule.type,
+    amount: rule.amount,
+    description: rule.description,
+    category: rule.category,
+    date,
+    recurringId: rule.id,
+    recurringDate: date,
+    goalId: rule.goalId || null,
+    accountId: rule.accountId || null
+  };
+}
+
+const baseRule = { id: 'r1', type: 'expense', amount: 100, description: 'Netflix', category: 'entertainment', frequency: 'monthly', day: 1, anchorDate: '2026-03-01', createdAt: '2026-03-01', lastApplied: null, goalId: null };
+
+// sanitizeRecurringRule: accountId pass-through
+assert.strictEqual(sanitizeRecurringRule({ ...baseRule, accountId: 'acc1' }).accountId, 'acc1', 'accountId preserved through sanitize');
+assert.strictEqual(sanitizeRecurringRule({ ...baseRule, accountId: null }).accountId, null, 'null accountId preserved');
+assert.strictEqual(sanitizeRecurringRule({ ...baseRule }).accountId, undefined, 'missing accountId stays missing');
+
+// createRecurringEntry: accountId copied
+const entryWithAccount = createRecurringEntry({ ...baseRule, accountId: 'acc1' }, '2026-03-01');
+assert.strictEqual(entryWithAccount.accountId, 'acc1', 'accountId copied to generated entry');
+
+const entryNoAccount = createRecurringEntry({ ...baseRule, accountId: null }, '2026-03-01');
+assert.strictEqual(entryNoAccount.accountId, null, 'null accountId → null on entry');
+
+const entryMissingAccount = createRecurringEntry({ ...baseRule }, '2026-03-01');
+assert.strictEqual(entryMissingAccount.accountId, null, 'missing accountId → null on entry');
+
+console.log('All createRecurringEntry accountId tests passed ✓');
