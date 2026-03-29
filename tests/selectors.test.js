@@ -62,6 +62,8 @@ assert.strictEqual(sanitizeRecurringRule({ amount: 1, type: 'expense', frequency
 console.log('All sanitizeRecurringRule tests passed ✓');
 
 // createRecurringEntry — inline copy for testing
+// WARNING: must be kept in sync with createRecurringEntry in js/core/selectors.js
+// (Cannot require() the production function — it lives inside a window IIFE)
 function createRecurringEntry(rule, date) {
   return {
     id: 'recur_' + rule.id + '_' + date,
